@@ -12,5 +12,33 @@
     "title": "About",
     "section": "",
     "text": "About this site"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.html",
+    "href": "Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.html",
+    "title": "Hands on Exercise 01",
+    "section": "",
+    "text": "Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see https://quarto.org."
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.html#quarto",
+    "href": "Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.html#quarto",
+    "title": "Hands on Exercise 01",
+    "section": "",
+    "text": "Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see https://quarto.org."
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.html#running-code",
+    "href": "Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.html#running-code",
+    "title": "Hands on Exercise 01",
+    "section": "Running Code",
+    "text": "Running Code\nWhen you click the Render button a document will be generated that includes both content and the output of embedded code. You can embed code like this:\n\n1 + 1\n\n[1] 2\n\n\nYou can add options to executable code like this\n\n\n[1] 4\n\n\nThe echo: false option disables the printing of code (only output is displayed)."
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.html#install-and-launching-r-packages",
+    "href": "Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.html#install-and-launching-r-packages",
+    "title": "Hands on Exercise 01",
+    "section": "Install and launching R packages",
+    "text": "Install and launching R packages\nThe code chunk below uses p_load() of pacman package to check if tidycerse packages are installed in the computer. If they are, they will be launched into R.\n\npacman::p_load(tidyverse)"
   }
 ]
