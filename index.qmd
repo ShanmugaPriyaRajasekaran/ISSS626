@@ -1,5 +1,2 @@
----
-title: "ISSS626-Geospatial"
----
-
-Welcome to **ISSS626 Geospatial Analytics and Applications**. In this website, you will find my coursework prepared for this course.
+![](images/final.png)\
+Welcome to my space for **Geospatial Analytics and Applications**. Here, you’ll find projects and explorations that bring maps and data together to tell meaningful stories. My goal is to make geospatial concepts both practical and engaging, so anyone visiting can see the value of location-based thinking in everyday decisions.

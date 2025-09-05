@@ -1,1 +1,181 @@
-/* css styles */
+/* =========================
+   Clean Uniform Theme (Quarto)
+   Save as: styles.css
+   ========================= */
+/* === Global font: one style everywhere =========================
+   Change the font below if you want a different vibe:
+   - "Inter" (modern sans): https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap
+   - "Lora" (elegant serif): https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&display=swap
+=================================================================*/
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&display=swap');
+
+:root{
+  --font-main: "Lora", Georgia, serif; /* one place to switch font */
+}
+
+/* Apply everywhere (navbar, sidebar/TOC, headings, buttons, etc.) */
+html, body,
+.navbar, .navbar * ,
+.sidebar, .sidebar * ,
+.quarto-title-block, .quarto-title-block * ,
+h1, h2, h3, h4, h5, h6,
+p, li, a, button, input, select, textarea,
+.toc, .toc * {
+  font-family: var(--font-main) !important;
+}
+
+/* Keep code legible with a mono font */
+code, pre, kbd, samp {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+}
+
+   
+   
+   
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=IBM+Plex+Sans:wght@400;600&display=swap');
+
+body{ font-family: "IBM Plex Sans", system-ui, sans-serif; }
+h1,h2,h3,h4,h5,h6{
+  font-family: "Cormorant Garamond", Georgia, serif;
+  color: var(--text);
+  letter-spacing: .4px;
+}
+
+/* Sizes */
+h1{ font-size: clamp(2.3rem, 2.4vw + 1rem, 3.4rem); line-height:1.1; }
+h2{ font-size: clamp(1.7rem, 1.2vw + 1rem, 2.2rem); }
+
+/* Small-caps label above H2 */
+h2{ margin-top: 2.2rem; }
+h2::before{
+  content: "";
+  display:block;
+  font-family: "IBM Plex Sans", sans-serif;
+  font-variant: small-caps;
+  letter-spacing: .12em;
+  font-size: .74rem;
+  color: rgba(59,45,37,.65);
+  margin-bottom: .25rem;
+}
+
+
+:root{
+    --bg-all: #fffbe8;    MILD YELLOW */
+
+  --text:    #3b2d25;   /* soft brown text (works on all three) */
+  --muted:   #6a5a51;
+  --accent:  #b08b6e;   /* subtle tan for active bars & borders */
+  --link:    #7a5c46;
+  --link-h:  #5e4535;
+}
+
+/* ---- Make EVERYTHING use the same background ---- */
+html, body,
+.quarto-title-block, .navbar,
+.page-columns, main.content,
+.sidebar, .quarto-margin-sidebar, .margin-sidebar {
+  background: var(--bg-all) !important;
+  color: var(--text) !important;
+}
+
+/* ---- Remove card look so the center doesn't look lighter ---- */
+main.content{
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 28px;
+}
+
+/* ---- Navbar ---- */
+.navbar, .navbar * {
+  color: var(--text) !important;
+  text-shadow: none !important;
+  box-shadow: none !important;
+}
+.navbar .nav-link:hover { color: var(--link-h) !important; }
+
+/* ---- Headings & body text ---- */
+h1,h2,h3,h4,h5,h6{ color: var(--text) !important; font-weight: 600; }
+p, li, dt, dd, blockquote{ color: var(--text) !important; }
+
+/* ---- Links ---- */
+a{ color: var(--link) !important; text-decoration: none; }
+a:hover{ color: var(--link-h) !important; }
+
+/* ---- Right ToC / Sidebar ---- */
+.sidebar{
+  border-left: 1px solid color-mix(in oklab, var(--accent) 40%, #fff 60%);
+}
+.sidebar .nav-link{ color: var(--muted) !important; }
+.sidebar .nav-link:hover{ color: var(--link-h) !important; }
+
+/* Active section (kill blue bar) */
+.toc .nav-link.active,
+.sidebar .toc-active .nav-link{
+  border-left: 3px solid var(--accent) !important;
+  background: transparent !important;
+  color: var(--text) !important;
+}
+
+/* ---- Code blocks ---- */
+pre, code, pre code{
+  background: color-mix(in oklab, var(--bg-all) 85%, #000 15%) !important;
+  color: color-mix(in oklab, var(--text) 90%, #000 10%) !important;
+  border-radius: 6px; padding: 6px 8px;
+}
+
+/* ---- Tables ---- */
+table{
+  border-collapse: collapse; width: 100%;
+  background: color-mix(in oklab, var(--bg-all) 96%, #000 4%);
+}
+th, td{
+  border: 1px solid color-mix(in oklab, var(--accent) 35%, #fff 65%);
+  padding: 8px 10px;
+  color: var(--text);
+}
+thead th{
+  background: color-mix(in oklab, var(--bg-all) 90%, #000 10%);
+  font-weight: 600;
+}
+
+/* ---- Callouts (Quarto built-ins) toned to theme ---- */
+.callout, .callout .callout-body, .callout .callout-title-container{
+  background: color-mix(in oklab, var(--bg-all) 94%, #000 6%) !important;
+  border-color: var(--accent) !important;
+  color: var(--text) !important;
+}
+
+
+.insightbox{
+  background: var(--bg-all, #efe6d9);  /* uses your site bg; beige fallback */
+  border: 1.5px dashed var(--accent, #b08b6e);
+  color: inherit;
+  padding: 12px 16px;
+  margin: 18px 0;
+  border-radius: 8px;
+  font-size: .95em;
+  font-style: italic;
+  box-shadow: none;                    /* remove shadow so it blends in */
+}
+
+
+/* ---- Misc polish ---- */
+hr{ border-top: 1px solid color-mix(in oklab, var(--accent) 35%, #fff 65%); }
+ul li::marker{ color: var(--accent); }
+img{ border-radius: 8px; }
+
+/* Tame overall text size */
+html { font-size: 16px; }          /* set base = 16px (1rem) */
+body { font-size: 1rem; line-height: 1.6; }
+
+/* Smaller, tighter headings (responsive but not huge) */
+h1 { font-size: clamp(1.9rem, 1.2rem + 1.2vw, 2.3rem); line-height: 1.2; margin: 1.2rem 0 .8rem; }
+h2 { font-size: clamp(1.4rem, 1.0rem + 0.8vw, 1.8rem); line-height: 1.25; margin: 1.2rem 0 .6rem; }
+h3 { font-size: 1.25rem; line-height: 1.3; margin: 1rem 0 .5rem; }
+h4 { font-size: 1.1rem;  line-height: 1.3; }
+
+/* Optional: shrink title block at the top */
+.quarto-title h1.title { font-size: clamp(2.0rem, 1.3rem + 1.4vw, 2.6rem); }
+.quarto-title .subtitle  { font-size: 1rem; }
+
