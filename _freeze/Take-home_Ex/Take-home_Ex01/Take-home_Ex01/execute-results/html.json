@@ -1,0 +1,15 @@
+{
+  "hash": "86e606f77272a2f82bb36b6aa7c3e339",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"Take home Exercise 1 : Geospatial Analytics for Public Good\"\nauthor: \"Priya\"\ndate: \"September 13, 2025\"\ndate-modified: \"last-modified\"\nexecute: \n  eval: true\n  echo: true\n  warning: false\n  freeze: true\n---\n\n\n\n\n\n##1 Load the R package\n\n\n\n\n\n::: {.cell}\n\n```{.r .cell-code}\npacman::p_load(sf, tmap, tidyverse,httr)\n```\n:::\n\n\n\n\n\n##2 Import the ACRA data \n\n\n\n\n\n::: {.cell}\n\n```{.r .cell-code}\nfolder_path <- \"data/aspatial/ACRA\"\nfile_list <- list.files(path = folder_path,\n                        pattern = \"^ACRA*.*\\\\.csv$\",\n                        full.names = TRUE)\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nacra_data <- file_list %>%\n  map_dfr(read_csv)\n```\n:::\n\n\n\n\nSave the data into rds folder \n\n\n\n\n\n::: {.cell}\n\n```{.r .cell-code}\nwrite_rds(acra_data,\n          \"data/rds/acra_data.rds\")\n```\n:::\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}
