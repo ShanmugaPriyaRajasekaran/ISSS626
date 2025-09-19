@@ -1,5 +1,5 @@
 ---
-title: "Hands on Exercise 4: Spatio-Temporal Point Patterns Analysis"
+title: "Hands on Exercise 4:  Spatial Weights and Applications"
 date: "15-Sep-25"
 date-modified: "last-modified"
 toc: true
