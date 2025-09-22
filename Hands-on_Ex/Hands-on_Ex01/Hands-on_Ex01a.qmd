@@ -8,40 +8,39 @@ format: html
 editor: visual
 ---
 
-# 1 Overview 
-Geospatial Analytics goes beyond maps! It is about working with data linked to real-world locations, importing, cleaning, combining, and analyzing it to uncover patterns and insights. 
-In this Hands-on exercise, we will use R packages to work with spatial datasets and practice the full workflow of processing and exploring georeferenced information.
+# 1 Overview
+
+Geospatial Analytics goes beyond maps! It is about working with data linked to real-world locations, importing, cleaning, combining, and analyzing it to uncover patterns and insights. In this Hands-on exercise, we will use R packages to work with spatial datasets and practice the full workflow of processing and exploring georeferenced information.
 
 # 2 Data Acquistion
 
 In this hands-on exercise, We have to extract the necessary data sets from the following sources:
 
-- **a) Master Plan 2014 Subzone Boundary (Web)**\
- Source : [data.gov.sg](https://data.gov.sg/) {.underline}\
- Format : SHP\
- Type : Geospatial
- 
-- **b) Pre-Schools Location**\
- Source : [data.gov.sg](https://data.gov.sg/)\
- Format : KML\
- Type : Geospatial
- 
-- **c) Cycling Path**\
- Source : [LTADataMall](https://www.mytransport.sg/content/mytransport/home/dataMall.html)\
- Format : SHP\
- Type : Geospatial
- 
-- **d) Inside Airbnb**\
- Source : Singapore Airbnb listing [Inside Airbnb](http://insideairbnb.com/get-the-data.html)\
- Format : CSV\
- Type : Aspatial
- 
+-   **a) Master Plan 2014 Subzone Boundary (Web)**\
+    Source : [data.gov.sg](https://data.gov.sg/) {.underline}\
+    Format : SHP\
+    Type : Geospatial
+
+-   **b) Pre-Schools Location**\
+    Source : [data.gov.sg](https://data.gov.sg/)\
+    Format : KML\
+    Type : Geospatial
+
+-   **c) Cycling Path**\
+    Source : [LTADataMall](https://www.mytransport.sg/content/mytransport/home/dataMall.html)\
+    Format : SHP\
+    Type : Geospatial
+
+-   **d) Inside Airbnb**\
+    Source : Singapore Airbnb listing [Inside Airbnb](http://insideairbnb.com/get-the-data.html)\
+    Format : CSV\
+    Type : Aspatial
 
 # 3 Loading R packages
 
-- [**tidyverse**](https://www.tidyverse.org/) : A collection of R packages for data science which helps in importing, cleaning, transforming, and visualizing data.
+-   [**tidyverse**](https://www.tidyverse.org/) : A collection of R packages for data science which helps in importing, cleaning, transforming, and visualizing data.
 
-- [**sf**](https://r-spatial.github.io/sf/) : Provides simple features for handling, managing, and analyzing spatial (georeferenced) data.
+-   [**sf**](https://r-spatial.github.io/sf/) : Provides simple features for handling, managing, and analyzing spatial (georeferenced) data.
 
 Together, these packages let us work with both tabular and geospatial datasets in a smooth workflow.
 
@@ -50,7 +49,6 @@ The code chunk below installs and loads **sf** and **tidyverse** packages into R
 ```{r}
 pacman::p_load(sf,tidyverse)
 ```
-
 
 # 4 Importing Geospatial data
 
@@ -67,16 +65,14 @@ mpsz = st_read(dsn = "data/geospatial",
                   layer = "MP14_SUBZONE_WEB_PL")
 
 ```
-::: {.insightbox}
+
+::: insightbox
 **Observations**
 
-- 323 subzones represented as multipolygons with 15 attributes.  
-- Uses **SVY21 CRS** for accurate distance and area measures.  
-- Bounding box confirms full Singapore coverage.  
+-   323 subzones represented as multipolygons with 15 attributes.\
+-   Uses **SVY21 CRS** for accurate distance and area measures.\
+-   Bounding box confirms full Singapore coverage.\
 :::
-
-
-
 
 ## 4b) Importing polyline feature data in shapefile form
 
@@ -86,12 +82,13 @@ The code chunk below imports *CyclingPath* shapefile into R as line{.underline} 
 cyclingpath = st_read(dsn = "data/geospatial", 
                          layer = "CyclingPathGazette")
 ```
-::: {.insightbox}
+
+::: insightbox
 **Observations**
 
-- Contains **4,651 cycling path features** stored as multilines{.underline} with **19** attributes.  
-- Captures the **network of cycling paths** across Singapore within the **SVY21 CRS**.  
-- Bounding box shows the dataset spans the country’s extent.  
+-   Contains **4,651 cycling path features** stored as multilines{.underline} with **19** attributes.\
+-   Captures the **network of cycling paths** across Singapore within the **SVY21 CRS**.\
+-   Bounding box shows the dataset spans the country’s extent.\
 :::
 
 ## 4c) Importing GIS data in kml format
@@ -101,22 +98,25 @@ The `PreSchoolsLocation`is in kml format. The code chunk below will be used to i
 ```{r}
 preschool = st_read("data/geospatial/PreSchoolsLocation.kml")
 ```
-::: {.insightbox}
+
+::: insightbox
 **Observations**
 
-- Dataset contains **2,290 preschool locations** stored as points{.underline} with **2** attributes.  
-- Stored in **WGS 84 CRS**, suitable for global latitude–longitude mapping.  
+-   Dataset contains **2,290 preschool locations** stored as points{.underline} with **2** attributes.\
+-   Stored in **WGS 84 CRS**, suitable for global latitude–longitude mapping.\
 :::
 
 # 5 Checking the Content of A Simple Feature Data Frame
-**Prior to wrangle the geospatial data, it is always a good practice for us to know more about the data sets first.
+
+\*\*Prior to wrangle the geospatial data, it is always a good practice for us to know more about the data sets first.
 
 ## 5a) Working with st_geometry()
-- In a sf data frame, the geometry column is a list-column of class *sfc*.
 
-- We can access it directly with mpsz$geom or mpsz\[[1]].
+-   In a sf data frame, the geometry column is a list-column of class *sfc*.
 
-- The general recommended way is st_geometry(mpsz)
+-   We can access it directly with mpsz\$geom or mpsz\[\[1\]\].
+
+-   The general recommended way is st_geometry(mpsz)
 
 ```{r}
 st_geometry(mpsz)
@@ -124,10 +124,9 @@ st_geometry(mpsz)
 
 ## 5b) Working with glimpse()
 
-- Beyond basic geometry, we often need to inspect the attribute columns in the sf data frame.
+-   Beyond basic geometry, we often need to inspect the attribute columns in the sf data frame.
 
-- It’s handy for quickly understanding structure, spotting odd types or missing values, and confirming row/column counts.
-
+-   It’s handy for quickly understanding structure, spotting odd types or missing values, and confirming row/column counts.
 
 ```{r}
 glimpse(mpsz)
@@ -135,9 +134,9 @@ glimpse(mpsz)
 
 ## 5c) Working with head()
 
-- head() displays the top rows of a data frame.
+-   head() displays the top rows of a data frame.
 
-- The argument n sets how many rows to show (e.g., head(mpsz, n = 5 or 10)).
+-   The argument n sets how many rows to show (e.g., head(mpsz, n = 5 or 10)).
 
 ```{r}
 head(mpsz, n=10)
@@ -151,6 +150,7 @@ In geospatial data science, we can visualise the geospatial features using *plot
 par(bg = '#fffbe8')
 plot(mpsz)
 ```
+
 We can plot only the geometry using the below code:
 
 ```{r}
@@ -174,19 +174,18 @@ plot(st_geometry(preschool),
      add = TRUE)
 ```
 
-::: {.insightbox}
+::: insightbox
 **Observations**
 
 *Ques : Note that the preschool point objects failed to plot ontop of the mpsz layer. Do you know why?*
 
-- The dots didn’t show because the two layers use different coordinate systems.
+-   The dots didn’t show because the two layers use different coordinate systems.
 
-- Mpsz is in SVY21 / EPSG:3414 (metres) and the preschool points are in WGS84 / EPSG:4326 (degrees), so they don’t line up.
+-   Mpsz is in SVY21 / EPSG:3414 (metres) and the preschool points are in WGS84 / EPSG:4326 (degrees), so they don’t line up.
 
-- We can fix it by making both layers the same CRS. 
-*preschool <- sf::st_transform(preschool, sf::st_crs(mpsz))*
+-   We can fix it by making both layers the same CRS. *preschool \<- sf::st_transform(preschool, sf::st_crs(mpsz))*
 
-- Plot order also matters: draw mpsz polygons first, then plot the preschool points. 
+-   Plot order also matters: draw mpsz polygons first, then plot the preschool points.
 :::
 
 ```{r}
@@ -245,7 +244,6 @@ Let us take preschool simple feature data frame as an example. The print below r
 preschool = st_read("data/geospatial/PreSchoolsLocation.kml")
 ```
 
-
 This is a scenario that *st_set_crs()* is not appropriate and *st_transform()* of sf package should be used. This is because we need to reproject `preschool` from one coordinate system to another coordinate system mathemetically.
 
 Let us perform the projection transformation by using the code chunk below.
@@ -254,7 +252,6 @@ Let us perform the projection transformation by using the code chunk below.
 preschool <- st_transform(preschool, 
                               crs = 3414)
 ```
-
 
 Let us try to plot the preschool layer ontop of mpsz layer again.
 
@@ -279,7 +276,7 @@ listings <- read_csv("data/aspatial/listings.csv")
 
 ```
 
-After importing the data file into R, it is important for us to examine if the data file has been imported correctly.We use *list()* instead of *glimpse()* 
+After importing the data file into R, it is important for us to examine if the data file has been imported correctly.We use *list()* instead of *glimpse()*
 
 ```{r}
 list(listings)
@@ -310,23 +307,22 @@ Let us examine the content of this newly created simple feature data frame.
 glimpse(listings_sf)
 ```
 
-
-::: {.insightbox}
-**DIY:**
-**Using the method you learned earlier, plot listing_sf layer on top of mpsz layer.**
+::: insightbox
+**DIY:** **Using the method you learned earlier, plot listing_sf layer on top of mpsz layer.**
 
 ### 1) Make sure CRS matches (transform points to mpsz CRS)
+
 ```{r}
 listings_sf <- st_transform(listings_sf, st_crs(mpsz))
 ```
 
 ### 2) Plot: mpsz first, then listings on top
+
 ```{r}
 par(bg = "#fffbe8")
 plot(st_geometry(mpsz), col = "grey95", border = "grey60", reset = FALSE)
 plot(st_geometry(listings_sf), pch = 16, cex = 0.5, col = "#d1495b", add = TRUE)
 ```
-
 :::
 
 # 9 Geoprocessing with sf package
@@ -341,7 +337,7 @@ The authority is planning to upgrade the exiting cycling path. To do so, they ne
 
 ### The solution
 
-**9a.1  [`st_buffer()`](https://r-spatial.github.io/sf/reference/geos_unary.html) of **sf** package is used to compute the 5-meter buffers around cycling paths** 
+**9a.1  [`st_buffer()`](https://r-spatial.github.io/sf/reference/geos_unary.html) of** sf **package is used to compute the 5-meter buffers around cycling paths**
 
 ```{r}
 buffer_cycling <- st_buffer(  cyclingpath, dist=5, nQuadSegs = 30)
@@ -388,7 +384,6 @@ par(bg = "#fffbe8")
 plot(st_geometry(mpsz_selected), col = "lightgrey", main = "Buffer Zone in Tampines West")
 plot(st_geometry(buffer_cycling_selected), col = "#d1495b", add = TRUE)
 ```
-
 
 ## 9b) Use case 2: To determine the number of pre-schools by planning subzone
 
@@ -480,10 +475,3 @@ ggplot(data = mpsz, aes(x = as.numeric(`PreSch Density`), y = `PreSch Count`)) +
 ```
 
 -   Shows the relationship between density and total count per subzone.
-
-
-
-
-
-
-
