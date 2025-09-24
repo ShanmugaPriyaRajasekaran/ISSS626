@@ -18,16 +18,19 @@ format:
     number-depth: 4
     code-line-numbers: false
 ---
-# Overview: SG Startline ~ Mapping Where New Firms Land
+
+![](images/Image-takehome1.png)
+
+# Overview: SG Startline \~ Mapping Where New Firms Land
 
 Where businesses choose to start is not random, it shapes jobs, footfall, and how a city functions day to day. This study looks at new firm registrations in Singapore from Jan 2024 to Jun 2025, turning raw ACRA records into spatial intelligence that planners and managers can actually use. The lens is both where and when: not just dots on a map, but how those dots pulse over months and concentrate around specific subzones.
 
-I focus on four business types referring to 2-digit Singapore Standard Industrial Classification [SSIC divisions]( https://classification.codes/classifications/industry/ssic-singapore) with distinct siting logic:
+I focus on four business types referring to 2-digit Singapore Standard Industrial Classification [SSIC divisions](https://classification.codes/classifications/industry/ssic-singapore) with distinct siting logic:
 
-- **36 (Water collection, treatment & supply)** where siting is tightly regulated 
-- **51 (Air transport)** tied to aviation and logistics corridors
-- **56 (Food & Beverage)** driven by footfall and mall ecosystems
-- **93 (Sports, amusement & recreation)** that clusters around leisure belts and event nodes. 
+-   **36 (Water collection, treatment & supply)** where siting is tightly regulated
+-   **51 (Air transport)** tied to aviation and logistics corridors
+-   **56 (Food & Beverage)** driven by footfall and mall ecosystems
+-   **93 (Sports, amusement & recreation)** that clusters around leisure belts and event nodes.
 
 Together they give a balanced read on infrastructure-led, corridor-led, and demand-led location choices.
 
@@ -39,38 +42,38 @@ Methodologically, I convert ACRA records into point features, anchor them to Mas
 
 **Key questions we’ll try to answer**
 
-- **SSIC 36 — Water collection, treatment & supply**\
-  **What it is**: Utilities and water services\
-  **What we expect**: Few but strategic entries near plants/reservoirs or utility corridors; more “infrastructure anchors”  than retail-style clusters.\
-  
-- **SSIC 51 — Air transport**\
-  What it is: Airlines, cargo handlers, ground ops, MRO, freight/forwarding offices.\
-  What we expect: Clear clustering around the airport/airfreight belt and nearby business parks; office addresses close to aviation/logistics access.\
-  
-- **SSIC 56 — Food & Beverage service activities**\
-  What it is: Cafés, restaurants, kiosks, quick-serve.\
-  What we expect: Strong hotspots at malls, town centres, MRT nodes; month-to-month flares; classic neighbourhood-scale clustering.\
-  
-- **SSIC 93 — Sports, amusement & recreation**\
-  What it is: Gyms, studios, indoor play, arcades, leisure/event operators.\
-  What we expect: Bands along parks/waterfronts and lifestyle hubs; co-location with F&B; some event-driven spikes.\
+-   **SSIC 36 — Water collection, treatment & supply**\
+    **What it is**: Utilities and water services\
+    **What we expect**: Few but strategic entries near plants/reservoirs or utility corridors; more “infrastructure anchors” than retail-style clusters.\
+
+-   **SSIC 51 — Air transport**\
+    What it is: Airlines, cargo handlers, ground ops, MRO, freight/forwarding offices.\
+    What we expect: Clear clustering around the airport/airfreight belt and nearby business parks; office addresses close to aviation/logistics access.\
+
+-   **SSIC 56 — Food & Beverage service activities**\
+    What it is: Cafés, restaurants, kiosks, quick-serve.\
+    What we expect: Strong hotspots at malls, town centres, MRT nodes; month-to-month flares; classic neighbourhood-scale clustering.\
+
+-   **SSIC 93 — Sports, amusement & recreation**\
+    What it is: Gyms, studios, indoor play, arcades, leisure/event operators.\
+    What we expect: Bands along parks/waterfronts and lifestyle hubs; co-location with F&B; some event-driven spikes.\
 
 # Loading Packages
 
 In this exercise, we will be using the following packages:
 
-| Package                                                                                                                               | Description                                                                                                                                                                     |
-|---------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [**sf**](https://r-spatial.github.io/sf/)                                                                                             | For importing, managing, and handling geospatial data                                                                                                                           |
-| [**spatstat**](https://spatstat.org/)                                                                                                 | For point pattern analysis. In this hands-on exercise, it will be used to perform 1st- and 2nd-order spatial point patterns analysis and derive kernel density estimation layer |
-| [**sfdep**](https://sfdep.josiahparry.com/)                                                                                           | Used to compute spatial weights                                                                                                                                                 |
-| [**tmap**](https://cran.r-project.org/web/packages/tmap/vignettes/tmap-getstarted.html)                                               | For thematic mapping                                                                                                                                                            |
-| [**leaflet**](https://rstudio.github.io/leaflet/)                                                                                     | For interactive maps                                                                                                                                                            |
-| [**raster**](https://rspatial.org/raster/pkg/index.html)                                                                              | For raster data manipulation functions                                                                                                                                          |
-| [**spNetwork**](https://jeremygelb.github.io/spNetwork/)                                                                              | For spatial analysis on networks                                                                                                                                                |
-| [**tidyverse**](https://www.tidyverse.org/)                                                                                           | For non-spatial data wrangling                                                                                                                                                  |
-| [**DT**](https://rstudio.github.io/DT/)**, [knitr](https://yihui.org/knitr/), [kableExtra](https://haozhu233.github.io/kableExtra/)** | For building tables                                                                                                                                                             |
-| [**gtsummary**](https://www.danieldsjoberg.com/gtsummary/)                                                                            | For publication-ready analyticla and summary tables                                                                                                                             |
+| Package | Description |
+|-------------------------------|-----------------------------------------|
+| [**sf**](https://r-spatial.github.io/sf/) | For importing, managing, and handling geospatial data |
+| [**spatstat**](https://spatstat.org/) | For point pattern analysis. In this hands-on exercise, it will be used to perform 1st- and 2nd-order spatial point patterns analysis and derive kernel density estimation layer |
+| [**sfdep**](https://sfdep.josiahparry.com/) | Used to compute spatial weights |
+| [**tmap**](https://cran.r-project.org/web/packages/tmap/vignettes/tmap-getstarted.html) | For thematic mapping |
+| [**leaflet**](https://rstudio.github.io/leaflet/) | For interactive maps |
+| [**raster**](https://rspatial.org/raster/pkg/index.html) | For raster data manipulation functions |
+| [**spNetwork**](https://jeremygelb.github.io/spNetwork/) | For spatial analysis on networks |
+| [**tidyverse**](https://www.tidyverse.org/) | For non-spatial data wrangling |
+| [**DT**](https://rstudio.github.io/DT/)**, [knitr](https://yihui.org/knitr/), [kableExtra](https://haozhu233.github.io/kableExtra/)** | For building tables |
+| [**gtsummary**](https://www.danieldsjoberg.com/gtsummary/) | For publication-ready analyticla and summary tables |
 
 : {tbl-colwidths="\[20,80\]"}
 
@@ -81,14 +84,13 @@ The following code chunk uses `p_load()` of **pacman** package to check if the a
 pacman::p_load(sf, sfdep, readr, spatstat, tmap, janitor, purrr, dplyr, lubridate, leaflet, httr2, glue, tidyr, fs, raster, memoise, spNetwork, tidyverse, DT, knitr, kableExtra, gtsummary, stringr)
 ```
 
-
-#  The Data
+# The Data
 
 | Dataset Name | Description | Format |
-|---------------|---------------|---------------|
-| **ACRA – Information on Corporate Entities (A–Z, Others)** | All entity registrations. Used to extract new businesses by SSIC and date. | CSV (27 files) | 
-| **SSIC 2020** | Singapore Standard Industrial Classification; used to choose business types (2-/3-/5-digit). |
-| **OneMap Search API** | Geocoding service to convert postal codes to coordinates. | Web API | 
+|------------------------|------------------------|------------------------|
+| **ACRA – Information on Corporate Entities (A–Z, Others)** | All entity registrations. Used to extract new businesses by SSIC and date. | CSV (27 files) |
+| **SSIC 2020** | Singapore Standard Industrial Classification; used to choose business types (2-/3-/5-digit). |  |
+| **OneMap Search API** | Geocoding service to convert postal codes to coordinates. | Web API |
 
 **Master Plan 2019** is the statutory land use plan that guides Singapore's development in the medium term over the next 10 to 15 years. It is available as a polygon feature layer in **KML** format, maintained and published by the Urban Redevelopment Authority (URA)
 
@@ -96,12 +98,11 @@ For this take-home exercise, we'll be using the <a href="https://data.gov.sg/col
 
 We'll import the Master Plan 2019 Subzone Boundary file.
 
-
-# Data Wrangling 
+# Data Wrangling
 
 ## **Preparing the Subzone Boundary (KML): why & how**
 
-This converts URA’s **Master Plan 2019 Subzone (No Sea) KML** into a clean, projected **GeoPackage** with consistent field names. We’ll use it as \
+This converts URA’s **Master Plan 2019 Subzone (No Sea) KML** into a clean, projected **GeoPackage** with consistent field names. We’ll use it as\
 (1) the analysis window for point-pattern methods and\
 (2) the join layer to aggregate new businesses by subzone/planning area.\
 
@@ -122,8 +123,8 @@ subzones <- st_read(sz_raw_path, quiet = TRUE) %>%
 Insight: We now have a ***valid subzone layer in metres (SVY21 / EPSG:3414).*** Distance-based methods (KDE, K/L) will be numerically sound, and this layer doubles as our analysis window to control edge effects.
 :::
 
+## Standardise key attribute names
 
-##  Standardise key attribute names
 (URA KMLs sometimes tuck attributes inside an HTML description field. The helper below pulls values out if they aren’t already columns.)
 
 ```{r}
@@ -165,7 +166,6 @@ Insight: Field names are now harmonised (SUBZONE_N, PLN_AREA_N, REGION_N), so la
 :::
 
 ## Import ACRA CSVs (A–Z)
-
 
 ```{r}
 # Where your ACRA CSVs live
@@ -239,8 +239,6 @@ readr::write_rds(acra_tidy, file.path("data/rds", "acra_tidy_2024_2025_ssic36_51
 Insight: ACRA is now analysis-ready: clean dates, SSIC prefixes (ssic2/ssic3), proper 6-digit postcodes, Jan 2024–Jun 2025 filter, and only our four divisions. Keeping one row per UEN prevents double-counting.
 :::
 
-
-
 ```{r}
 # Confirm month labels look right and ordered
 acra_tidy |>
@@ -252,6 +250,7 @@ acra_tidy |>
   count(ssic2)
 
 ```
+
 ::: insightbox
 Insight: month is an ordered factor (Jan→Dec), so timelines won’t scramble; ssic2 shows only 36/51/56/93, confirming the sector filter is applied correctly.
 :::
@@ -282,10 +281,7 @@ biz_sel |>
   dplyr::arrange(sector, year)
 ```
 
-
 ## Geocoding (OneMap: postal → lat/lon)
-
-
 
 ```{r}
 
@@ -348,7 +344,6 @@ if (!exists("acra_tidy")) {
 acra_tidy |> count(ssic2, name = "n")
 
 ```
-
 
 ```{r}
 # OneMap Search API (postal -> lat/lon) with memoised lookup
@@ -483,7 +478,6 @@ saveRDS(pts_ready, "data/rds/acra_points_2024_2025.rds")
 Insight: Rows are now SVY21 points in metres, safely inside the MP2019 window, and each record carries SUBZONE/PLANNING AREA labels. This is the backbone for dot maps, KDE, and subzone scoreboards.
 :::
 
-
 ## QA: coverage, CRS, sector counts
 
 ```{r}
@@ -507,7 +501,7 @@ pts_ready |>
 ```
 
 ::: insightbox
-Insight: inside_share should be ~1 and EPSG should read 3414. Near-zero missing subzone labels means your join worked and you can trust subzone aggregations.
+Insight: inside_share should be \~1 and EPSG should read 3414. Near-zero missing subzone labels means your join worked and you can trust subzone aggregations.
 :::
 
 # Starter EDA: monthly inflow & top planning areas
@@ -593,6 +587,7 @@ tmap::tm_shape(subzones_pa) +
   tmap::tm_layout(frame = FALSE)
 
 ```
+
 ::: insightbox
 Insight
 
@@ -604,7 +599,6 @@ Use this as a baseline surface before diving into sector-specific intensity (KDE
 # Choropleth: Counts by Planning Area × Sector (faceted)
 
 The same planning-area map but split by sector to reveal different siting logics: infrastructure-led (36), corridor-led (51), demand-led (56/93).
-
 
 ```{r}
 # Label map for facets
@@ -652,7 +646,6 @@ Sports/Recreation (93): leisure belts (parks/waterfronts) and lifestyle hubs.
 :::
 
 # Choropleth: Counts by Subzone × Sector (finer grain)
-
 
 A subzone-level choropleth (finer than planning areas), faceted by sector. Best for seeing micro-clusters within large planning areas.
 
@@ -714,15 +707,13 @@ sectors4 <- c("Water (36)", "Air Transport (51)", "F&B (56)", "Sports/Recreation
 
 ```
 
-
 ::: insightbox
-Insight
-All spatial analyses now run in metres (SVY21). This ensures distance-based quantities (nearest neighbour, KDE bandwidths) are numerically meaningful and edge-corrected by the true study window
+Insight All spatial analyses now run in metres (SVY21). This ensures distance-based quantities (nearest neighbour, KDE bandwidths) are numerically meaningful and edge-corrected by the true study window
 :::
 
 ## Clark–Evans Nearest-Neighbour Test (per sector)
 
-Clark–Evans tests whether registrations are random (CSR), clustered (R<1), or regular (R>1). We report both asymptotic and Monte-Carlo results. For small-n sectors (e.g., 36 and 51), we guard against underpowered tests.
+Clark–Evans tests whether registrations are random (CSR), clustered (R\<1), or regular (R\>1). We report both asymptotic and Monte-Carlo results. For small-n sectors (e.g., 36 and 51), we guard against underpowered tests.
 
 ```{r}
 # Clark–Evans for each sector — asymptotic + Monte Carlo (with small-n guards)
@@ -767,11 +758,11 @@ ce_results
 ```
 
 ::: insightbox
-Insight
-Expect R < 1 (clustering) for F&B (56) and often Sports/Recreation (93)—these sectors gravitate to footfall and amenity belts. Air (51) and Water (36) usually have few, strategic points; if n < 10, the test is skipped to avoid spurious inference. Use these results as a green light for KDE and for checking that clustering isn’t only a visual illusion.
+Insight Expect R \< 1 (clustering) for F&B (56) and often Sports/Recreation (93)—these sectors gravitate to footfall and amenity belts. Air (51) and Water (36) usually have few, strategic points; if n \< 10, the test is skipped to avoid spurious inference. Use these results as a green light for KDE and for checking that clustering isn’t only a visual illusion.
 :::
 
 # Spatial KDE — Reusable Helpers (one call per sector)
+
 KDE turns points into a smooth intensity surface (registrations per km²). We estimate bandwidth via Diggle with clamps for stability and cache results. We’ll first compute F&B (56) and derive fixed breaks; then reuse the same breaks for all other sectors so maps are comparably scaled.
 
 ```{r}
@@ -841,11 +832,11 @@ plot_kde <- function(r, breaks, title) {
 ```
 
 ::: insightbox
-Insight
-We cache images and bandwidths so you don’t recompute each knit. The 300–800 m clamp stabilises small-n sectors and avoids over-smooth blobs for large-n sectors.
+Insight We cache images and bandwidths so you don’t recompute each knit. The 300–800 m clamp stabilises small-n sectors and avoids over-smooth blobs for large-n sectors.
 :::
 
 ## KDE — F&B (56) baseline + breaks
+
 Compute 56 first and derive six quantile breaks. We’ll re-use these breaks for 36, 51, 93 so equal colours mean equal intensity across sectors.
 
 ```{r}
@@ -863,6 +854,7 @@ plot_kde(fnb$r, brks6, sprintf("Spatial KDE — F&B (56)  (σ ≈ %dm)", round(f
 ```
 
 ## KDE — Sports/Recreation (93)
+
 ```{r}
 brks6 <- readRDS(file.path(rds_dir, "kde_breaks_6.rds"))
 spr <- kde_sector("Sports/Recreation (93)")
@@ -873,11 +865,11 @@ if (!is.null(spr$r)) {
 ```
 
 ::: insightbox
-Insight
-Expect clusters along leisure belts (parks, waterfronts) and lifestyle hubs, often overlapping with F&B but with slightly broader halos around large complexes and event nodes.
+Insight Expect clusters along leisure belts (parks, waterfronts) and lifestyle hubs, often overlapping with F&B but with slightly broader halos around large complexes and event nodes.
 :::
 
 ## KDE — Air Transport (51)
+
 ```{r}
 air <- kde_sector("Air Transport (51)")
 if (!is.null(air$r)) {
@@ -886,13 +878,12 @@ if (!is.null(air$r)) {
 
 ```
 
-
 ::: insightbox
-Insight
-Intensity should skew eastwards around airport/logistics corridors; patterns are estate-anchored and more punctual than consumer sectors.
+Insight Intensity should skew eastwards around airport/logistics corridors; patterns are estate-anchored and more punctual than consumer sectors.
 :::
 
-##  KDE — Water (36)
+## KDE — Water (36)
+
 ```{r}
 wat <- kde_sector("Water (36)")
 if (!is.null(wat$r)) {
@@ -901,13 +892,12 @@ if (!is.null(wat$r)) {
 
 ```
 
-
 ::: insightbox
-Insight
-Siting is regulatory/infrastructure-led. Expect few, stable anchors near treatment plants/reservoirs or utility corridors; KDE may appear sparse by design.
+Insight Siting is regulatory/infrastructure-led. Expect few, stable anchors near treatment plants/reservoirs or utility corridors; KDE may appear sparse by design.
 :::
 
 # Spatio-Temporal KDE (Monthly) — Helpers
+
 We weight each point by temporal proximity to a target month (Gaussian in days) and run a spatial KDE with those weights. Results are cached per sector × month and plotted with fixed breaks (comparable over months).
 
 ```{r}
@@ -976,8 +966,7 @@ tau_days <- 60  # temporal bandwidth (≈ 2 months std dev)
 ```
 
 ::: insightbox
-Insight
-ST-KDE reveals when hotspots flare or fade. Using sector-specific spatial bandwidths and a common temporal bandwidth keeps maps comparable without over-smoothing small sectors.
+Insight ST-KDE reveals when hotspots flare or fade. Using sector-specific spatial bandwidths and a common temporal bandwidth keeps maps comparable without over-smoothing small sectors.
 :::
 
 # 2nd-Order Spatio-Temporal Analysis (Ripley K/L, ST-K)
@@ -1038,6 +1027,7 @@ Insight: We’re ready to measure where–when interactions across realistic cit
 :::
 
 ## Normalising stkhat() shapes (defensive helper)
+
 stkhat() returns different shapes depending on inputs. This coerces outputs into a consistent ns × nu matrix so plotting and envelope math don’t break.
 
 ```{r}
@@ -1123,7 +1113,6 @@ for (sec in sectors4) {
 
 ```
 
-
 ::: insightbox
 Insight: Time-permutation isolates space–time interaction: if a tile is above the band, timing is linked to place at that scale; if flat, timing is independent once you account for static hotspots.
 :::
@@ -1172,10 +1161,11 @@ if (!is.null(st_sg[["Air Transport (51)"]]))   print(plot_st_heat_tile(st_sg[["A
 if (!is.null(st_sg[["Water (36)"]]))           print(plot_st_heat_tile(st_sg[["Water (36)"]],           "Water (36) — ST-K excess"))
 
 ```
+
 ::: insightbox
 Reading the heatmaps:
 
-✱ at ~500–1500 m & 60–90 days: estate/centre-scale quarterly pulses.
+✱ at \~500–1500 m & 60–90 days: estate/centre-scale quarterly pulses.
 
 ✱ at ≤250 m & ≤30 days: fast, local contagion (rare in registrations).
 
@@ -1183,9 +1173,11 @@ Flat surface: timing decoupled from place—entries follow static intensity, not
 :::
 
 ## Subzone-scale second-order (Ripley’s L within a subzone)
+
 L(r) − r inside a chosen subzone (per sector)
 
 For each sector, pick a busy subzone and compute Ripley’s L(r) − r inside the subzone window to see local clustering ranges (e.g., block vs neighbourhood scale). Includes a tidy map of that subzone + points.
+
 ```{r}
 #| label: subzone-Lr-helpers
 library(tmap)
@@ -1237,47 +1229,43 @@ map_sector_subzone <- function(sec, sz_name){
 
 ```
 
-
-:::insightbox
+::: insightbox
 **Sector readouts**
 
-- **F&B (56):** Strong nearest-neighbour clustering; ST-K often shows quarterly pulses at ~1–2 km, not week-to-week contagion.\
-Action: manage ≤800 m corridors around nodes (servicing, walkability), monitor saturation at top malls/CBD.\
+-   **F&B (56):** Strong nearest-neighbour clustering; ST-K often shows quarterly pulses at \~1–2 km, not week-to-week contagion.\
+    Action: manage ≤800 m corridors around nodes (servicing, walkability), monitor saturation at top malls/CBD.\
 
-- **Sports/Recreation (93):** Clusters along leisure belts; may show event-linked pulses at 30–90 days over 0.5–1.5 km.\
-Action: coordinate permits/capacity around parks/waterfronts & event nodes on monthly/quarterly cadence.\
+-   **Sports/Recreation (93):** Clusters along leisure belts; may show event-linked pulses at 30–90 days over 0.5–1.5 km.\
+    Action: coordinate permits/capacity around parks/waterfronts & event nodes on monthly/quarterly cadence.\
 
-- **Air Transport (51):** Sparse but estate-anchored near airport/logistics; ST-K often flat at short lags, occasional quarterly estate bursts.\
-Action: safeguard estate access/loading; align approvals with quarterly leasing cycles.\
+-   **Air Transport (51):** Sparse but estate-anchored near airport/logistics; ST-K often flat at short lags, occasional quarterly estate bursts.\
+    Action: safeguard estate access/loading; align approvals with quarterly leasing cycles.\
 
-- **Water (36):** Regulated anchors (plants/corridors); little space–time interaction by design.\
-Action: infrastructure planning, not clustering management; watch only for rare, strategic additions.\
+-   **Water (36):** Regulated anchors (plants/corridors); little space–time interaction by design.\
+    Action: infrastructure planning, not clustering management; watch only for rare, strategic additions.\
 :::
 
 # Conclusion
 
 New firm registrations in Singapore (Jan 2024–Jun 2025) show sector-specific spatial logics with a common temporal rhythm:
 
-- **F&B (SSIC 56):** Strong neighbourhood-scale clustering (L(r)–r > 0 to ~600–800 m). Hotspots persist at CBD/fringe-CBD and MRT/mall nodes; month-to-month variation is modest, suggesting structure driven by transit and retail ecosystems rather than short-run imitation.\
-Planning: Street-scale management (servicing/curb, walkability) within ≤ 800 m belts; watch saturation at top nodes.\
+-   **F&B (SSIC 56):** Strong neighbourhood-scale clustering (L(r)–r \> 0 to \~600–800 m). Hotspots persist at CBD/fringe-CBD and MRT/mall nodes; month-to-month variation is modest, suggesting structure driven by transit and retail ecosystems rather than short-run imitation.\
+    Planning: Street-scale management (servicing/curb, walkability) within ≤ 800 m belts; watch saturation at top nodes.\
 
-- **Sports, Amusement & Recreation (SSIC 93):** Clusters along leisure belts and large complexes; wider halos where event venues co-locate with F&B.\
-Planning: Coordinate permits/capacity around waterfronts/parks and event calendars; monthly/quarterly cadence.\
+-   **Sports, Amusement & Recreation (SSIC 93):** Clusters along leisure belts and large complexes; wider halos where event venues co-locate with F&B.\
+    Planning: Coordinate permits/capacity around waterfronts/parks and event calendars; monthly/quarterly cadence.\
 
-- **Air Transport (SSIC 51):** Sparse but estate-anchored near the airport/logistics corridors. ST-K largely flat at short lags; occasional quarterly estate pulses.\
-Planning: Safeguard access/loading and align approvals with quarterly leasing cycles.\
+-   **Air Transport (SSIC 51):** Sparse but estate-anchored near the airport/logistics corridors. ST-K largely flat at short lags; occasional quarterly estate pulses.\
+    Planning: Safeguard access/loading and align approvals with quarterly leasing cycles.\
 
-- **Water Collection, Treatment & Supply (SSIC 36):** Regulated siting near infrastructure; little evidence of space–time interaction beyond anchors.\
+-   **Water Collection, Treatment & Supply (SSIC 36):** Regulated siting near infrastructure; little evidence of space–time interaction beyond anchors.\
 
 **Planning:** Long-range infrastructure and protection of utility corridors.\
 
 # References
 
-- Baddeley, A., Rubak, E., & Turner, R. (2015). Spatial Point Patterns: Methodology and Applications with R. Chapman & Hall/CRC.\
+-   Baddeley, A., Rubak, E., & Turner, R. (2015). Spatial Point Patterns: Methodology and Applications with R. Chapman & Hall/CRC.\
 
-- Ripley, B. D. (1976). The second-order analysis of stationary point processes. J. Appl. Probability, 13(2), 255–266.\
+-   Ripley, B. D. (1976). The second-order analysis of stationary point processes. J. Appl. Probability, 13(2), 255–266.\
 
-- Diggle, P. J. (2014). Statistical Analysis of Spatial and Spatio-Temporal Point Patterns\
-
-
-
+-   Diggle, P. J. (2014). Statistical Analysis of Spatial and Spatio-Temporal Point Patterns\
