@@ -270,7 +270,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">September 5, 2025</p>
+      <p class="date-modified">September 22, 2025</p>
     </div>
   </div>
     
@@ -960,7 +960,7 @@ $ geometry                                     &lt;POINT [m]&gt; POINT (41972.5 
 </section>
 <section id="the-solution" class="level3">
 <h3 class="anchored" data-anchor-id="the-solution">The solution</h3>
-<p><strong>9a.1 &nbsp;<a href="https://r-spatial.github.io/sf/reference/geos_unary.html"><code>st_buffer()</code></a>&nbsp;of&nbsp;</strong>sf<strong>&nbsp;package is used to compute the 5-meter buffers around cycling paths</strong></p>
+<p><strong>9a.1 &nbsp;<a href="https://r-spatial.github.io/sf/reference/geos_unary.html"><code>st_buffer()</code></a>&nbsp;of</strong> sf <strong>package is used to compute the 5-meter buffers around cycling paths</strong></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>buffer_cycling <span class="ot">&lt;-</span> <span class="fu">st_buffer</span>(  cyclingpath, <span class="at">dist=</span><span class="dv">5</span>, <span class="at">nQuadSegs =</span> <span class="dv">30</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>

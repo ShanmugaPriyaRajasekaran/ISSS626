@@ -144,6 +144,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex03/Hands-on_Ex03.html">
  <span class="dropdown-text">3: Spatio-Temporal Point Patterns Analysis</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04.html">
+ <span class="dropdown-text">4: Spatial Weights and Applications</span></a>
+  </li>  
     </ul>
   </li>
   <li class="nav-item dropdown ">
@@ -168,7 +172,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>  
         <li>
     <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex03/In-class_Ex03b.html">
- <span class="dropdown-text">In-class Exercise 3b :</span></a>
+ <span class="dropdown-text">In-class Exercise 3b : Preparing data for Public Good</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex04/In-class_Ex04.html">
+ <span class="dropdown-text">In-class Exercise 4 : Spatial Weights and Applications</span></a>
   </li>  
     </ul>
   </li>
@@ -198,12 +206,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#load-the-r-package" id="toc-load-the-r-package" class="nav-link active" data-scroll-target="#load-the-r-package">1 Load the R package</a></li>
-  <li><a href="#import-the-acra-data" id="toc-import-the-acra-data" class="nav-link" data-scroll-target="#import-the-acra-data">2 Import the ACRA data</a></li>
-  <li><a href="#tidying-the-acra-data" id="toc-tidying-the-acra-data" class="nav-link" data-scroll-target="#tidying-the-acra-data">3 Tidying the ACRA data</a></li>
-  <li><a href="#geocoding" id="toc-geocoding" class="nav-link" data-scroll-target="#geocoding">4 Geocoding</a></li>
-  <li><a href="#appending-the-location-information" id="toc-appending-the-location-information" class="nav-link" data-scroll-target="#appending-the-location-information">5 Appending the location information</a></li>
-  <li><a href="#converting-into-sf-data-frame" id="toc-converting-into-sf-data-frame" class="nav-link" data-scroll-target="#converting-into-sf-data-frame">6 Converting into SF data frame</a></li>
+  <li><a href="#overview-sg-startline-mapping-where-new-firms-land" id="toc-overview-sg-startline-mapping-where-new-firms-land" class="nav-link active" data-scroll-target="#overview-sg-startline-mapping-where-new-firms-land"><span class="header-section-number">1</span> Overview: SG Startline ~ Mapping Where New Firms Land</a></li>
+  <li><a href="#objective" id="toc-objective" class="nav-link" data-scroll-target="#objective"><span class="header-section-number">2</span> Objective</a></li>
+  <li><a href="#loading-packages" id="toc-loading-packages" class="nav-link" data-scroll-target="#loading-packages"><span class="header-section-number">3</span> Loading Packages</a></li>
+  <li><a href="#the-data" id="toc-the-data" class="nav-link" data-scroll-target="#the-data"><span class="header-section-number">4</span> The Data</a></li>
+  <li><a href="#data-wrangling" id="toc-data-wrangling" class="nav-link" data-scroll-target="#data-wrangling"><span class="header-section-number">5</span> Data Wrangling</a>
+  <ul class="collapse">
+  <li><a href="#preparing-the-subzone-boundary-kml-why-how" id="toc-preparing-the-subzone-boundary-kml-why-how" class="nav-link" data-scroll-target="#preparing-the-subzone-boundary-kml-why-how"><span class="header-section-number">5.1</span> <strong>Preparing the Subzone Boundary (KML): why &amp; how</strong></a></li>
+  <li><a href="#standardise-key-attribute-names" id="toc-standardise-key-attribute-names" class="nav-link" data-scroll-target="#standardise-key-attribute-names"><span class="header-section-number">5.2</span> Standardise key attribute names</a></li>
+  <li><a href="#import-acra-csvs-az" id="toc-import-acra-csvs-az" class="nav-link" data-scroll-target="#import-acra-csvs-az"><span class="header-section-number">5.3</span> Import ACRA CSVs (A–Z)</a></li>
+  <li><a href="#load-tidy-acra-filter-to-study-window-our-4-divisions" id="toc-load-tidy-acra-filter-to-study-window-our-4-divisions" class="nav-link" data-scroll-target="#load-tidy-acra-filter-to-study-window-our-4-divisions"><span class="header-section-number">5.4</span> Load &amp; Tidy ACRA (filter to study window + our 4 divisions)</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -236,7 +249,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">September 13, 2025</p>
+      <p class="date-modified">September 24, 2025</p>
     </div>
   </div>
     
@@ -247,98 +260,327 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="load-the-r-package" class="level2">
-<h2 class="anchored" data-anchor-id="load-the-r-package">1 Load the R package</h2>
+<section id="overview-sg-startline-mapping-where-new-firms-land" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Overview: SG Startline ~ Mapping Where New Firms Land</h1>
+<p>Where businesses choose to start is not random, it shapes jobs, footfall, and how a city functions day to day. This study looks at new firm registrations in Singapore from Jan 2024 to Jun 2025, turning raw ACRA records into spatial intelligence that planners and managers can actually use. The lens is both where and when: not just dots on a map, but how those dots pulse over months and concentrate around specific subzones.</p>
+<p>I focus on four business types referring to 2-digit Singapore Standard Industrial Classification <a href="https://classification.codes/classifications/industry/ssic-singapore">SSIC divisions</a> with distinct siting logic:</p>
+<ul>
+<li><strong>36 (Water collection, treatment &amp; supply)</strong> where siting is tightly regulated</li>
+<li><strong>51 (Air transport)</strong> tied to aviation and logistics corridors</li>
+<li><strong>56 (Food &amp; Beverage)</strong> driven by footfall and mall ecosystems</li>
+<li><strong>93 (Sports, amusement &amp; recreation)</strong> that clusters around leisure belts and event nodes.</li>
+</ul>
+<p>Together they give a balanced read on infrastructure-led, corridor-led, and demand-led location choices.</p>
+<p>Methodologically, I convert ACRA records into point features, anchor them to Master Plan 2019 subzones, and analyse in <strong>SVY21 (EPSG:3414)</strong>. I then use monthly maps to see timing, kernel density estimation <strong>(KDE)</strong> to surface stable hotspots, and second-order diagnostics <strong>(Ripley’s K/L and space–time K)</strong> to test whether entries genuinely cluster beyond simple density and whether follow-on entries appear shortly after a first mover. Where sample sizes allow, I contrast sectors with relative-risk surfaces to highlight places that favour F&amp;B over recreation (or vice versa).</p>
+<p><strong>The goal is practical</strong>: Identify stable hotspots vs short-lived flares, read neighbourhood-scale clustering (≈200–600 m), and spot short-run attraction in time (≈1–2 months). The outputs are clean maps with ≤150-word captions and a concise planning note that translates patterns into actions—zoning intensity around transit, modular floorspace in emerging corridors, faster permitting and utilities where KDE pressure rises, and safeguards against displacement in peak subzones.</p>
+</section>
+<section id="objective" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Objective</h1>
+<p><strong>Key questions we’ll try to answer</strong></p>
+<ul>
+<li><p><strong>SSIC 36 — Water collection, treatment &amp; supply</strong><br>
+<strong>What it is</strong>: Utilities and water services<br>
+<strong>What we expect</strong>: Few but strategic entries near plants/reservoirs or utility corridors; more “infrastructure anchors” than retail-style clusters.<br>
+</p></li>
+<li><p><strong>SSIC 51 — Air transport</strong><br>
+What it is: Airlines, cargo handlers, ground ops, MRO, freight/forwarding offices.<br>
+What we expect: Clear clustering around the airport/airfreight belt and nearby business parks; office addresses close to aviation/logistics access.<br>
+</p></li>
+<li><p><strong>SSIC 56 — Food &amp; Beverage service activities</strong><br>
+What it is: Cafés, restaurants, kiosks, quick-serve.<br>
+What we expect: Strong hotspots at malls, town centres, MRT nodes; month-to-month flares; classic neighbourhood-scale clustering.<br>
+</p></li>
+<li><p><strong>SSIC 93 — Sports, amusement &amp; recreation</strong><br>
+What it is: Gyms, studios, indoor play, arcades, leisure/event operators.<br>
+What we expect: Bands along parks/waterfronts and lifestyle hubs; co-location with F&amp;B; some event-driven spikes.<br>
+</p></li>
+</ul>
+</section>
+<section id="loading-packages" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Loading Packages</h1>
+<p>In this exercise, we will be using the following packages:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 80%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Package</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="https://r-spatial.github.io/sf/"><strong>sf</strong></a></td>
+<td>For importing, managing, and handling geospatial data</td>
+</tr>
+<tr class="even">
+<td><a href="https://spatstat.org/"><strong>spatstat</strong></a></td>
+<td>For point pattern analysis. In this hands-on exercise, it will be used to perform 1st- and 2nd-order spatial point patterns analysis and derive kernel density estimation layer</td>
+</tr>
+<tr class="odd">
+<td><a href="https://sfdep.josiahparry.com/"><strong>sfdep</strong></a></td>
+<td>Used to compute spatial weights</td>
+</tr>
+<tr class="even">
+<td><a href="https://cran.r-project.org/web/packages/tmap/vignettes/tmap-getstarted.html"><strong>tmap</strong></a></td>
+<td>For thematic mapping</td>
+</tr>
+<tr class="odd">
+<td><a href="https://rstudio.github.io/leaflet/"><strong>leaflet</strong></a></td>
+<td>For interactive maps</td>
+</tr>
+<tr class="even">
+<td><a href="https://rspatial.org/raster/pkg/index.html"><strong>raster</strong></a></td>
+<td>For raster data manipulation functions</td>
+</tr>
+<tr class="odd">
+<td><a href="https://jeremygelb.github.io/spNetwork/"><strong>spNetwork</strong></a></td>
+<td>For spatial analysis on networks</td>
+</tr>
+<tr class="even">
+<td><a href="https://www.tidyverse.org/"><strong>tidyverse</strong></a></td>
+<td>For non-spatial data wrangling</td>
+</tr>
+<tr class="odd">
+<td><a href="https://rstudio.github.io/DT/"><strong>DT</strong></a><strong>, <a href="https://yihui.org/knitr/">knitr</a>, <a href="https://haozhu233.github.io/kableExtra/">kableExtra</a></strong></td>
+<td>For building tables</td>
+</tr>
+<tr class="even">
+<td><a href="https://www.danieldsjoberg.com/gtsummary/"><strong>gtsummary</strong></a></td>
+<td>For publication-ready analyticla and summary tables</td>
+</tr>
+</tbody>
+</table>
+<p>The following code chunk uses <code>p_load()</code> of <strong>pacman</strong> package to check if the aforementioned packages are installed in the computer. If they are, the libraries will be called into R.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(sf, tmap, tidyverse,httr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(sf, sfdep, readr, spatstat, tmap, janitor, purrr, dplyr, lubridate, leaflet, httr2, glue, tidyr, fs, raster, memoise, spNetwork, tidyverse, DT, knitr, kableExtra, gtsummary, stringr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="import-the-acra-data" class="level2">
-<h2 class="anchored" data-anchor-id="import-the-acra-data">2 Import the ACRA data</h2>
+<section id="the-data" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> The Data</h1>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dataset Name</th>
+<th>Description</th>
+<th>Format</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>ACRA – Information on Corporate Entities (A–Z, Others)</strong></td>
+<td>All entity registrations. Used to extract new businesses by SSIC and date.</td>
+<td>CSV (27 files)</td>
+</tr>
+<tr class="even">
+<td><strong>SSIC 2020</strong></td>
+<td>Singapore Standard Industrial Classification; used to choose business types (2-/3-/5-digit).</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><strong>OneMap Search API</strong></td>
+<td>Geocoding service to convert postal codes to coordinates.</td>
+<td>Web API</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Master Plan 2019</strong> is the statutory land use plan that guides Singapore’s development in the medium term over the next 10 to 15 years. It is available as a polygon feature layer in <strong>KML</strong> format, maintained and published by the Urban Redevelopment Authority (URA)</p>
+<p>For this take-home exercise, we’ll be using the <a href="https://data.gov.sg/collections/2/view">ACRA Information on Corporate Entities</a> which is a collection of csv files that provide dataset of registered companies in SIngapore to investigate. We’ll also be using <a href="https://data.gov.sg/datasets/d_0900fdcfdb4666fe2a630f37a532fc06/view">Master Plan 2019 Subzone Boundary (No Sea)</a> for <strong>geometry</strong>.</p>
+<p>We’ll import the Master Plan 2019 Subzone Boundary file.</p>
+</section>
+<section id="data-wrangling" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Data Wrangling</h1>
+<section id="preparing-the-subzone-boundary-kml-why-how" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="preparing-the-subzone-boundary-kml-why-how"><span class="header-section-number">5.1</span> <strong>Preparing the Subzone Boundary (KML): why &amp; how</strong></h2>
+<p>This converts URA’s <strong>Master Plan 2019 Subzone (No Sea) KML</strong> into a clean, projected <strong>GeoPackage</strong> with consistent field names. We’ll use it as<br>
+(1) the analysis window for point-pattern methods and<br>
+(2) the join layer to aggregate new businesses by subzone/planning area.<br>
+</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>folder_path <span class="ot">&lt;-</span> <span class="st">"data/aspatial/ACRA"</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>file_list <span class="ot">&lt;-</span> <span class="fu">list.files</span>(<span class="at">path =</span> folder_path,</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">pattern =</span> <span class="st">"^ACRA*.*</span><span class="sc">\\</span><span class="st">.csv$"</span>,</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">full.names =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># KML → clean sf in SVY21 metres (EPSG:3414)</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>sz_raw_path <span class="ot">&lt;-</span> <span class="st">"data/MasterPlan2019SubzoneBoundaryNoSeaKML.kml"</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>subzones <span class="ot">&lt;-</span> <span class="fu">st_read</span>(sz_raw_path, <span class="at">quiet =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_zm</span>(<span class="at">drop =</span> <span class="cn">TRUE</span>, <span class="at">what =</span> <span class="st">"ZM"</span>) <span class="sc">%&gt;%</span>  <span class="co"># drop Z/M if present</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">clean_names</span>() <span class="sc">%&gt;%</span>                    <span class="co"># lower_case_names</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_make_valid</span>() <span class="sc">%&gt;%</span>                  <span class="co"># fix small geometry issues</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="dv">3414</span>)                   <span class="co"># metres for KDE/K-functions</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>acra_data <span class="ot">&lt;-</span> file_list <span class="sc">%&gt;%</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map_dfr</span>(read_csv)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>Save the data into rds folder</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(acra_data,</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>          <span class="st">"data/rds/acra_data.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="insightbox">
+<p>Insight: We now have a <strong><em>valid subzone layer in metres (SVY21 / EPSG:3414).</em></strong> Distance-based methods (KDE, K/L) will be numerically sound, and this layer doubles as our analysis window to control edge effects.</p>
 </div>
 </section>
-<section id="tidying-the-acra-data" class="level2">
-<h2 class="anchored" data-anchor-id="tidying-the-acra-data">3 Tidying the ACRA data</h2>
+<section id="standardise-key-attribute-names" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="standardise-key-attribute-names"><span class="header-section-number">5.2</span> Standardise key attribute names</h2>
+<p>(URA KMLs sometimes tuck attributes inside an HTML description field. The helper below pulls values out if they aren’t already columns.)</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>biz_56111 <span class="ot">&lt;-</span> acra_data <span class="sc">%&gt;%</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">24</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(primary_ssic_code <span class="sc">==</span> <span class="dv">56111</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">date =</span> registration_incorporation_date) <span class="sc">%&gt;%</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">date =</span> <span class="fu">as.Date</span>(date),</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">YEAR =</span> <span class="fu">year</span>(date),</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">MONTH_NUM =</span> <span class="fu">month</span>(date),</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">MONTH_ABBR =</span> <span class="fu">month</span>(date,</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>                            <span class="at">label =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>                            <span class="at">abbr =</span> <span class="cn">TRUE</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">postal_code =</span> <span class="fu">str_pad</span>(postal_code,</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">width =</span> <span class="dv">6</span>, <span class="at">side =</span> <span class="st">"left"</span>, <span class="at">pad =</span> <span class="st">"0"</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>            <span class="fu">filter</span>(YEAR <span class="sc">==</span> <span class="dv">2025</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Helper: extract a field value from HTML 'description' (if needed)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>extract_field <span class="ot">&lt;-</span> <span class="cf">function</span>(html, key){</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="st">"description"</span> <span class="sc">%in%</span> <span class="fu">names</span>(subzones)) <span class="fu">return</span>(<span class="fu">rep</span>(<span class="cn">NA_character_</span>, <span class="fu">nrow</span>(subzones)))</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  m <span class="ot">&lt;-</span> <span class="fu">str_match</span>(html, <span class="fu">paste0</span>(<span class="st">"&lt;th&gt;"</span>, key, <span class="st">"&lt;/th&gt;</span><span class="sc">\\</span><span class="st">s*&lt;td&gt;([^&lt;]*)&lt;/td&gt;"</span>))</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  val <span class="ot">&lt;-</span> m[, <span class="dv">2</span>]</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ifelse</span>(<span class="fu">is.na</span>(val) <span class="sc">|</span> val <span class="sc">==</span> <span class="st">""</span>, <span class="cn">NA_character_</span>, <span class="fu">str_squish</span>(val))</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>subzones_std <span class="ot">&lt;-</span> subzones <span class="sc">%&gt;%</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">SUBZONE_NO =</span> <span class="fu">coalesce</span>(<span class="cf">if</span> (<span class="st">"subzone_no"</span> <span class="sc">%in%</span> <span class="fu">names</span>(.)) <span class="fu">as.integer</span>(subzone_no) <span class="cf">else</span> <span class="cn">NA_integer_</span>,</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>                          <span class="fu">suppressWarnings</span>(<span class="fu">as.integer</span>(<span class="fu">extract_field</span>(description, <span class="st">"SUBZONE_NO"</span>)))),</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">SUBZONE_N  =</span> <span class="fu">coalesce</span>(<span class="cf">if</span> (<span class="st">"subzone_n"</span>  <span class="sc">%in%</span> <span class="fu">names</span>(.)) subzone_n  <span class="cf">else</span> <span class="fu">extract_field</span>(description, <span class="st">"SUBZONE_N"</span>)),</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">SUBZONE_C  =</span> <span class="fu">coalesce</span>(<span class="cf">if</span> (<span class="st">"subzone_c"</span>  <span class="sc">%in%</span> <span class="fu">names</span>(.)) subzone_c  <span class="cf">else</span> <span class="fu">extract_field</span>(description, <span class="st">"SUBZONE_C"</span>)),</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">CA_IND     =</span> <span class="fu">coalesce</span>(<span class="cf">if</span> (<span class="st">"ca_ind"</span>     <span class="sc">%in%</span> <span class="fu">names</span>(.)) ca_ind     <span class="cf">else</span> <span class="fu">extract_field</span>(description, <span class="st">"CA_IND"</span>)),</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">PLN_AREA_N =</span> <span class="fu">coalesce</span>(<span class="cf">if</span> (<span class="st">"pln_area_n"</span> <span class="sc">%in%</span> <span class="fu">names</span>(.)) pln_area_n <span class="cf">else</span> <span class="fu">extract_field</span>(description, <span class="st">"PLN_AREA_N"</span>)),</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">PLN_AREA_C =</span> <span class="fu">coalesce</span>(<span class="cf">if</span> (<span class="st">"pln_area_c"</span> <span class="sc">%in%</span> <span class="fu">names</span>(.)) pln_area_c <span class="cf">else</span> <span class="fu">extract_field</span>(description, <span class="st">"PLN_AREA_C"</span>)),</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">REGION_N   =</span> <span class="fu">coalesce</span>(<span class="cf">if</span> (<span class="st">"region_n"</span>   <span class="sc">%in%</span> <span class="fu">names</span>(.)) region_n   <span class="cf">else</span> <span class="fu">extract_field</span>(description, <span class="st">"REGION_N"</span>)),</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">REGION_C   =</span> <span class="fu">coalesce</span>(<span class="cf">if</span> (<span class="st">"region_c"</span>   <span class="sc">%in%</span> <span class="fu">names</span>(.)) region_c   <span class="cf">else</span> <span class="fu">extract_field</span>(description, <span class="st">"REGION_C"</span>)),</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">FMEL_UPD_D =</span> <span class="fu">coalesce</span>(<span class="cf">if</span> (<span class="st">"fmel_upd_d"</span> <span class="sc">%in%</span> <span class="fu">names</span>(.)) fmel_upd_d <span class="cf">else</span> <span class="fu">extract_field</span>(description, <span class="st">"FMEL_UPD_D"</span>))</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(SUBZONE_NO, SUBZONE_N, SUBZONE_C, CA_IND,</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>         PLN_AREA_N, PLN_AREA_C, REGION_N, REGION_C, FMEL_UPD_D, geometry) <span class="sc">%&gt;%</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_make_valid</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="dv">3414</span>)</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Save a clean, fast-to-load copy</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="fu">st_write</span>(subzones_std, <span class="st">"data/geospatial/mpsz_subzones_2019_nosea.gpkg"</span>,</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>         <span class="at">layer =</span> <span class="st">"subzones"</span>, <span class="at">delete_dsn =</span> <span class="cn">TRUE</span>, <span class="at">quiet =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="insightbox">
+<p>Insight: Field names are now harmonised (SUBZONE_N, PLN_AREA_N, REGION_N), so later joins/labels won’t break across KML variants. Saving to GeoPackage avoids re-parsing HTML next time and speeds reloads.</p>
 </div>
 </section>
-<section id="geocoding" class="level2">
-<h2 class="anchored" data-anchor-id="geocoding">4 Geocoding</h2>
+<section id="import-acra-csvs-az" class="level2" data-number="5.3">
+<h2 data-number="5.3" class="anchored" data-anchor-id="import-acra-csvs-az"><span class="header-section-number">5.3</span> Import ACRA CSVs (A–Z)</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>postcodes <span class="ot">&lt;-</span> <span class="fu">unique</span>(biz_56111<span class="sc">$</span>postal_code)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>url <span class="ot">&lt;-</span> <span class="st">"https://onemap.gov.sg/api/common/elastic/search"</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>found <span class="ot">&lt;-</span><span class="fu">data.frame</span>()</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>not_found <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">postcode =</span> <span class="fu">character</span>())</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(pc <span class="cf">in</span> postcodes) {</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  query <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">searchVal =</span> pc,</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">returnGeom =</span> <span class="st">"Y"</span>,</span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">getAddrDetails =</span> <span class="st">"Y"</span>,</span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">pageNum =</span> <span class="st">"1"</span></span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  res <span class="ot">&lt;-</span> <span class="fu">GET</span>(url,<span class="at">query =</span> query)</span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  json <span class="ot">&lt;-</span> <span class="fu">content</span>(res)</span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(json<span class="sc">$</span>found <span class="sc">!=</span><span class="dv">0</span>) {</span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(json<span class="sc">$</span>results,<span class="at">stringAsFactors =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    df<span class="sc">$</span>input_postcode <span class="ot">&lt;-</span> pc</span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    found <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(found,df)</span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
-<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>    not_found <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(not_found,data,<span class="fu">frame</span>(<span class="at">postcode =</span> pc))</span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Where your ACRA CSVs live</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>aspatial_dir <span class="ot">&lt;-</span> <span class="st">"data/aspatial/ACRA"</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Find CSVs (case-insensitive). If none found, stop with a clear message.</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>file_list <span class="ot">&lt;-</span> <span class="fu">list.files</span>(aspatial_dir, <span class="at">pattern =</span> <span class="st">"(?i)</span><span class="sc">\\</span><span class="st">.csv$"</span>, <span class="at">full.names =</span> <span class="cn">TRUE</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">length</span>(file_list) <span class="sc">==</span> <span class="dv">0</span>) {</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stop</span>(<span class="fu">paste0</span>(</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"No CSVs found in: "</span>, aspatial_dir, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"→ Put the 27 ACRA A–Z CSV files (or any ACRA CSVs) into this folder."</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  ))</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Read and stack; clean names</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>acra_raw <span class="ot">&lt;-</span> file_list <span class="sc">|&gt;</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  purrr<span class="sc">::</span><span class="fu">map_dfr</span>(<span class="sc">~</span> readr<span class="sc">::</span><span class="fu">read_csv</span>(.x, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  janitor<span class="sc">::</span><span class="fu">clean_names</span>()</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co"># (Optional) quick peek + save checkpoint</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>utils<span class="sc">::</span><span class="fu">head</span>(acra_raw, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 53
+  uen       issuance_agency_id entity_name             entity_type_description  
+  &lt;chr&gt;     &lt;chr&gt;              &lt;chr&gt;                   &lt;chr&gt;                    
+1 00022100K ACRA               A Y ABDUL RAHIMAN       Sole Proprietorship/ Par…
+2 00031800X ACRA               A M ABDULLAH SAHIB &amp; CO Sole Proprietorship/ Par…
+3 00043100A ACRA               ANN LEE YUEN            Sole Proprietorship/ Par…
+# ℹ 49 more variables: business_constitution_description &lt;chr&gt;,
+#   company_type_description &lt;chr&gt;, paf_constitution_description &lt;chr&gt;,
+#   entity_status_description &lt;chr&gt;, registration_incorporation_date &lt;date&gt;,
+#   uen_issue_date &lt;date&gt;, address_type &lt;chr&gt;, block &lt;chr&gt;, street_name &lt;chr&gt;,
+#   level_no &lt;chr&gt;, unit_no &lt;chr&gt;, building_name &lt;chr&gt;, postal_code &lt;chr&gt;,
+#   other_address_line1 &lt;chr&gt;, other_address_line2 &lt;chr&gt;,
+#   account_due_date &lt;chr&gt;, annual_return_date &lt;chr&gt;, …</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(acra_raw, <span class="st">"data/rds/acra_raw.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="insightbox">
+<p>Insight: acra_raw now holds all A–Z files combined with clean column names. Ready for filtering, SSIC parsing and date cleanup.</p>
 </div>
 </section>
-<section id="appending-the-location-information" class="level2">
-<h2 class="anchored" data-anchor-id="appending-the-location-information">5 Appending the location information</h2>
+<section id="load-tidy-acra-filter-to-study-window-our-4-divisions" class="level2" data-number="5.4">
+<h2 data-number="5.4" class="anchored" data-anchor-id="load-tidy-acra-filter-to-study-window-our-4-divisions"><span class="header-section-number">5.4</span> Load &amp; Tidy ACRA (filter to study window + our 4 divisions)</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>biz_56111 <span class="ot">=</span> biz_56111 <span class="sc">%&gt;%</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(found,</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="fu">c</span>(<span class="st">'postal_code'</span> <span class="ot">=</span> <span class="st">'POSTAL'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Tidy dates, SSIC, postal; derive time fields; filter study window (2024-01-01 to 2025-06-30)</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>acra_tidy <span class="ot">&lt;-</span> acra_raw <span class="sc">|&gt;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># robust parse in case formats vary</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">reg_date  =</span> lubridate<span class="sc">::</span><span class="fu">as_date</span>(</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>      lubridate<span class="sc">::</span><span class="fu">parse_date_time</span>(registration_incorporation_date, <span class="at">orders =</span> <span class="fu">c</span>(<span class="st">"ymd"</span>,<span class="st">"dmy"</span>,<span class="st">"mdy"</span>))</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">year      =</span> lubridate<span class="sc">::</span><span class="fu">year</span>(reg_date),</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">month_num =</span> lubridate<span class="sc">::</span><span class="fu">month</span>(reg_date),</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># avoid month() masking: use format() for a factor month label</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">month     =</span> <span class="fu">factor</span>(<span class="fu">format</span>(reg_date, <span class="st">"%b"</span>), <span class="at">levels =</span> month.abb, <span class="at">ordered =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># keep only digits in postal_code; left-pad to 6</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">postal_code =</span> postal_code <span class="sc">|&gt;</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>      stringr<span class="sc">::</span><span class="fu">str_replace_all</span>(<span class="st">"[^0-9]"</span>, <span class="st">""</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>      stringr<span class="sc">::</span><span class="fu">str_pad</span>(<span class="at">width =</span> <span class="dv">6</span>, <span class="at">side =</span> <span class="st">"left"</span>, <span class="at">pad =</span> <span class="st">"0"</span>),</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># normalise SSIC digits; derive 2-/3-digit prefixes</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">primary_ssic_code =</span> stringr<span class="sc">::</span><span class="fu">str_replace_all</span>(primary_ssic_code, <span class="st">"[^0-9]"</span>, <span class="st">""</span>),</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">ssic2 =</span> stringr<span class="sc">::</span><span class="fu">str_sub</span>(primary_ssic_code, <span class="dv">1</span>, <span class="dv">2</span>),</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">ssic3 =</span> stringr<span class="sc">::</span><span class="fu">str_sub</span>(primary_ssic_code, <span class="dv">1</span>, <span class="dv">3</span>),</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># monthly index</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">ym =</span> <span class="fu">as.Date</span>(<span class="fu">paste0</span>(<span class="fu">format</span>(reg_date, <span class="st">"%Y-%m"</span>), <span class="st">"-01"</span>))</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(reg_date),</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>         reg_date <span class="sc">&gt;=</span> <span class="fu">as.Date</span>(<span class="st">"2024-01-01"</span>),</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>         reg_date <span class="sc">&lt;=</span> <span class="fu">as.Date</span>(<span class="st">"2025-06-30"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(postal_code), postal_code <span class="sc">!=</span> <span class="st">"000000"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ssic2 <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"36"</span>,<span class="st">"51"</span>,<span class="st">"56"</span>,<span class="st">"93"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(uen, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a><span class="co"># (Optional) Save a tidy checkpoint</span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>readr<span class="sc">::</span><span class="fu">write_rds</span>(acra_tidy, <span class="fu">file.path</span>(<span class="st">"data/rds"</span>, <span class="st">"acra_tidy_2024_2025_ssic36_51_56_93.rds"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</section>
-<section id="converting-into-sf-data-frame" class="level2">
-<h2 class="anchored" data-anchor-id="converting-into-sf-data-frame">6 Converting into SF data frame</h2>
+<div class="insightbox">
+<p>Insight: ACRA is now analysis-ready: clean dates, SSIC prefixes (ssic2/ssic3), proper 6-digit postcodes, Jan 2024–Jun 2025 filter, and only our four divisions. Keeping one row per UEN prevents double-counting.</p>
+</div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>biz_56111_sf <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(biz_56111, </span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>                         <span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"X"</span>,<span class="st">"Y"</span>),</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>                         <span class="at">crs=</span><span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Confirm month labels look right and ordered</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>acra_tidy <span class="sc">|&gt;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(month) <span class="sc">|&gt;</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(month) <span class="sc">|&gt;</span> <span class="fu">print</span>(<span class="at">n =</span> <span class="dv">12</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 12 × 2
+   month     n
+   &lt;ord&gt; &lt;int&gt;
+ 1 Jan     795
+ 2 Feb     711
+ 3 Mar     817
+ 4 Apr     854
+ 5 May     797
+ 6 Jun     752
+ 7 Jul     449
+ 8 Aug     456
+ 9 Oct     431
+10 Nov     344
+11 Dec     261
+12 &lt;NA&gt;    399</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Confirm only the four divisions</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>acra_tidy <span class="sc">|&gt;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(ssic2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 2
+  ssic2     n
+  &lt;chr&gt; &lt;int&gt;
+1 36       12
+2 51       31
+3 56     5758
+4 93     1265</code></pre>
+</div>
+</div>
+<div class="insightbox">
+<p>Insight: month is an ordered factor (Jan→Dec), so timelines won’t scramble; ssic2 shows only 36/51/56/93, confirming the sector filter is applied correctly.</p>
 </div>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
