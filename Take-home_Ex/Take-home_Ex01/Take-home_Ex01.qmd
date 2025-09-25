@@ -346,80 +346,66 @@ acra_tidy |> count(ssic2, name = "n")
 ```
 
 ```{r}
-# OneMap Search API (postal -> lat/lon) with memoised lookup
-# --- Robust OneMap geocoder: tries main host, then developers host, with retries ---
-library(httr2)
-library(tibble)
-library(dplyr)
-library(purrr)
-library(glue)
+# OneMap postal -> lat/lon (fast, single-block, cache-first) — FIXED [[1]] bug
+library(httr2); library(dplyr); library(purrr); library(tibble); library(stringr); library(readr)
+`%||%` <- function(x,y) if (is.null(x) || length(x)==0 || all(is.na(x))) y else x
+.get1 <- function(x, nm) {               # safe extractor for df/list
+  if (is.data.frame(x)) { if (nm %in% names(x)) x[[nm]][1] else NULL }
+  else if (is.list(x)) x[[nm]] else NULL
+}
 
-geocode_one <- function(postal, tries = 4) {
-  # Fast fail on bad input
-  if (is.na(postal) || !grepl("^\\d{6}$", postal)) {
+geocode_one <- function(postal, tries = 3) {
+  if (is.na(postal) || !grepl("^\\d{6}$", postal))
     return(tibble(postal_code = postal, lat = NA_real_, lon = NA_real_))
+
+  call_once <- function(base, path, q) {
+    req <- request(base) |> req_url_path_append(path) |> req_url_query(!!!q) |> req_timeout(15) |> req_user_agent("ACRA-Geocoder/1.0 (+R httr2)")
+    resp <- try(req_perform(req), silent = TRUE); if (inherits(resp, "try-error") || resp_status(resp) >= 400) return(NULL)
+    js <- try(resp_body_json(resp, simplifyVector = TRUE), silent = TRUE); if (inherits(js, "try-error") || is.null(js$results) || length(js$results)==0) return(NULL)
+
+    res <- js$results
+    r <- if (is.data.frame(res)) res[1, , drop = FALSE] else res[[1]]
+    if (is.atomic(r)) r <- as.list(r)  # guard weird atomic result
+
+    tibble(
+      postal_code = .get1(r, "POSTAL") %||% postal,
+      lat = suppressWarnings(as.numeric(.get1(r, "LATITUDE") %||% .get1(r, "Y"))),
+      lon = suppressWarnings(as.numeric(.get1(r, "LONGITUDE") %||% .get1(r, "X")))
+    )
   }
 
-  # helper to call a specific host+path
-  call_host <- function(base, path, q) {
-    req <- request(base) |> req_url_path_append(path) |> req_url_query(!!!q) |> req_timeout(15)
-    # Optional corporate proxies (uncomment if needed)
-    # if (nzchar(Sys.getenv("HTTPS_PROXY"))) req <- req_proxy(req, url = Sys.getenv("HTTPS_PROXY"))
-    # if (nzchar(Sys.getenv("HTTP_PROXY")))  req <- req_proxy(req, url = Sys.getenv("HTTP_PROXY"))
-
-    resp <- req_perform(req)
-    json <- resp_body_json(resp, simplifyVector = TRUE)
-    if (is.null(json$results) || length(json$results) == 0) return(NULL)
-    r <- json$results[[1]]
-    # Prefer LAT/LON; if missing, try X/Y (both are in the response for OneMap)
-    lat <- suppressWarnings(as.numeric(r$LATITUDE %||% r$Y))
-    lon <- suppressWarnings(as.numeric(r$LONGITUDE %||% r$X))
-    tibble(postal_code = r$POSTAL %||% postal, lat = lat, lon = lon)
-  }
-
-  query <- list(searchVal = postal, returnGeom = "Y", getAddrDetails = "Y", pageNum = "1")
-
-  # Try a few times with backoff; main host first, then developers host
+  q <- list(searchVal = postal, returnGeom = "Y", getAddrDetails = "Y", pageNum = "1")
   for (i in seq_len(tries)) {
-    # 1) Primary host
-    res <- tryCatch(call_host("https://www.onemap.gov.sg", "api/common/elastic/search", query),
-                    error = function(e) NULL)
-    if (!is.null(res)) return(res)
-
-    # 2) Fallback host
-    res <- tryCatch(call_host("https://developers.onemap.sg", "commonapi/search", query),
-                    error = function(e) NULL)
-    if (!is.null(res)) return(res)
-
-    Sys.sleep(0.4 * i)  # gentle backoff: 0.4s, 0.8s, 1.2s, ...
+    res <- call_once("https://developers.onemap.sg", "commonapi/search", q); if (!is.null(res)) return(res)
+    res <- call_once("https://www.onemap.gov.sg", "api/common/elastic/search", q); if (!is.null(res)) return(res)
+    if (i < tries) Sys.sleep(0.4 * i)  # only backoff on repeated failure
   }
-
-  # If all attempts fail, return NA row (pipeline continues)
   tibble(postal_code = postal, lat = NA_real_, lon = NA_real_)
 }
 
-# ---- Build geocode table from acra_tidy (make sure acra_tidy exists first) ----
 stopifnot(exists("acra_tidy"))
+cache_path <- "data/rds/geocache_postal.rds"
+dir.create(dirname(cache_path), recursive = TRUE, showWarnings = FALSE)
+cache <- if (file.exists(cache_path)) readRDS(cache_path) else tibble(postal_code = character(), lat = double(), lon = double())
 
-# Unique postcodes -> coordinates (rate-limit to be polite to API)
-geoc_tbl <- unique(acra_tidy$postal_code) |>
-  map_dfr(function(pc) { Sys.sleep(0.12); geocode_one(pc) })
+valid <- acra_tidy$postal_code[str_detect(acra_tidy$postal_code, "^\\d{6}$")]
+todo  <- setdiff(unique(valid), cache$postal_code)
+new_rows <- if (length(todo)) map_dfr(todo, geocode_one) else tibble(postal_code = character(), lat = double(), lon = double())
 
-# Join back; keep rows even if geocode fails (for QC)
-acra_geo <- acra_tidy |> left_join(geoc_tbl, by = "postal_code")
+geoc_tbl <- bind_rows(cache, new_rows) |> distinct(postal_code, .keep_all = TRUE)
+saveRDS(geoc_tbl, cache_path)
 
-# QC summary so you see what happened
+acra_geo <- left_join(acra_tidy, geoc_tbl, by = "postal_code")
+
 geocode_qc <- acra_geo |>
-  summarise(
-    n_total     = n(),
-    n_geocoded  = sum(!is.na(lat) & !is.na(lon)),
-    success_pct = round(100 * n_geocoded / n_total, 1)
-  )
-geocode_qc
+  summarise(n_total = n(), n_geocoded = sum(!is.na(lat) & !is.na(lon)), success_pct = round(100 * n_geocoded / n_total, 1))
+print(geocode_qc)
 
-# Optional checkpoint
-readr::write_csv(acra_geo, "data/derived/acra_geocoded_2024_2025.csv")
+dir.create("data/derived", recursive = TRUE, showWarnings = FALSE)
+dir.create("data/rds", recursive = TRUE, showWarnings = FALSE)
+write_csv(acra_geo, "data/derived/acra_geocoded_2024_2025.csv")
 saveRDS(acra_geo, "data/rds/acra_geocoded_2024_2025.rds")
+
 
 ```
 
@@ -689,6 +675,13 @@ Use these maps to short-list KDE hotspots and to target permits/utilities at the
 We convert our study area into a polygonal window (owin) and provide helpers to turn sector subsets into ppp objects that spatstat uses for tests and KDE.
 
 ```{r}
+# one-liner fix
+biz_pts_use <- pts_ready
+
+```
+
+
+```{r}
 # Window (country outline) from your filtered subzones — in SVY21 metres
 library(sf); library(spatstat.geom)
 
@@ -716,32 +709,75 @@ Insight All spatial analyses now run in metres (SVY21). This ensures distance-ba
 Clark–Evans tests whether registrations are random (CSR), clustered (R\<1), or regular (R\>1). We report both asymptotic and Monte-Carlo results. For small-n sectors (e.g., 36 and 51), we guard against underpowered tests.
 
 ```{r}
-# Clark–Evans for each sector — asymptotic + Monte Carlo (with small-n guards)
-library(dplyr); library(purrr); library(spatstat.explore)
+library(dplyr); library(sf); library(stringr)
+
+# ---- 1) Points sf with a 'sector' column ----
+ssic_label <- c(`36`="Water (36)", `51`="Air Transport (51)",
+                `56`="F&B (56)", `93`="Sports/Recreation (93)")
+sectors4 <- c("Water (36)","Air Transport (51)","F&B (56)","Sports/Recreation (93)")
+
+# Start from pts_ready if available; otherwise derive from acra_geo lon/lat
+if (!exists("biz_pts_use")) {
+  if (exists("pts_ready")) {
+    biz_pts_use <- pts_ready
+  } else if (exists("acra_geo") && all(c("lon","lat") %in% names(acra_geo))) {
+    biz_pts_use <- st_as_sf(acra_geo, coords = c("lon","lat"), crs = 4326, remove = FALSE)
+  } else {
+    stop("Need pts_ready (sf points) or acra_geo with lon/lat to build biz_pts_use.")
+  }
+}
+
+# Ensure CRS = 3414 (SVY21 metres)
+if (is.na(sf::st_crs(biz_pts_use))) sf::st_crs(biz_pts_use) <- 3414
+if (sf::st_crs(biz_pts_use)$epsg != 3414) biz_pts_use <- sf::st_transform(biz_pts_use, 3414)
+
+# Ensure we can derive ssic2, then sector
+if (!"ssic2" %in% names(biz_pts_use)) {
+  if ("primary_ssic_code" %in% names(biz_pts_use)) {
+    biz_pts_use <- biz_pts_use %>% mutate(ssic2 = stringr::str_sub(primary_ssic_code, 1, 2))
+  } else {
+    stop("Need 'ssic2' or 'primary_ssic_code' to compute sectors.")
+  }
+}
+biz_pts_use <- biz_pts_use %>%
+  mutate(sector = factor(ssic_label[ssic2], levels = sectors4)) %>%
+  filter(!is.na(sector), sector %in% sectors4)
+
+# Quick sanity check
+print(table(biz_pts_use$sector))
+
+
+```
+```{r}
+# ---- 2) Spatstat window + helper ----
+if (sf::st_crs(subzones_use)$epsg != 3414) subzones_use <- sf::st_transform(subzones_use, 3414)
+W <- spatstat.geom::as.owin(sf::st_union(subzones_use))
+
+to_ppp <- function(pts_sf, window = W) {
+  xy <- sf::st_coordinates(pts_sf)
+  spatstat.geom::ppp(x = xy[,1], y = xy[,2], window = window, check = FALSE)
+}
+
+```
+
+```{r}
+library(purrr); library(spatstat.explore); library(dplyr)
 
 ce_one <- function(df, sector_label, nsim = 999L) {
-  sub <- df %>% dplyr::filter(sector == sector_label)
+  sub <- df %>% dplyr::filter(.data$sector == sector_label)
   if (nrow(sub) < 10) {
-    return(tibble(
-      sector = sector_label, n = nrow(sub),
-      R = NA_real_, p_value = NA_real_,
-      method = "Skipped (n<10)"
-    ))
+    return(tibble(sector = sector_label, n = nrow(sub),
+                  R = NA_real_, p_value = NA_real_, method = "Skipped (n<10)"))
   }
   X <- to_ppp(sub)
-
-  # Asymptotic
   z_asym <- spatstat.explore::clarkevans.test(
     X, correction = "none", clipregion = W, alternative = "clustered"
   )
-
-  # Monte Carlo vs CSR
   z_mc <- spatstat.explore::clarkevans.test(
-    X, correction = "none", clipregion = W,
-    alternative = "clustered", method = "MonteCarlo", nsim = nsim
+    X, correction = "none", clipregion = W, alternative = "clustered",
+    method = "MonteCarlo", nsim = nsim
   )
-
-  bind_rows(
+  dplyr::bind_rows(
     tibble(sector = sector_label, n = X$n,
            R = unname(z_asym$statistic), p_value = z_asym$p.value,
            method = "Asymptotic"),
@@ -752,7 +788,7 @@ ce_one <- function(df, sector_label, nsim = 999L) {
 }
 
 set.seed(42)
-ce_results <- map_dfr(sectors4, ~ ce_one(biz_pts_use, .x, nsim = 999L))
+ce_results <- purrr::map_dfr(sectors4, ~ ce_one(biz_pts_use, .x, nsim = 999L))
 ce_results
 
 ```
@@ -1057,59 +1093,99 @@ fix_dims <- function(K, ns, nu){
 For each sector, we compute the observed ST-K and Monte-Carlo envelopes under a time-shuffle null (locations fixed, dates permuted). Significant excess means true space–time interaction beyond static clustering.
 
 ```{r}
-#| label: st-envelopes
-#| eval: false
-dir.create("data/rds", showWarnings = FALSE, recursive = TRUE)
 
-compute_st_env <- function(X_xyz, s_vals, u_vals, poly, nsim = 199) {
-  xy    <- X_xyz[, 1:2, drop = FALSE]
-  times <- as.double(X_xyz[, 3])
-  tlim  <- range(times, finite = TRUE)
-
+# Fast space–time K envelopes (pair compression) with base parallel (no future.globals)
+compute_st_env_fast <- function(X_xyz, s_vals, u_vals,
+                                poly_area, tlim = NULL,
+                                nsim = 199, workers = max(1L, parallel::detectCores()-1L),
+                                parallel = TRUE) {
+  stopifnot(ncol(X_xyz) >= 3)
+  x  <- as.numeric(X_xyz[,1]); y <- as.numeric(X_xyz[,2]); times <- as.numeric(X_xyz[,3])
+  n  <- length(times); if (is.null(tlim)) tlim <- range(times, finite = TRUE)
   ns <- length(s_vals); nu <- length(u_vals)
 
-  K_obs_raw <- splancs::stkhat(pts = xy, times = times,
-                               s = s_vals, tm = u_vals,
-                               poly = poly, tlim = tlim)
-  K_obs <- fix_dims(K_obs_raw, ns, nu)
+  # --- precompute pairs once ---
+  cmb <- utils::combn(n, 2L)
+  i <- cmb[1L, ]; j <- cmb[2L, ]
+  d <- sqrt((x[i]-x[j])^2 + (y[i]-y[j])^2)
+  sbin <- findInterval(d, s_vals, rightmost.closed = TRUE)
 
-  perm_once <- function(){
-    tp <- sample(times, replace = FALSE)
-    Kp <- splancs::stkhat(pts = xy, times = tp,
-                          s = s_vals, tm = u_vals,
-                          poly = poly, tlim = tlim)
-    fix_dims(Kp, ns, nu)
+  # scaling (unordered pairs -> *2 for ordered convention)
+  scale_const <- (poly_area * diff(tlim)) / (n * (n - 1))
+
+  # core: evaluate for a given time vector (stateless; args passed explicitly)
+  one_eval_core <- function(tvec, i, j, sbin, u_vals, ns, scale_const) {
+    dt <- abs(tvec[i] - tvec[j])
+    res <- matrix(0, nrow = ns, ncol = length(u_vals))
+    for (k in seq_along(u_vals)) {
+      idx    <- which(dt <= u_vals[k])
+      counts <- tabulate(sbin[idx], nbins = ns)
+      res[,k] <- cumsum(counts) * 2 * scale_const
+    }
+    res
   }
 
-  K_sim <- array(NA_real_, dim = c(ns, nu, nsim))
-  for (i in seq_len(nsim)) K_sim[,,i] <- perm_once()
+  # observed
+  K_obs <- one_eval_core(times, i, j, sbin, u_vals, ns, scale_const)
 
-  lo  <- apply(K_sim, c(1,2), quantile, probs = 0.025, na.rm = TRUE)
-  hi  <- apply(K_sim, c(1,2), quantile, probs = 0.975, na.rm = TRUE)
-  med <- apply(K_sim, c(1,2), median,   na.rm = TRUE)
+  # simulations (permute time labels)
+  if (parallel && workers > 1L) {
+    cl <- parallel::makeCluster(workers)
+    on.exit(parallel::stopCluster(cl), add = TRUE)
+    parallel::clusterExport(cl, varlist = c("i","j","sbin","u_vals","ns","scale_const","one_eval_core"),
+                            envir = environment())
+    K_list <- parallel::parLapply(
+      cl, seq_len(nsim),
+      function(.) one_eval_core(sample(times, replace = FALSE), i, j, sbin, u_vals, ns, scale_const)
+    )
+  } else {
+    K_list <- lapply(seq_len(nsim), function(.) one_eval_core(sample(times, FALSE), i, j, sbin, u_vals, ns, scale_const))
+  }
 
-  list(K_obs = K_obs, K_lo = lo, K_hi = hi, K_med = med, s = s_vals, u = u_vals)
+  K_arr <- simplify2array(K_list)      # ns x nu x nsim
+  K_lo  <- apply(K_arr, c(1,2), stats::quantile, probs = 0.025, na.rm = TRUE)
+  K_hi  <- apply(K_arr, c(1,2), stats::quantile, probs = 0.975, na.rm = TRUE)
+  K_med <- apply(K_arr, c(1,2), stats::median,   na.rm = TRUE)
+  list(K_obs = K_obs, K_lo = K_lo, K_hi = K_hi, K_med = K_med, s = s_vals, u = u_vals)
 }
+
+
+
+```
+
+```{r}
+options(future.globals.maxSize = 2 * 1024^3)  # allow up to 2GB
+
+```
+
+```{r}
+# once:
+poly_area <- as.numeric(sf::st_area(sf::st_union(subzones_use)))
 
 st_sg <- list()
 for (sec in sectors4) {
   pts <- dplyr::filter(biz_pts_use, sector == sec, reg_date >= t0, reg_date <= t1)
-  xyz <- as_xyz(pts)
+  xyz <- as_xyz(pts)                                  # columns: x, y (metres 3414), t (numeric)
   if (nrow(xyz) < 30) { message("Skipping ST-K (sparse): ", sec); next }
 
-  key <- paste0("stk_env_SG_", gsub("\\W","_",sec),
-                "_ns", length(r_vals), "_nu", length(u_vals),
-                "_nsim", nsim, ".rds")
+  key   <- paste0("stk_env_FAST_", gsub("\\W","_",sec),
+                  "_ns", length(r_vals), "_nu", length(u_vals),
+                  "_nsim", nsim, ".rds")
   cache <- file.path("data/rds", key)
 
-  force_recompute <- TRUE  # set FALSE to use cache
+  force_recompute <- FALSE
   st_sg[[sec]] <- if (!force_recompute && file.exists(cache)) {
     readRDS(cache)
   } else {
-    res <- compute_st_env(xyz, r_vals, u_vals, bdry, nsim = nsim)
+    res <- compute_st_env_fast(
+      X_xyz = xyz, s_vals = r_vals, u_vals = u_vals,
+      poly_area = poly_area, tlim = range(as.numeric(xyz[,3]), finite = TRUE),
+      nsim = nsim, parallel = TRUE
+    )
     saveRDS(res, cache); res
   }
 }
+
 
 ```
 
