@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Priya">
-<meta name="dcterms.date" content="2025-09-13">
+<meta name="dcterms.date" content="2025-09-22">
 
 <title>Hands on Exercise 5a : Global Measures of Spatial Autocorrelation</title>
 <style>
@@ -247,22 +247,22 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview"><span class="header-section-number">1</span> 1 Overview</a></li>
-  <li><a href="#the-packages" id="toc-the-packages" class="nav-link" data-scroll-target="#the-packages"><span class="header-section-number">2</span> 2 The Packages</a></li>
-  <li><a href="#the-data" id="toc-the-data" class="nav-link" data-scroll-target="#the-data"><span class="header-section-number">3</span> 3 The Data</a>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview"><span class="header-section-number">1</span> Overview</a></li>
+  <li><a href="#the-packages" id="toc-the-packages" class="nav-link" data-scroll-target="#the-packages"><span class="header-section-number">2</span> The Packages</a></li>
+  <li><a href="#the-data" id="toc-the-data" class="nav-link" data-scroll-target="#the-data"><span class="header-section-number">3</span> The Data</a>
   <ul class="collapse">
-  <li><a href="#loading-the-data" id="toc-loading-the-data" class="nav-link" data-scroll-target="#loading-the-data"><span class="header-section-number">3.1</span> 3.1 Loading the Data</a></li>
-  <li><a href="#visualising-regional-development-indicator" id="toc-visualising-regional-development-indicator" class="nav-link" data-scroll-target="#visualising-regional-development-indicator"><span class="header-section-number">3.2</span> 3.2 Visualising Regional Development Indicator</a></li>
+  <li><a href="#loading-the-data" id="toc-loading-the-data" class="nav-link" data-scroll-target="#loading-the-data"><span class="header-section-number">3.1</span> Loading the Data</a></li>
+  <li><a href="#visualising-regional-development-indicator" id="toc-visualising-regional-development-indicator" class="nav-link" data-scroll-target="#visualising-regional-development-indicator"><span class="header-section-number">3.2</span> Visualising Regional Development Indicator</a></li>
   </ul></li>
-  <li><a href="#global-spatial-autocorrelation" id="toc-global-spatial-autocorrelation" class="nav-link" data-scroll-target="#global-spatial-autocorrelation"><span class="header-section-number">4</span> 4 Global Spatial Autocorrelation</a>
+  <li><a href="#global-spatial-autocorrelation" id="toc-global-spatial-autocorrelation" class="nav-link" data-scroll-target="#global-spatial-autocorrelation"><span class="header-section-number">4</span> Global Spatial Autocorrelation</a>
   <ul class="collapse">
-  <li><a href="#computing-contiguity-spatial-weights" id="toc-computing-contiguity-spatial-weights" class="nav-link" data-scroll-target="#computing-contiguity-spatial-weights"><span class="header-section-number">4.1</span> 4.1 Computing Contiguity Spatial Weights</a></li>
-  <li><a href="#row-standardised-weights-matrix" id="toc-row-standardised-weights-matrix" class="nav-link" data-scroll-target="#row-standardised-weights-matrix"><span class="header-section-number">4.2</span> 4.2 Row-standardised weights matrix</a></li>
-  <li><a href="#global-spatial-autocorrelation-morans-i" id="toc-global-spatial-autocorrelation-morans-i" class="nav-link" data-scroll-target="#global-spatial-autocorrelation-morans-i"><span class="header-section-number">4.3</span> 4.3 Global Spatial Autocorrelation: Moran’s I</a></li>
-  <li><a href="#global-spatial-autocorrelation-gearys" id="toc-global-spatial-autocorrelation-gearys" class="nav-link" data-scroll-target="#global-spatial-autocorrelation-gearys"><span class="header-section-number">4.4</span> 4.5 Global Spatial Autocorrelation: Geary’s</a></li>
+  <li><a href="#computing-contiguity-spatial-weights" id="toc-computing-contiguity-spatial-weights" class="nav-link" data-scroll-target="#computing-contiguity-spatial-weights"><span class="header-section-number">4.1</span> Computing Contiguity Spatial Weights</a></li>
+  <li><a href="#row-standardised-weights-matrix" id="toc-row-standardised-weights-matrix" class="nav-link" data-scroll-target="#row-standardised-weights-matrix"><span class="header-section-number">4.2</span> Row-standardised weights matrix</a></li>
+  <li><a href="#global-spatial-autocorrelation-morans-i" id="toc-global-spatial-autocorrelation-morans-i" class="nav-link" data-scroll-target="#global-spatial-autocorrelation-morans-i"><span class="header-section-number">4.3</span> Global Spatial Autocorrelation: Moran’s I</a></li>
+  <li><a href="#global-spatial-autocorrelation-gearys" id="toc-global-spatial-autocorrelation-gearys" class="nav-link" data-scroll-target="#global-spatial-autocorrelation-gearys"><span class="header-section-number">4.4</span> Global Spatial Autocorrelation: Geary’s</a></li>
   </ul></li>
-  <li><a href="#spatial-correlogram" id="toc-spatial-correlogram" class="nav-link" data-scroll-target="#spatial-correlogram"><span class="header-section-number">5</span> 5 Spatial Correlogram</a></li>
-  <li><a href="#reference" id="toc-reference" class="nav-link" data-scroll-target="#reference"><span class="header-section-number">6</span> 6 Reference</a></li>
+  <li><a href="#spatial-correlogram" id="toc-spatial-correlogram" class="nav-link" data-scroll-target="#spatial-correlogram"><span class="header-section-number">5</span> Spatial Correlogram</a></li>
+  <li><a href="#reference" id="toc-reference" class="nav-link" data-scroll-target="#reference"><span class="header-section-number">6</span> Reference</a></li>
   </ul>
 </nav>
     </div>
@@ -288,7 +288,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">September 13, 2025</p>
+      <p class="date">September 22, 2025</p>
     </div>
   </div>
   
@@ -307,7 +307,7 @@ window.Quarto = {
 
 
 <section id="overview" class="level1" data-number="1">
-<h1 data-number="1"><span class="header-section-number">1</span> 1 Overview</h1>
+<h1 data-number="1"><span class="header-section-number">1</span> Overview</h1>
 <p>Learning how to compute Global Measure of Spatial Autocorrelation (GLSA) by using <strong>spdep</strong> package, including:</p>
 <ul>
 <li>import geospatial data using appropriate function(s) of <strong>sf</strong> package</li>
@@ -323,13 +323,12 @@ window.Quarto = {
 <li>visualise the analysis output by using <strong>tmap</strong> package.</li>
 </ul>
 <div class="insightbox">
-<p><strong>The Analytical Question</strong></p>
 <p>In spatial policy, one of the main development objective of the local government and planners is to ensure equal distribution of development in the province. Our task in this study, hence, is to apply appropriate spatial statistical methods to discover if development are even distributed geographically. If the answer is <strong><em>No</em></strong>, then, our next question will be “is there sign of spatial clustering?” And, if the answer for this question is <strong><em>Yes</em></strong>, then our next question will be “where are these clusters?”</p>
 <p>In this case study, we are interested to examine the spatial pattern of a selected development indicator (i.e.&nbsp;GDP per capita) of Hunan Provice, People Republic of China.</p>
 </div>
 </section>
 <section id="the-packages" class="level1" data-number="2">
-<h1 data-number="2"><span class="header-section-number">2</span> 2 The Packages</h1>
+<h1 data-number="2"><span class="header-section-number">2</span> The Packages</h1>
 <div class="tabset-margin-container"></div><div class="panel-tabset">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Packages</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Code</a></li></ul>
 <div class="tab-content">
@@ -385,7 +384,7 @@ window.Quarto = {
 </div>
 </section>
 <section id="the-data" class="level1" data-number="3">
-<h1 data-number="3"><span class="header-section-number">3</span> 3 The Data</h1>
+<h1 data-number="3"><span class="header-section-number">3</span> The Data</h1>
 <p>Two data sets will be used in this hands-on exercise, they are:</p>
 <table class="caption-top table">
 <colgroup>
@@ -420,7 +419,7 @@ window.Quarto = {
 </tbody>
 </table>
 <section id="loading-the-data" class="level2" data-number="3.1">
-<h2 data-number="3.1" class="anchored" data-anchor-id="loading-the-data"><span class="header-section-number">3.1</span> 3.1 Loading the Data</h2>
+<h2 data-number="3.1" class="anchored" data-anchor-id="loading-the-data"><span class="header-section-number">3.1</span> Loading the Data</h2>
 <p>In this section, you will learn how to bring a geospatial data and its associated attribute table into R environment. The geospatial data is in ESRI shapefile format and the attribute table is in csv fomat.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true">Import shapefile</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false">Import csv file</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-3" role="tab" aria-controls="tabset-2-3" aria-selected="false">Performing relational join</a></li></ul>
@@ -4158,7 +4157,7 @@ Geodetic CRS:  WGS 84</code></pre>
 </div>
 </section>
 <section id="visualising-regional-development-indicator" class="level2" data-number="3.2">
-<h2 data-number="3.2" class="anchored" data-anchor-id="visualising-regional-development-indicator"><span class="header-section-number">3.2</span> 3.2 Visualising Regional Development Indicator</h2>
+<h2 data-number="3.2" class="anchored" data-anchor-id="visualising-regional-development-indicator"><span class="header-section-number">3.2</span> Visualising Regional Development Indicator</h2>
 <p>Now, we are going to prepare a basemap and a choropleth map showing the distribution of GDPPC 2012 by using <em>qtm()</em> of <strong>tmap</strong> package.</p>
 <div class="cell">
 <details class="code-fold">
@@ -4189,10 +4188,10 @@ Geodetic CRS:  WGS 84</code></pre>
 </section>
 </section>
 <section id="global-spatial-autocorrelation" class="level1" data-number="4">
-<h1 data-number="4"><span class="header-section-number">4</span> 4 Global Spatial Autocorrelation</h1>
+<h1 data-number="4"><span class="header-section-number">4</span> Global Spatial Autocorrelation</h1>
 <p>This section is where we will compute global spatial autocorrelation statistics and perform spatial complete randomness test for global spatial autocorrelation.</p>
 <section id="computing-contiguity-spatial-weights" class="level2" data-number="4.1">
-<h2 data-number="4.1" class="anchored" data-anchor-id="computing-contiguity-spatial-weights"><span class="header-section-number">4.1</span> 4.1 Computing Contiguity Spatial Weights</h2>
+<h2 data-number="4.1" class="anchored" data-anchor-id="computing-contiguity-spatial-weights"><span class="header-section-number">4.1</span> Computing Contiguity Spatial Weights</h2>
 <p>Before we can compute the global spatial autocorrelation statistics, we need to construct a spatial weights of the study area. The spatial weights is used to define the neighbourhood relationships between the geographical units (i.e.&nbsp;county) in the study area.</p>
 <ul>
 <li><code>poly2nb()</code> of <strong>spdep</strong> package to compute contiguity weight matrices for the study area.</li>
@@ -4221,7 +4220,7 @@ Link number distribution:
 85 with 11 links</code></pre>
 </div>
 </div>
-<div class="lightbox light">
+<div class="insightbox">
 <p><strong>Interpretation</strong></p>
 <ul>
 <li>There are 88 area units in Hunan.</li>
@@ -4231,7 +4230,7 @@ Link number distribution:
 </div>
 </section>
 <section id="row-standardised-weights-matrix" class="level2" data-number="4.2">
-<h2 data-number="4.2" class="anchored" data-anchor-id="row-standardised-weights-matrix"><span class="header-section-number">4.2</span> 4.2 Row-standardised weights matrix</h2>
+<h2 data-number="4.2" class="anchored" data-anchor-id="row-standardised-weights-matrix"><span class="header-section-number">4.2</span> Row-standardised weights matrix</h2>
 <ul>
 <li><p>Assign weights to each neighboring polygon. In our case, each neighboring polygon will be assigned equal weight (<em>style=“W”</em>).</p></li>
 <li><p>This is accomplished by assigning the fraction 1/(# of neighbors) to each neighboring county then summing the weighted income values.</p></li>
@@ -4273,7 +4272,7 @@ W 88 7744 88 37.86334 365.9147</code></pre>
 <p>If <em>zero policy = TRUE</em>, weights vectors of zero length are inserted for regions without neighbour in the neighbours list. These will in turn generate lag values of zero, equivalent to the sum of products of the zero row t(rep(0, length = length(neighbours))) %*% x, for arbitrary numerical vector x of length length(neighbours). The spatially lagged value of x for the zero-neighbour region will then be zero, which may (or may not) be a sensible choice.</p>
 </section>
 <section id="global-spatial-autocorrelation-morans-i" class="level2" data-number="4.3">
-<h2 data-number="4.3" class="anchored" data-anchor-id="global-spatial-autocorrelation-morans-i"><span class="header-section-number">4.3</span> 4.3 Global Spatial Autocorrelation: Moran’s I</h2>
+<h2 data-number="4.3" class="anchored" data-anchor-id="global-spatial-autocorrelation-morans-i"><span class="header-section-number">4.3</span> Global Spatial Autocorrelation: Moran’s I</h2>
 <div class="tabset-margin-container"></div><div class="panel-tabset">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true">Description</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-2" role="tab" aria-controls="tabset-3-2" aria-selected="false">Moran’s I test</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-3" role="tab" aria-controls="tabset-3-3" aria-selected="false">Computing Monte Carlo Moran’s I</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-4" role="tab" aria-controls="tabset-3-4" aria-selected="false">Visualise Monte Carlo Moran’s I</a></li></ul>
 <div class="tab-content">
@@ -4312,8 +4311,8 @@ Moran I statistic       Expectation          Variance
       0.300749970      -0.011494253       0.004348351 </code></pre>
 </div>
 </div>
-<div class="lightbox light">
-<p><strong>Question: What statistical conclusion can you draw from the output above?</strong></p>
+<div class="insightbox">
+<p><strong>Question: What statistical observation can you draw from the plot above?</strong></p>
 <ul>
 <li>The p-value which is 1.095e-06, or 0.0000001095 which is very small</li>
 <li>We will <strong>reject</strong> the null hypothesis at 99.9% as the p-value is smaller than our alpha value.</li>
@@ -4356,8 +4355,8 @@ statistic = 0.30075, observed rank = 1000, p-value = 0.001
 alternative hypothesis: greater</code></pre>
 </div>
 </div>
-<div class="lightbox light">
-<p><strong>Question: What statistical conclusion can you draw from the output above?</strong></p>
+<div class="insightbox">
+<p><strong>Question: What statistical observation can you draw from the plot above?</strong></p>
 <ul>
 <li>After 999 simulations, our P-value is 0.001.</li>
 <li>We will <strong>accept</strong> / <strong>do not reject</strong> the null hypothesis at 99.9% as the p-value is equal to our alpha value 0.001.</li>
@@ -4465,7 +4464,7 @@ alternative hypothesis: greater</code></pre>
 </div>
 </section>
 <section id="global-spatial-autocorrelation-gearys" class="level2" data-number="4.4">
-<h2 data-number="4.4" class="anchored" data-anchor-id="global-spatial-autocorrelation-gearys"><span class="header-section-number">4.4</span> 4.5 Global Spatial Autocorrelation: Geary’s</h2>
+<h2 data-number="4.4" class="anchored" data-anchor-id="global-spatial-autocorrelation-gearys"><span class="header-section-number">4.4</span> Global Spatial Autocorrelation: Geary’s</h2>
 <p>In this section, you will learn how to perform Geary’s c statistics testing by using appropriate functions of <strong>spdep</strong> package.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-4-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-1" role="tab" aria-controls="tabset-4-1" aria-selected="true">Description</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-4-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-2" role="tab" aria-controls="tabset-4-2" aria-selected="false">Geary’s C test</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-4-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-3" role="tab" aria-controls="tabset-4-3" aria-selected="false">Computing Monte Carlo Geary’s C</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-4-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-4" role="tab" aria-controls="tabset-4-4" aria-selected="false">Visualising the Monte Carlo Geary’s C</a></li></ul>
@@ -4527,7 +4526,7 @@ statistic = 0.69072, observed rank = 1, p-value = 0.001
 alternative hypothesis: greater</code></pre>
 </div>
 </div>
-<div class="notebox note">
+<div class="insightbox">
 <p><strong>Question: What statistical conclusion can you draw from the output above?</strong></p>
 <ul>
 <li>After running 1000 simulations, the p-value is now = 0.001.</li>
@@ -4634,7 +4633,7 @@ alternative hypothesis: greater</code></pre>
 </section>
 </section>
 <section id="spatial-correlogram" class="level1" data-number="5">
-<h1 data-number="5"><span class="header-section-number">5</span> 5 Spatial Correlogram</h1>
+<h1 data-number="5"><span class="header-section-number">5</span> Spatial Correlogram</h1>
 <ul>
 <li>Spatial correlograms are for <strong>examining patterns of spatial autocorrelation</strong> in the data or model residuals.</li>
 <li>They show how correlated are pairs of spatial observations when you increase the distance (lag) between them
@@ -4724,13 +4723,27 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </figure>
 </div>
 </div>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(GC_corr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Spatial correlogram for hunan$GDPPC 
+method: Geary's C
+        estimate expectation  variance standard deviate Pr(I) two sided    
+1 (88) 0.6907223   1.0000000 0.0073364          -3.6108       0.0003052 ***
+2 (88) 0.7630197   1.0000000 0.0049126          -3.3811       0.0007220 ***
+3 (88) 0.9397299   1.0000000 0.0049005          -0.8610       0.3892612    
+4 (88) 1.0098462   1.0000000 0.0039631           0.1564       0.8757128    
+5 (88) 1.2008204   1.0000000 0.0035568           3.3673       0.0007592 ***
+6 (88) 1.0773386   1.0000000 0.0058042           1.0151       0.3100407    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
 </div>
 </div>
 </div>
 </div>
 </section>
 <section id="reference" class="level1" data-number="6">
-<h1 data-number="6"><span class="header-section-number">6</span> 6 Reference</h1>
+<h1 data-number="6"><span class="header-section-number">6</span> Reference</h1>
 <p>Kam, T. S. Global Measures of Spatial Autocorrelation. <em>R for Geospatial Data Science and Analytics.</em> <a href="https://r4gdsa.netlify.app/chap09.html" class="uri">https://r4gdsa.netlify.app/chap09.html</a></p>
 
 
