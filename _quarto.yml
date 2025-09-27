@@ -23,6 +23,18 @@ website:
           href: "Hands-on_Ex/Hands-on_Ex05/Hands-on_Ex05a.html"
         - text: "5b:  Local Measures of Spatial Autocorrelation"
           href: "Hands-on_Ex/Hands-on_Ex05/Hands-on_Ex05b.html"
+        - text: "6:  Geographical Segmentation with Spatially Constrained Clustering Techniques"
+          href: "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html"
+        - text: "7:  Calibrating Hedonic Pricing Model for Private Highrise Property with GWR Method"
+          href: "Hands-on_Ex/Hands-on_Ex07/Hands-on_Ex07.html"
+        - text: "8:  Geographically Weighted Predictive Models"
+          href: "Hands-on_Ex/Hands-on_Ex08/Hands-on_Ex08.html"
+        - text: "9:  Local Measures of Spatial Autocorrelation"
+          href: "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html"
+        - text: "10a:  Processing and Visualising Flow Data"
+          href: "Hands-on_Ex/Hands-on_Ex10a/Hands-on_Ex10a.html"
+        - text: "10b:  Calibrating Spatial Interaction Models with R"
+          href: "Hands-on_Ex/Hands-on_Ex10b/Hands-on_Ex10b.html"
     - text: "Take-home Exercises"
       menu: 
         - text: "Take-home Exercise1"
@@ -35,7 +47,9 @@ website:
         - text: "In-class Exercise 3b : Preparing data for Public Good "
           href: "In-class_Ex/In-class_Ex03/In-class_Ex03b.html"      
         - text: "In-class Exercise 4 : Spatial Weights and Applications "
-          href: "In-class_Ex/In-class_Ex04/In-class_Ex04.html"   
+          href: "In-class_Ex/In-class_Ex04/In-class_Ex04.html"  
+        - text: "In-class Exercise 5 : Global and Local Measures of Spatial Autocorrelation "
+          href: "In-class_Ex/In-class_Ex05/In-class_Ex05.html"
     right:
       - href: index.qmd
         text: Home

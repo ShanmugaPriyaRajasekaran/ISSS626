@@ -1,0 +1,108 @@
+---
+title: "In class Exercise 5 : Global and Local Measures of Spatial Autocorrelation"
+author: "Priya"
+date: "September 27, 2025"
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  message: false
+  freeze: true
+  warning: false
+format: 
+  html:
+    code-fold: false
+    code-summary: "code chunk"
+    number-sections: true
+    code-overflow: scroll
+    number-depth: 4
+    code-line-numbers: false
+---
+
+# Overview
+
+# Loading packages 
+
+sfdep builds on the great shoulders of spdep package for spatial dependence. sfdep creates an sf and tidyverse friendly interface to the package as well as introduces new functionality that is not present in spdep. sfdep utilizes list columns extensively to make this interface possible.
+
+```{r}
+pacman::p_load(sf, sfdep,tmap,tidyverse,kendall)
+
+```
+
+# Data 
+
+```{r}
+hunan <- st_read(dsn = "data/geospatial", 
+                 layer = "Hunan")
+```
+```{r}
+#output: R dataframe class
+
+hunan2012 <- read_csv("data/aspatial/Hunan_2012.csv")
+```
+# Combine both hunan and hunan 2012 togther using left join 
+
+```{r}
+hunan_GDPPC <- left_join(hunan,hunan2012) %>%
+  select(1:4, 7, 15)
+```
+# Plotting a Choropleth map 
+
+**wm_q** is the output object class, wm_q is a dataframe.
+
+**nb** A neighbor list object as created by st_neighbors()
+**style** Default "W" for row standardized weights.
+
+
+```{r}
+wm_q <- hunan_GDPPC %>%
+  mutate(nb = st_contiguity(geometry),
+         wt = st_weights(nb,
+                         style = "W"),
+         .before = 1)
+```
+
+# Performing Global Moran'l permutation test 
+For sfdep, it is supported by globel_moran_perm()
+
+```{r}
+set.seed(1234)
+```
+
+Later, global_moran_perm() is used to perform Monte Carlo Simulation
+```{r}
+global_moran_perm(wm_q$GDPPC,
+                  wm_q$nb,
+                  wm_q$wt,
+                  nsim = 99)
+```
+::: insightbox
+- nsim is always one value less , when we run 99, it is 100 simulations
+- p-value is 0.00000000000000022, smaller than 0.05 we have enough statisticall evidence to reject the Null hypothesis, that the observed is spatially independent.
+- there is a sign of clustering here after we reject the null hypothesis, low cluster because statistic = 0.30075 since it is positive.
+- If we fail to reject the NULL hypothesis, Make sure to do analysis at the local level as well for hotspot.
+- strong cluster is 0.8 and above.
+:::
+
+
+# Plotting and visualising LISA map use p_ii_sim instead of p_ii in hands on exercise
+
+
+lisa <- lisa %>%
+  mutate(
+    LISA_cluster = ifelse(
+      p_ii_sim < 0.05,
+      as.character(mean), 
+      "Insignificant"),
+    LISA_cluster = factor(
+      LISA_cluster,
+      levels = c("Insignificant", "Low-Low", "Low-High", "High-Low", "High-High")
+    )
+  )`
+
+
+
+
+
+
