@@ -7,4 +7,9 @@
 .*.tmp
 
 /.quarto/
-data/
+data/_site/
+_freeze/
+.quarto/
+.Rproj.user/
+In-class_Ex/In-class_Ex06/origin_destination_bus_202508 1/
+*.csv.zip
