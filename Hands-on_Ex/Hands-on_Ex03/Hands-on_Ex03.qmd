@@ -6,6 +6,8 @@ toc: true
 toc-depth: 4
 format: html
 editor: visual
+execute:
+  eval: false
 ---
 
 ## **1 Overview**
@@ -47,19 +49,20 @@ pacman::p_load(sf, terra, spatstat, sparr, tmap, tidyverse)
 Code chunk below is used import study area (i.e. Kepulauan Bangka Belitung)
 
 ```{r}
-kbb <- st_read(dsn="data",
+kbb <- st_read(dsn="C:/privatejet/ShanmugaPriyaRajasekaran/ISSS626/Hands-on_Ex/Hands-on_Ex03/data/",
                layer = "Kepulauan_Bangka_Belitung") 
 ```
 
 Preparing the geometry
 
 ```{r}
-kbb_sf <- st_read(dsn="data",
+kbb_sf <- st_read(dsn="C:/privatejet/ShanmugaPriyaRajasekaran/ISSS626/Hands-on_Ex/Hands-on_Ex03/data/",
                layer = "Kepulauan_Bangka_Belitung") %>%
   st_union() %>%
   st_zm(drop = TRUE, what = "ZM") %>%
   st_transform(crs = 32748)
 ```
+
 Analysing the results
 
 ```{r}
@@ -149,7 +152,6 @@ Derive a **ppp** object called *fire_month* from *fire_month* sf data.frame.
 fire_month_ppp <- as.ppp(fire_month)
 fire_month_ppp
 ```
-
 
 ```{r}
 summary(fire_month_ppp)

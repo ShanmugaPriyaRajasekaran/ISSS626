@@ -13,3 +13,7 @@ _freeze/
 .Rproj.user/
 In-class_Ex/In-class_Ex06/origin_destination_bus_202508 1/
 *.csv.zip
+_site/
+*.RData
+*.rds
+data/

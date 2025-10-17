@@ -189,16 +189,29 @@ window.Quarto = {
     <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex05/Hands-on_Ex05b.html">
  <span class="dropdown-text">5b: Local Measures of Spatial Autocorrelation</span></a>
   </li>  
-    </ul>
-  </li>
-  <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-take-home-exercises" role="link" data-bs-toggle="dropdown" aria-expanded="false">
- <span class="menu-text">Take-home Exercises</span>
-    </a>
-    <ul class="dropdown-menu" aria-labelledby="nav-menu-take-home-exercises">    
         <li>
-    <a class="dropdown-item" href="../../Take-Home_Ex/Take-Home_Ex01/Take-Home_Ex01.html">
- <span class="dropdown-text">Take-home Exercise1</span></a>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html">
+ <span class="dropdown-text">6: Geographical Segmentation with Spatially Constrained Clustering Techniques</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex07/Hands-on_Ex07.html">
+ <span class="dropdown-text">7: Calibrating Hedonic Pricing Model for Private Highrise Property with GWR Method</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex08/Hands-on_Ex08.html">
+ <span class="dropdown-text">8: Geographically Weighted Predictive Models</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html">
+ <span class="dropdown-text">9: Local Measures of Spatial Autocorrelation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex10a/Hands-on_Ex10a.html">
+ <span class="dropdown-text">10a: Processing and Visualising Flow Data</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex10b/Hands-on_Ex10b.html">
+ <span class="dropdown-text">10b: Calibrating Spatial Interaction Models with R</span></a>
   </li>  
     </ul>
   </li>
@@ -218,6 +231,14 @@ window.Quarto = {
         <li>
     <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex04/In-class_Ex04.html">
  <span class="dropdown-text">In-class Exercise 4 : Spatial Weights and Applications</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex05/In-class_Ex05.html">
+ <span class="dropdown-text">In-class Exercise 5 : Global and Local Measures of Spatial Autocorrelation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex06/In-class_Ex06.html">
+ <span class="dropdown-text">In-class Exercise 6 : Preparation of LTA Data Mall Data</span></a>
   </li>  
     </ul>
   </li>
@@ -247,54 +268,54 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview"><span class="header-section-number">1</span> Overview</a></li>
-  <li><a href="#the-packages" id="toc-the-packages" class="nav-link" data-scroll-target="#the-packages"><span class="header-section-number">2</span> The Packages</a></li>
-  <li><a href="#the-data" id="toc-the-data" class="nav-link" data-scroll-target="#the-data"><span class="header-section-number">3</span> The Data</a>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a></li>
+  <li><a href="#the-packages" id="toc-the-packages" class="nav-link" data-scroll-target="#the-packages">The Packages</a></li>
+  <li><a href="#the-data" id="toc-the-data" class="nav-link" data-scroll-target="#the-data">The Data</a>
   <ul class="collapse">
-  <li><a href="#loading-the-data" id="toc-loading-the-data" class="nav-link" data-scroll-target="#loading-the-data"><span class="header-section-number">3.1</span> Loading the Data</a></li>
-  <li><a href="#visualising-regional-development-indicator" id="toc-visualising-regional-development-indicator" class="nav-link" data-scroll-target="#visualising-regional-development-indicator"><span class="header-section-number">3.2</span> Visualising Regional Development Indicator</a></li>
+  <li><a href="#loading-the-data" id="toc-loading-the-data" class="nav-link" data-scroll-target="#loading-the-data">Loading the Data</a></li>
+  <li><a href="#visualising-regional-development-indicator" id="toc-visualising-regional-development-indicator" class="nav-link" data-scroll-target="#visualising-regional-development-indicator">Visualising Regional Development Indicator</a></li>
   </ul></li>
-  <li><a href="#local-indicatros-of-spatial-association" id="toc-local-indicatros-of-spatial-association" class="nav-link" data-scroll-target="#local-indicatros-of-spatial-association"><span class="header-section-number">4</span> Local Indicatros of Spatial Association</a>
+  <li><a href="#local-indicatros-of-spatial-association" id="toc-local-indicatros-of-spatial-association" class="nav-link" data-scroll-target="#local-indicatros-of-spatial-association">Local Indicatros of Spatial Association</a>
   <ul class="collapse">
-  <li><a href="#computing-contiguity-spatial-weights" id="toc-computing-contiguity-spatial-weights" class="nav-link" data-scroll-target="#computing-contiguity-spatial-weights"><span class="header-section-number">4.1</span> Computing Contiguity Spatial Weights</a></li>
-  <li><a href="#row-standardised-weights-matrix" id="toc-row-standardised-weights-matrix" class="nav-link" data-scroll-target="#row-standardised-weights-matrix"><span class="header-section-number">4.2</span> Row-standardised weights matrix</a></li>
-  <li><a href="#computing-local-morans-i" id="toc-computing-local-morans-i" class="nav-link" data-scroll-target="#computing-local-morans-i"><span class="header-section-number">4.3</span> Computing Local Moran’s I</a>
+  <li><a href="#computing-contiguity-spatial-weights" id="toc-computing-contiguity-spatial-weights" class="nav-link" data-scroll-target="#computing-contiguity-spatial-weights">Computing Contiguity Spatial Weights</a></li>
+  <li><a href="#row-standardised-weights-matrix" id="toc-row-standardised-weights-matrix" class="nav-link" data-scroll-target="#row-standardised-weights-matrix">Row-standardised weights matrix</a></li>
+  <li><a href="#computing-local-morans-i" id="toc-computing-local-morans-i" class="nav-link" data-scroll-target="#computing-local-morans-i">Computing Local Moran’s I</a>
   <ul class="collapse">
-  <li><a href="#mapping-the-local-morans-i" id="toc-mapping-the-local-morans-i" class="nav-link" data-scroll-target="#mapping-the-local-morans-i"><span class="header-section-number">4.3.1</span> Mapping the Local Moran’s I</a></li>
-  <li><a href="#mapping-local-morans-i-values" id="toc-mapping-local-morans-i-values" class="nav-link" data-scroll-target="#mapping-local-morans-i-values"><span class="header-section-number">4.3.2</span> Mapping local Moran’s I values</a></li>
-  <li><a href="#mapping-local-morans-i-p-values" id="toc-mapping-local-morans-i-p-values" class="nav-link" data-scroll-target="#mapping-local-morans-i-p-values"><span class="header-section-number">4.3.3</span> Mapping Local Moran’s I p-values</a></li>
+  <li><a href="#mapping-the-local-morans-i" id="toc-mapping-the-local-morans-i" class="nav-link" data-scroll-target="#mapping-the-local-morans-i">Mapping the Local Moran’s I</a></li>
+  <li><a href="#mapping-local-morans-i-values" id="toc-mapping-local-morans-i-values" class="nav-link" data-scroll-target="#mapping-local-morans-i-values">Mapping local Moran’s I values</a></li>
+  <li><a href="#mapping-local-morans-i-p-values" id="toc-mapping-local-morans-i-p-values" class="nav-link" data-scroll-target="#mapping-local-morans-i-p-values">Mapping Local Moran’s I p-values</a></li>
   </ul></li>
-  <li><a href="#mapping-both-local-morans-i-values-and-p-values" id="toc-mapping-both-local-morans-i-values-and-p-values" class="nav-link" data-scroll-target="#mapping-both-local-morans-i-values-and-p-values"><span class="header-section-number">4.4</span> Mapping both Local Moran’s I values and p-values</a></li>
+  <li><a href="#mapping-both-local-morans-i-values-and-p-values" id="toc-mapping-both-local-morans-i-values-and-p-values" class="nav-link" data-scroll-target="#mapping-both-local-morans-i-values-and-p-values">Mapping both Local Moran’s I values and p-values</a></li>
   </ul></li>
-  <li><a href="#preparing-and-visualising-lisa-map" id="toc-preparing-and-visualising-lisa-map" class="nav-link" data-scroll-target="#preparing-and-visualising-lisa-map"><span class="header-section-number">5</span> Preparing and Visualising LISA Map</a>
+  <li><a href="#preparing-and-visualising-lisa-map" id="toc-preparing-and-visualising-lisa-map" class="nav-link" data-scroll-target="#preparing-and-visualising-lisa-map">Preparing and Visualising LISA Map</a>
   <ul class="collapse">
-  <li><a href="#plotting-moran-scatterplot" id="toc-plotting-moran-scatterplot" class="nav-link" data-scroll-target="#plotting-moran-scatterplot"><span class="header-section-number">5.1</span> Plotting Moran scatterplot</a></li>
-  <li><a href="#plotting-moran-scatterplot-with-standardised-variable" id="toc-plotting-moran-scatterplot-with-standardised-variable" class="nav-link" data-scroll-target="#plotting-moran-scatterplot-with-standardised-variable"><span class="header-section-number">5.2</span> Plotting Moran scatterplot with standardised variable</a></li>
-  <li><a href="#preparing-lisa-map-classes" id="toc-preparing-lisa-map-classes" class="nav-link" data-scroll-target="#preparing-lisa-map-classes"><span class="header-section-number">5.3</span> Preparing LISA map classes</a>
+  <li><a href="#plotting-moran-scatterplot" id="toc-plotting-moran-scatterplot" class="nav-link" data-scroll-target="#plotting-moran-scatterplot">Plotting Moran scatterplot</a></li>
+  <li><a href="#plotting-moran-scatterplot-with-standardised-variable" id="toc-plotting-moran-scatterplot-with-standardised-variable" class="nav-link" data-scroll-target="#plotting-moran-scatterplot-with-standardised-variable">Plotting Moran scatterplot with standardised variable</a></li>
+  <li><a href="#preparing-lisa-map-classes" id="toc-preparing-lisa-map-classes" class="nav-link" data-scroll-target="#preparing-lisa-map-classes">Preparing LISA map classes</a>
   <ul class="collapse">
-  <li><a href="#plotting-and-visualising-lisa-map" id="toc-plotting-and-visualising-lisa-map" class="nav-link" data-scroll-target="#plotting-and-visualising-lisa-map"><span class="header-section-number">5.3.1</span> Plotting and visualising LISA map</a></li>
-  <li><a href="#local-morans-i-and-p-values" id="toc-local-morans-i-and-p-values" class="nav-link" data-scroll-target="#local-morans-i-and-p-values"><span class="header-section-number">5.3.2</span> Local Moran’s I and p-values</a></li>
+  <li><a href="#plotting-and-visualising-lisa-map" id="toc-plotting-and-visualising-lisa-map" class="nav-link" data-scroll-target="#plotting-and-visualising-lisa-map">Plotting and visualising LISA map</a></li>
+  <li><a href="#local-morans-i-and-p-values" id="toc-local-morans-i-and-p-values" class="nav-link" data-scroll-target="#local-morans-i-and-p-values">Local Moran’s I and p-values</a></li>
   </ul></li>
   </ul></li>
-  <li><a href="#hot-spots-and-cold-spots-analysis-hcsa" id="toc-hot-spots-and-cold-spots-analysis-hcsa" class="nav-link" data-scroll-target="#hot-spots-and-cold-spots-analysis-hcsa"><span class="header-section-number">6</span> Hot Spots and Cold Spots Analysis (HCSA)**</a>
+  <li><a href="#hot-spots-and-cold-spots-analysis-hcsa" id="toc-hot-spots-and-cold-spots-analysis-hcsa" class="nav-link" data-scroll-target="#hot-spots-and-cold-spots-analysis-hcsa">Hot Spots and Cold Spots Analysis (HCSA)**</a>
   <ul class="collapse">
-  <li><a href="#deriving-distance-weight-matrix" id="toc-deriving-distance-weight-matrix" class="nav-link" data-scroll-target="#deriving-distance-weight-matrix"><span class="header-section-number">6.1</span> &nbsp;Deriving distance weight matrix</a></li>
-  <li><a href="#computing-fixed-distance-weights" id="toc-computing-fixed-distance-weights" class="nav-link" data-scroll-target="#computing-fixed-distance-weights"><span class="header-section-number">6.2</span> &nbsp;Computing fixed distance weights</a></li>
-  <li><a href="#computing-adaptive-distance-weights" id="toc-computing-adaptive-distance-weights" class="nav-link" data-scroll-target="#computing-adaptive-distance-weights"><span class="header-section-number">6.3</span> &nbsp;Computing adaptive distance weights</a></li>
-  <li><a href="#computing-adaptive-distance-weights-1" id="toc-computing-adaptive-distance-weights-1" class="nav-link" data-scroll-target="#computing-adaptive-distance-weights-1"><span class="header-section-number">6.4</span> &nbsp;Computing adaptive distance weights</a>
+  <li><a href="#deriving-distance-weight-matrix" id="toc-deriving-distance-weight-matrix" class="nav-link" data-scroll-target="#deriving-distance-weight-matrix">&nbsp;Deriving distance weight matrix</a></li>
+  <li><a href="#computing-fixed-distance-weights" id="toc-computing-fixed-distance-weights" class="nav-link" data-scroll-target="#computing-fixed-distance-weights">&nbsp;Computing fixed distance weights</a></li>
+  <li><a href="#computing-adaptive-distance-weights" id="toc-computing-adaptive-distance-weights" class="nav-link" data-scroll-target="#computing-adaptive-distance-weights">&nbsp;Computing adaptive distance weights</a></li>
+  <li><a href="#computing-adaptive-distance-weights-1" id="toc-computing-adaptive-distance-weights-1" class="nav-link" data-scroll-target="#computing-adaptive-distance-weights-1">&nbsp;Computing adaptive distance weights</a>
   <ul class="collapse">
-  <li><a href="#computing-local-gi" id="toc-computing-local-gi" class="nav-link" data-scroll-target="#computing-local-gi"><span class="header-section-number">6.4.1</span> &nbsp;Computing local Gi<br>
+  <li><a href="#computing-local-gi" id="toc-computing-local-gi" class="nav-link" data-scroll-target="#computing-local-gi">&nbsp;Computing local Gi<br>
   </a></li>
   </ul></li>
-  <li><a href="#preparing-and-visualising-hcsa-map" id="toc-preparing-and-visualising-hcsa-map" class="nav-link" data-scroll-target="#preparing-and-visualising-hcsa-map"><span class="header-section-number">6.5</span> &nbsp;Preparing and Visualising HCSA Map</a>
+  <li><a href="#preparing-and-visualising-hcsa-map" id="toc-preparing-and-visualising-hcsa-map" class="nav-link" data-scroll-target="#preparing-and-visualising-hcsa-map">&nbsp;Preparing and Visualising HCSA Map</a>
   <ul class="collapse">
-  <li><a href="#mapping-gi-with-fix-distance-weights" id="toc-mapping-gi-with-fix-distance-weights" class="nav-link" data-scroll-target="#mapping-gi-with-fix-distance-weights"><span class="header-section-number">6.5.1</span> Mapping Gi* with fix distance weights</a></li>
-  <li><a href="#mapping-local-gi-p-values" id="toc-mapping-local-gi-p-values" class="nav-link" data-scroll-target="#mapping-local-gi-p-values"><span class="header-section-number">6.5.2</span> Mapping local Gi* p-values</a></li>
-  <li><a href="#mapping-both-gi-values-and-p-values" id="toc-mapping-both-gi-values-and-p-values" class="nav-link" data-scroll-target="#mapping-both-gi-values-and-p-values"><span class="header-section-number">6.5.3</span> &nbsp;Mapping both Gi* values and p-values</a></li>
-  <li><a href="#plotting-and-visualising-hcsa-map" id="toc-plotting-and-visualising-hcsa-map" class="nav-link" data-scroll-target="#plotting-and-visualising-hcsa-map"><span class="header-section-number">6.5.4</span> Plotting and visualising HCSA Map</a></li>
+  <li><a href="#mapping-gi-with-fix-distance-weights" id="toc-mapping-gi-with-fix-distance-weights" class="nav-link" data-scroll-target="#mapping-gi-with-fix-distance-weights">Mapping Gi* with fix distance weights</a></li>
+  <li><a href="#mapping-local-gi-p-values" id="toc-mapping-local-gi-p-values" class="nav-link" data-scroll-target="#mapping-local-gi-p-values">Mapping local Gi* p-values</a></li>
+  <li><a href="#mapping-both-gi-values-and-p-values" id="toc-mapping-both-gi-values-and-p-values" class="nav-link" data-scroll-target="#mapping-both-gi-values-and-p-values">&nbsp;Mapping both Gi* values and p-values</a></li>
+  <li><a href="#plotting-and-visualising-hcsa-map" id="toc-plotting-and-visualising-hcsa-map" class="nav-link" data-scroll-target="#plotting-and-visualising-hcsa-map">Plotting and visualising HCSA Map</a></li>
   </ul></li>
   </ul></li>
-  <li><a href="#reference" id="toc-reference" class="nav-link" data-scroll-target="#reference"><span class="header-section-number">7</span> Reference</a></li>
+  <li><a href="#reference" id="toc-reference" class="nav-link" data-scroll-target="#reference">Reference</a></li>
   </ul>
 </nav>
     </div>
@@ -338,8 +359,8 @@ window.Quarto = {
 </header>
 
 
-<section id="overview" class="level1" data-number="1">
-<h1 data-number="1"><span class="header-section-number">1</span> Overview</h1>
+<section id="overview" class="level1">
+<h1>Overview</h1>
 <p>Local Measures of Spatial Autocorrelation (LMSA) focuses on the relationships between each observation and its surroundings, rather than providing a single summary of these relationships across the map. In this sense, they are not summary statistics but scores that allow us to learn more about the spatial structure in our data.</p>
 <p>The general intuition behind the metrics however is similar to that of global ones. Some of them are even mathematically connected, where the global version can be decomposed into a collection of local ones.</p>
 <p>An example is Local Indicators of Spatial Association (LISA). Beside LISA, Getis-Ord’s Gi-statistics will be introduce as an alternative LISA statistics that present complementary information or allow us to obtain similar insights for geographically referenced data.</p>
@@ -350,8 +371,8 @@ window.Quarto = {
 <p>In this case study, we are interested to examine the spatial pattern of a selected development indicator (i.e.&nbsp;GDP per capita) of Hunan Provice, People Republic of China.</p>
 </div>
 </section>
-<section id="the-packages" class="level1" data-number="2">
-<h1 data-number="2"><span class="header-section-number">2</span> The Packages</h1>
+<section id="the-packages" class="level1">
+<h1>The Packages</h1>
 <div class="tabset-margin-container"></div><div class="panel-tabset">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Packages</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Code</a></li></ul>
 <div class="tab-content">
@@ -402,8 +423,8 @@ window.Quarto = {
 </div>
 </div>
 </section>
-<section id="the-data" class="level1" data-number="3">
-<h1 data-number="3"><span class="header-section-number">3</span> The Data</h1>
+<section id="the-data" class="level1">
+<h1>The Data</h1>
 <p>Two data sets will be used in this hands-on exercise, they are:</p>
 <table class="caption-top table">
 <colgroup>
@@ -437,8 +458,8 @@ window.Quarto = {
 </tr>
 </tbody>
 </table>
-<section id="loading-the-data" class="level2" data-number="3.1">
-<h2 data-number="3.1" class="anchored" data-anchor-id="loading-the-data"><span class="header-section-number">3.1</span> Loading the Data</h2>
+<section id="loading-the-data" class="level2">
+<h2 class="anchored" data-anchor-id="loading-the-data">Loading the Data</h2>
 <p>In this section, you will learn how to bring a geospatial data and its associated attribute table into R environment. The geospatial data is in ESRI shapefile format and the attribute table is in csv fomat.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true">Import shapefile</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false">Import csv file</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-3" role="tab" aria-controls="tabset-2-3" aria-selected="false">Performing relational join</a></li></ul>
@@ -4176,8 +4197,8 @@ Geodetic CRS:  WGS 84</code></pre>
 </div>
 </div>
 </section>
-<section id="visualising-regional-development-indicator" class="level2" data-number="3.2">
-<h2 data-number="3.2" class="anchored" data-anchor-id="visualising-regional-development-indicator"><span class="header-section-number">3.2</span> Visualising Regional Development Indicator</h2>
+<section id="visualising-regional-development-indicator" class="level2">
+<h2 class="anchored" data-anchor-id="visualising-regional-development-indicator">Visualising Regional Development Indicator</h2>
 <p>Now, we are going to prepare a basemap and a choropleth map showing the distribution of GDPPC 2012 by using <em>qtm()</em> of <strong>tmap</strong> package.</p>
 <div class="cell">
 <details class="code-fold">
@@ -4252,15 +4273,15 @@ Geodetic CRS:  WGS 84</code></pre>
 </div>
 </section>
 </section>
-<section id="local-indicatros-of-spatial-association" class="level1" data-number="4">
-<h1 data-number="4"><span class="header-section-number">4</span> Local Indicatros of Spatial Association</h1>
+<section id="local-indicatros-of-spatial-association" class="level1">
+<h1>Local Indicatros of Spatial Association</h1>
 <ul>
 <li><p>Local Indicators of Spatial Association (LISA): statistics that evaluate the existence of clusters in the spatial arrangement of a given variable.</p></li>
 <li><p>Eg if we are studying cancer rates among census tracts in a given city local clusters in the rates mean that there are areas that have higher or lower rates than is to be expected by chance alone; that is, the values occurring are above or below those of a random distribution in space.</p></li>
 </ul>
 <p>In this section, we learn how to apply appropriate Local Indicators for Spatial Association (LISA), especially local Moran’s I to detect cluster and/or outlier from GDP per capita 2012 of Hunan Province, PRC.</p>
-<section id="computing-contiguity-spatial-weights" class="level2" data-number="4.1">
-<h2 data-number="4.1" class="anchored" data-anchor-id="computing-contiguity-spatial-weights"><span class="header-section-number">4.1</span> Computing Contiguity Spatial Weights</h2>
+<section id="computing-contiguity-spatial-weights" class="level2">
+<h2 class="anchored" data-anchor-id="computing-contiguity-spatial-weights">Computing Contiguity Spatial Weights</h2>
 <p>Before we can compute the global spatial autocorrelation statistics, we need to construct a spatial weights of the study area. The spatial weights is used to define the neighbourhood relationships between the geographical units (i.e.&nbsp;county) in the study area.</p>
 <ul>
 <li><code>poly2nb()</code> of <strong>spdep</strong> package to compute contiguity weight matrices for the study area.</li>
@@ -4303,8 +4324,8 @@ Link number distribution:
 </ul>
 </div>
 </section>
-<section id="row-standardised-weights-matrix" class="level2" data-number="4.2">
-<h2 data-number="4.2" class="anchored" data-anchor-id="row-standardised-weights-matrix"><span class="header-section-number">4.2</span> Row-standardised weights matrix</h2>
+<section id="row-standardised-weights-matrix" class="level2">
+<h2 class="anchored" data-anchor-id="row-standardised-weights-matrix">Row-standardised weights matrix</h2>
 <ul>
 <li><p>Assign weights to each neighboring polygon. In our case, each neighboring polygon will be assigned equal weight (<em>style=“W”</em>).</p></li>
 <li><p>This is accomplished by assigning the fraction 1/(# of neighbors) to each neighboring county then summing the weighted income values.</p></li>
@@ -4326,8 +4347,8 @@ Link number distribution:
 <p><em>zero.policy = TRUE</em> allows for lists of non-neighbors. This should be used with caution since the user may not be aware of missing neighbors in their dataset however, a <em>zero.policy = FALSE</em> would return an error.</p>
 <p>If <em>zero policy = TRUE</em>, weights vectors of zero length are inserted for regions without neighbour in the neighbours list. These will in turn generate lag values of zero, equivalent to the sum of products of the zero row t(rep(0, length = length(neighbours))) %*% x, for arbitrary numerical vector x of length length(neighbours). The spatially lagged value of x for the zero-neighbour region will then be zero, which may (or may not) be a sensible choice.</p>
 </section>
-<section id="computing-local-morans-i" class="level2" data-number="4.3">
-<h2 data-number="4.3" class="anchored" data-anchor-id="computing-local-morans-i"><span class="header-section-number">4.3</span> Computing Local Moran’s I</h2>
+<section id="computing-local-morans-i" class="level2">
+<h2 class="anchored" data-anchor-id="computing-local-morans-i">Computing Local Moran’s I</h2>
 <p><a href="https://r-spatial.github.io/spdep/reference/localmoran.html"><code>localmoran()</code></a> function of <strong>spdep</strong> computes <span class="math inline">\(I_i\)</span> values, given a set of <span class="math inline">\(z_i\)</span> values and a listw object providing neighbour weighting information for the polygon associated with the zi values</p>
 <p>The code chunks below are used to compute local Moran’s I of <em>GDPPC2012</em> at the county level.</p>
 <div class="cell">
@@ -4341,14 +4362,14 @@ Link number distribution:
 <pre><code>Rows: 88
 Columns: 21
 $ ii           &lt;dbl&gt; -1.468468e-03, 2.587817e-02, -1.198765e-02, 1.022468e-03,…
-$ eii          &lt;dbl&gt; 0.0003510714, -0.0164209853, -0.0014585770, -0.0000549035…
-$ var_ii       &lt;dbl&gt; 4.211831e-04, 1.135519e-02, 1.636194e-01, 5.664900e-06, 1…
-$ z_ii         &lt;dbl&gt; -0.08865963, 0.39694888, -0.02602990, 0.45265698, 0.31636…
-$ p_ii         &lt;dbl&gt; 9.293524e-01, 6.914052e-01, 9.792335e-01, 6.507958e-01, 7…
-$ p_ii_sim     &lt;dbl&gt; 0.80, 0.78, 0.78, 0.72, 0.62, 0.74, 0.02, 0.04, 0.02, 0.1…
-$ p_folded_sim &lt;dbl&gt; 0.40, 0.39, 0.39, 0.36, 0.31, 0.37, 0.01, 0.02, 0.01, 0.0…
-$ skewness     &lt;dbl&gt; -1.0335839, -0.5098375, 1.0846156, 0.6603061, 1.1322308, …
-$ kurtosis     &lt;dbl&gt; 1.29087556, -0.16445892, 0.95747040, -0.24067941, 1.16461…
+$ eii          &lt;dbl&gt; 5.406455e-03, -1.106905e-02, 7.385764e-04, -8.637909e-05,…
+$ var_ii       &lt;dbl&gt; 4.093776e-04, 1.115348e-02, 1.181687e-01, 5.279719e-06, 1…
+$ z_ii         &lt;dbl&gt; -0.33978627, 0.34984587, -0.03702101, 0.48257645, 0.45205…
+$ p_ii         &lt;dbl&gt; 7.340175e-01, 7.264544e-01, 9.704683e-01, 6.293965e-01, 6…
+$ p_ii_sim     &lt;dbl&gt; 0.60, 0.90, 0.82, 0.60, 0.60, 0.74, 0.08, 0.18, 0.02, 0.2…
+$ p_folded_sim &lt;dbl&gt; 0.30, 0.45, 0.41, 0.30, 0.30, 0.37, 0.04, 0.09, 0.01, 0.1…
+$ skewness     &lt;dbl&gt; -0.9342495, -0.6744410, 1.1279622, 1.0168981, 0.7595804, …
+$ kurtosis     &lt;dbl&gt; 0.20275658, -0.34901480, 1.31593924, 0.77466086, -0.04422…
 $ mean         &lt;fct&gt; Low-High, Low-Low, High-Low, High-High, High-High, High-L…
 $ median       &lt;fct&gt; High-High, High-High, High-High, High-High, High-High, Hi…
 $ pysal        &lt;fct&gt; Low-High, Low-Low, High-Low, High-High, High-High, High-L…
@@ -4371,15 +4392,15 @@ $ geometry     &lt;POLYGON [m]&gt; POLYGON ((22320.48 3301894,..., POLYGON ((355
 <li>Pr(): the p-value of local moran statistic</li>
 </ul>
 <p>The code chunk below list the content of the local Moran matrix derived by using <a href="https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/printCoefmat"><code>printCoefmat()</code></a>.</p>
-<section id="mapping-the-local-morans-i" class="level3" data-number="4.3.1">
-<h3 data-number="4.3.1" class="anchored" data-anchor-id="mapping-the-local-morans-i"><span class="header-section-number">4.3.1</span> Mapping the Local Moran’s I</h3>
+<section id="mapping-the-local-morans-i" class="level3">
+<h3 class="anchored" data-anchor-id="mapping-the-local-morans-i">Mapping the Local Moran’s I</h3>
 <ul>
 <li>Before mapping the local Moran’s I map, it is wise to append the local Moran’s I dataframe (i.e.&nbsp;localMI) onto hunan SpatialPolygonDataFrame.</li>
 <li>The output SpatialPolygonDataFrame is called <em>hunan.localMI</em></li>
 </ul>
 </section>
-<section id="mapping-local-morans-i-values" class="level3" data-number="4.3.2">
-<h3 data-number="4.3.2" class="anchored" data-anchor-id="mapping-local-morans-i-values"><span class="header-section-number">4.3.2</span> Mapping local Moran’s I values</h3>
+<section id="mapping-local-morans-i-values" class="level3">
+<h3 class="anchored" data-anchor-id="mapping-local-morans-i-values">Mapping local Moran’s I values</h3>
 <p>Plot the local Moran’s I values by using choropleth mapping functions of <strong>tmap</strong> package.</p>
 <div class="cell">
 <details class="code-fold">
@@ -4405,8 +4426,8 @@ $ geometry     &lt;POLYGON [m]&gt; POLYGON ((22320.48 3301894,..., POLYGON ((355
 </div>
 </div>
 </section>
-<section id="mapping-local-morans-i-p-values" class="level3" data-number="4.3.3">
-<h3 data-number="4.3.3" class="anchored" data-anchor-id="mapping-local-morans-i-p-values"><span class="header-section-number">4.3.3</span> Mapping Local Moran’s I p-values</h3>
+<section id="mapping-local-morans-i-p-values" class="level3">
+<h3 class="anchored" data-anchor-id="mapping-local-morans-i-p-values">Mapping Local Moran’s I p-values</h3>
 <p>For effective interpretation, it is better to plot both the local Moran’s I values map and its corresponding p-values map next to each other.</p>
 <div class="cell">
 <details class="code-fold">
@@ -4432,8 +4453,8 @@ $ geometry     &lt;POLYGON [m]&gt; POLYGON ((22320.48 3301894,..., POLYGON ((355
 </div>
 </section>
 </section>
-<section id="mapping-both-local-morans-i-values-and-p-values" class="level2" data-number="4.4">
-<h2 data-number="4.4" class="anchored" data-anchor-id="mapping-both-local-morans-i-values-and-p-values"><span class="header-section-number">4.4</span> Mapping both Local Moran’s I values and p-values</h2>
+<section id="mapping-both-local-morans-i-values-and-p-values" class="level2">
+<h2 class="anchored" data-anchor-id="mapping-both-local-morans-i-values-and-p-values">Mapping both Local Moran’s I values and p-values</h2>
 <p>Plot both the local Moran’s I values map and its corresponding p-values map next to each other for easier comparison.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>ii.map <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(lisa) <span class="sc">+</span></span>
@@ -4472,11 +4493,11 @@ $ geometry     &lt;POLYGON [m]&gt; POLYGON ((22320.48 3301894,..., POLYGON ((355
 </div>
 </section>
 </section>
-<section id="preparing-and-visualising-lisa-map" class="level1" data-number="5">
-<h1 data-number="5"><span class="header-section-number">5</span> Preparing and Visualising LISA Map</h1>
+<section id="preparing-and-visualising-lisa-map" class="level1">
+<h1>Preparing and Visualising LISA Map</h1>
 <p>The LISA Cluster Map shows the significant locations color coded by type of spatial autocorrelation. The first step before we can generate the LISA cluster map is to plot the Moran scatterplot.</p>
-<section id="plotting-moran-scatterplot" class="level2" data-number="5.1">
-<h2 data-number="5.1" class="anchored" data-anchor-id="plotting-moran-scatterplot"><span class="header-section-number">5.1</span> Plotting Moran scatterplot</h2>
+<section id="plotting-moran-scatterplot" class="level2">
+<h2 class="anchored" data-anchor-id="plotting-moran-scatterplot">Plotting Moran scatterplot</h2>
 <p>The Moran scatterplot is an illustration of the relationship between the values of the chosen attribute at each location and the average value of the same attribute at neighboring locations.</p>
 <p>The code chunk below plots the Moran scatterplot of GDPPC 2012 by using <a href="https://r-spatial.github.io/spdep/reference/moran.plot.html"><code>moran.plot()</code></a> of <strong>spdep</strong>.</p>
 <div class="cell">
@@ -4553,8 +4574,8 @@ $ geometry     &lt;POLYGON [m]&gt; POLYGON ((22320.48 3301894,..., POLYGON ((355
 </ul>
 </div>
 </section>
-<section id="plotting-moran-scatterplot-with-standardised-variable" class="level2" data-number="5.2">
-<h2 data-number="5.2" class="anchored" data-anchor-id="plotting-moran-scatterplot-with-standardised-variable"><span class="header-section-number">5.2</span> Plotting Moran scatterplot with standardised variable</h2>
+<section id="plotting-moran-scatterplot-with-standardised-variable" class="level2">
+<h2 class="anchored" data-anchor-id="plotting-moran-scatterplot-with-standardised-variable">Plotting Moran scatterplot with standardised variable</h2>
 <ul>
 <li>Use <code>scale()</code> to centers and scales the variable.</li>
 <li>Here, centering is done by <strong>subtracting the mean</strong> (omitting NAs) the corresponding columns,</li>
@@ -4611,14 +4632,14 @@ $ geometry     &lt;POLYGON [m]&gt; POLYGON ((22320.48 3301894,..., POLYGON ((355
 </ul>
 </div>
 </section>
-<section id="preparing-lisa-map-classes" class="level2" data-number="5.3">
-<h2 data-number="5.3" class="anchored" data-anchor-id="preparing-lisa-map-classes"><span class="header-section-number">5.3</span> Preparing LISA map classes</h2>
+<section id="preparing-lisa-map-classes" class="level2">
+<h2 class="anchored" data-anchor-id="preparing-lisa-map-classes">Preparing LISA map classes</h2>
 <p>The code chunks below show the steps to prepare a LISA cluster map.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>signif <span class="ot">&lt;-</span> <span class="fl">0.05</span>       </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<section id="plotting-and-visualising-lisa-map" class="level3" data-number="5.3.1">
-<h3 data-number="5.3.1" class="anchored" data-anchor-id="plotting-and-visualising-lisa-map"><span class="header-section-number">5.3.1</span> Plotting and visualising LISA map</h3>
+<section id="plotting-and-visualising-lisa-map" class="level3">
+<h3 class="anchored" data-anchor-id="plotting-and-visualising-lisa-map">Plotting and visualising LISA map</h3>
 <p>By default, the LISA classes are stored in mean, median and pysal fields of lisa sf data frame. To prepare the LISA map, we will derive a new field called LISA-cluster from either one of these three field by using the code chunk below.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>lisa <span class="ot">&lt;-</span> lisa <span class="sc">%&gt;%</span></span>
@@ -4671,8 +4692,8 @@ $ geometry     &lt;POLYGON [m]&gt; POLYGON ((22320.48 3301894,..., POLYGON ((355
 </ul>
 </div>
 </section>
-<section id="local-morans-i-and-p-values" class="level3" data-number="5.3.2">
-<h3 data-number="5.3.2" class="anchored" data-anchor-id="local-morans-i-and-p-values"><span class="header-section-number">5.3.2</span> Local Moran’s I and p-values</h3>
+<section id="local-morans-i-and-p-values" class="level3">
+<h3 class="anchored" data-anchor-id="local-morans-i-and-p-values">Local Moran’s I and p-values</h3>
 <p>Plot both the local Moran’s I values map and its corresponding p-values map next to each other for easier comparison.</p>
 <p>The code chunk below will be used to create such visualisation.</p>
 <div class="cell">
@@ -4722,8 +4743,8 @@ $ geometry     &lt;POLYGON [m]&gt; POLYGON ((22320.48 3301894,..., POLYGON ((355
 </section>
 </section>
 </section>
-<section id="hot-spots-and-cold-spots-analysis-hcsa" class="level1" data-number="6">
-<h1 data-number="6"><span class="header-section-number">6</span> Hot Spots and Cold Spots Analysis (HCSA)**</h1>
+<section id="hot-spots-and-cold-spots-analysis-hcsa" class="level1">
+<h1>Hot Spots and Cold Spots Analysis (HCSA)**</h1>
 <p><strong>Definition</strong></p>
 <ul>
 <li><p><strong>Hot spots:</strong>&nbsp;Areas where&nbsp;<strong>high values cluster together</strong>&nbsp;(e.g., high GDP per capita counties surrounded by other high values).</p></li>
@@ -4747,8 +4768,8 @@ $ geometry     &lt;POLYGON [m]&gt; POLYGON ((22320.48 3301894,..., POLYGON ((355
 <li><p><strong>Map Gi*</strong>&nbsp;results (hot spots vs cold spots).</p></li>
 <li><p><strong>Communicate results</strong>&nbsp;(interpret clusters in policy or planning context).</p></li>
 </ol>
-<section id="deriving-distance-weight-matrix" class="level2" data-number="6.1">
-<h2 data-number="6.1" class="anchored" data-anchor-id="deriving-distance-weight-matrix"><span class="header-section-number">6.1</span> &nbsp;Deriving distance weight matrix</h2>
+<section id="deriving-distance-weight-matrix" class="level2">
+<h2 class="anchored" data-anchor-id="deriving-distance-weight-matrix">&nbsp;Deriving distance weight matrix</h2>
 <p>Whist the spatial autocorrelation considered units which shared borders, for Getis-Ord Gi* statistics, we are defining neighbours based on distance.</p>
 <p>There are two type of distance-based proximity matrix, they are:</p>
 <ul>
@@ -4757,8 +4778,8 @@ $ geometry     &lt;POLYGON [m]&gt; POLYGON ((22320.48 3301894,..., POLYGON ((355
 <li><p>inverse distance weights.</p></li>
 </ul>
 </section>
-<section id="computing-fixed-distance-weights" class="level2" data-number="6.2">
-<h2 data-number="6.2" class="anchored" data-anchor-id="computing-fixed-distance-weights"><span class="header-section-number">6.2</span> &nbsp;Computing fixed distance weights</h2>
+<section id="computing-fixed-distance-weights" class="level2">
+<h2 class="anchored" data-anchor-id="computing-fixed-distance-weights">&nbsp;Computing fixed distance weights</h2>
 <p>In this section, you will learn how to compute fixed distance weight matrix by using&nbsp;<code>st_dist_band()</code>&nbsp;and&nbsp;<code>st_weights()</code>&nbsp;of sfdep package.</p>
 <p>Firstly, we need to determine the upper limit for distance band by using the steps below:</p>
 <div class="cell">
@@ -4794,8 +4815,8 @@ Note
 </div>
 </div>
 </section>
-<section id="computing-adaptive-distance-weights" class="level2" data-number="6.3">
-<h2 data-number="6.3" class="anchored" data-anchor-id="computing-adaptive-distance-weights"><span class="header-section-number">6.3</span> &nbsp;Computing adaptive distance weights</h2>
+<section id="computing-adaptive-distance-weights" class="level2">
+<h2 class="anchored" data-anchor-id="computing-adaptive-distance-weights">&nbsp;Computing adaptive distance weights</h2>
 <p><strong>Problem with fixed distance weights</strong></p>
 <ul>
 <li><p>In&nbsp;fixed distance weight matrices:</p>
@@ -4827,10 +4848,10 @@ Note
 <span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">.before =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="computing-adaptive-distance-weights-1" class="level2" data-number="6.4">
-<h2 data-number="6.4" class="anchored" data-anchor-id="computing-adaptive-distance-weights-1"><span class="header-section-number">6.4</span> &nbsp;Computing adaptive distance weights</h2>
-<section id="computing-local-gi" class="level3" data-number="6.4.1">
-<h3 data-number="6.4.1" class="anchored" data-anchor-id="computing-local-gi"><span class="header-section-number">6.4.1</span> &nbsp;Computing local Gi<br>
+<section id="computing-adaptive-distance-weights-1" class="level2">
+<h2 class="anchored" data-anchor-id="computing-adaptive-distance-weights-1">&nbsp;Computing adaptive distance weights</h2>
+<section id="computing-local-gi" class="level3">
+<h3 class="anchored" data-anchor-id="computing-local-gi">&nbsp;Computing local Gi<br>
 </h3>
 <p>Local Gi* (pronounced “G-i-star”) is a Getis-Ord statistic used in spatial analysis to identify statistically significant hot spots and cold spots of high or low attribute values within a dataset. It measures the spatial clustering of values by comparing the total value within a specified neighborhood to the global total, producing a Z-score and p-value for each location to determine the likelihood that the observed pattern is not due to random chance.</p>
 <p>In this sub-section, you will gain hands-on experience on performing Gi* analysis by using&nbsp;<code>local_gstar_perm()</code>&nbsp;of sfdep package.</p>
@@ -4844,10 +4865,10 @@ Note
 </div>
 </section>
 </section>
-<section id="preparing-and-visualising-hcsa-map" class="level2" data-number="6.5">
-<h2 data-number="6.5" class="anchored" data-anchor-id="preparing-and-visualising-hcsa-map"><span class="header-section-number">6.5</span> &nbsp;Preparing and Visualising HCSA Map</h2>
-<section id="mapping-gi-with-fix-distance-weights" class="level3" data-number="6.5.1">
-<h3 data-number="6.5.1" class="anchored" data-anchor-id="mapping-gi-with-fix-distance-weights"><span class="header-section-number">6.5.1</span> Mapping Gi* with fix distance weights</h3>
+<section id="preparing-and-visualising-hcsa-map" class="level2">
+<h2 class="anchored" data-anchor-id="preparing-and-visualising-hcsa-map">&nbsp;Preparing and Visualising HCSA Map</h2>
+<section id="mapping-gi-with-fix-distance-weights" class="level3">
+<h3 class="anchored" data-anchor-id="mapping-gi-with-fix-distance-weights">Mapping Gi* with fix distance weights</h3>
 <p>In the code chunk below, thematic mapping functions of tmaps are used to prepare a choropleth map showing the distribution of Gi* values.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(HCSA_fdw) <span class="sc">+</span></span>
@@ -4870,8 +4891,8 @@ Note
 </div>
 </div>
 </section>
-<section id="mapping-local-gi-p-values" class="level3" data-number="6.5.2">
-<h3 data-number="6.5.2" class="anchored" data-anchor-id="mapping-local-gi-p-values"><span class="header-section-number">6.5.2</span> Mapping local Gi* p-values</h3>
+<section id="mapping-local-gi-p-values" class="level3">
+<h3 class="anchored" data-anchor-id="mapping-local-gi-p-values">Mapping local Gi* p-values</h3>
 <p>The choropleth shows there is evidence for both positive and negative Ii values. However, it is useful to consider the p-values for each of these values, as consider above.</p>
 <p>The code chunk below plots a choropleth map of p-values of Gi* by using functions of&nbsp;<strong>tmap</strong>&nbsp;package.</p>
 <div class="cell">
@@ -4894,8 +4915,8 @@ Note
 </div>
 </div>
 </section>
-<section id="mapping-both-gi-values-and-p-values" class="level3" data-number="6.5.3">
-<h3 data-number="6.5.3" class="anchored" data-anchor-id="mapping-both-gi-values-and-p-values"><span class="header-section-number">6.5.3</span> &nbsp;Mapping both Gi* values and p-values</h3>
+<section id="mapping-both-gi-values-and-p-values" class="level3">
+<h3 class="anchored" data-anchor-id="mapping-both-gi-values-and-p-values">&nbsp;Mapping both Gi* values and p-values</h3>
 <p>For effective interpretation, it is better to plot both the Gi* values map and its corresponding p-values map next to each other.</p>
 <p>The code chunk below will be used to create such visualisation.</p>
 <div class="cell">
@@ -4934,8 +4955,8 @@ Note
 </div>
 </div>
 </section>
-<section id="plotting-and-visualising-hcsa-map" class="level3" data-number="6.5.4">
-<h3 data-number="6.5.4" class="anchored" data-anchor-id="plotting-and-visualising-hcsa-map"><span class="header-section-number">6.5.4</span> Plotting and visualising HCSA Map</h3>
+<section id="plotting-and-visualising-hcsa-map" class="level3">
+<h3 class="anchored" data-anchor-id="plotting-and-visualising-hcsa-map">Plotting and visualising HCSA Map</h3>
 <p>By default, the HCSA classes are stored in&nbsp;<em>cluster</em>&nbsp;field of&nbsp;<em>HCSA_fdw</em>&nbsp;sf data frame. To prepare the HSCA map, we will derive a new field called&nbsp;<em>HCSA_cluster</em>&nbsp;from&nbsp;<em>cluster</em>&nbsp;field by using the code chunk below.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>HCSA_fdw <span class="ot">&lt;-</span> HCSA_fdw <span class="sc">%&gt;%</span></span>
@@ -5015,8 +5036,8 @@ Note
 </section>
 </section>
 </section>
-<section id="reference" class="level1" data-number="7">
-<h1 data-number="7"><span class="header-section-number">7</span> Reference</h1>
+<section id="reference" class="level1">
+<h1>Reference</h1>
 <p>Kam, T. S. Lobal Measures of Spatial Autocorrelation. <em>R for Geospatial Data Science and Analytics.</em> <a href="https://r4gdsa.netlify.app/chap10.html" class="uri">https://r4gdsa.netlify.app/chap10.html</a></p>
 
 

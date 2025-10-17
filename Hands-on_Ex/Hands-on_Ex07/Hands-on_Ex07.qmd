@@ -205,7 +205,7 @@ In this section, we will visualize the geospatial distribution of condominium re
 #| code-fold: true
 #| code-summary: "Show the code"
 
-tmap_mode("view")
+tmap_mode("plot")
 
 tm_shape(mpsz_svy21)+
   tm_polygons() +
@@ -454,7 +454,7 @@ Using **tmap**, we visualize the spatial distribution of the residuals:
 
 ```{r}
 library(tmap)
-tmap_mode("view")
+tmap_mode("plot")
 ```
 
 ```{r}
@@ -668,7 +668,7 @@ summary(gwr.adaptive$SDF$yhat)
 The following code creates an interactive map showing local R2 values:
 
 ```{r}
-tmap_mode("view")
+tmap_mode("plot")
 
 tm_shape(mpsz_svy21) +
   tm_polygons(alpha = 0.1) +
@@ -684,7 +684,7 @@ tmap_mode("plot")
 We can visualize the standard errors and t-values of the `AREA_SQM` coefficient using the code below:
 
 ```{r}
-tmap_mode("view")
+tmap_mode("plot")
 
 AREA_SQM_SE <- tm_shape(mpsz_svy21) +
   tm_polygons(alpha = 0.1) +
