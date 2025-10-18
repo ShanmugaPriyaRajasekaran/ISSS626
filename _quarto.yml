@@ -35,7 +35,10 @@ website:
           href: "Hands-on_Ex/Hands-on_Ex10a/Hands-on_Ex10a.html"
         - text: "10b:  Calibrating Spatial Interaction Models with R"
           href: "Hands-on_Ex/Hands-on_Ex10b/Hands-on_Ex10b.html"
-            
+    - text: "Take-home Exercises"
+      menu: 
+        - text: "Take-home Exercise2"
+          href: "Take-home_Ex/Take-home_Ex02/Take-home_Ex02.html"             
     - text: "In-Class Exercises"
       menu: 
         - text: "In-class Exercise 3a : Interactive K-function"
@@ -48,6 +51,8 @@ website:
           href: "In-class_Ex/In-class_Ex05/In-class_Ex05.html"
         - text: "In-class Exercise 6 : Preparation of LTA Data Mall Data "
           href: "In-class_Ex/In-class_Ex06/In-class_Ex06.html"
+        - text: "In-class Exercise 7 : Geographically weighted regression (GWR) "
+          href: "In-class_Ex/In-class_Ex07/In-class_Ex07.html"
     right:
       - href: index.qmd
         text: Home

@@ -9,7 +9,7 @@
 <meta name="author" content="Priya">
 <meta name="dcterms.date" content="2025-10-14">
 
-<title>Hands on Exercise 7 : Geographically weighted regression (GWR)</title>
+<title>In class Exercise 7 : Geographically weighted regression (GWR)</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -297,7 +297,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Hands on Exercise 7 : Geographically weighted regression (GWR)</h1>
+<h1 class="title">In class Exercise 7 : Geographically weighted regression (GWR)</h1>
 </div>
 
 
@@ -321,7 +321,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">October 17, 2025</p>
+      <p class="date-modified">October 18, 2025</p>
     </div>
   </div>
     
@@ -451,7 +451,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>mpsz <span class="ot">=</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial"</span>, <span class="at">layer =</span> <span class="st">"MP14_SUBZONE_WEB_PL"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Reading layer `MP14_SUBZONE_WEB_PL' from data source 
-  `C:\privatejet\ShanmugaPriyaRajasekaran\ISSS626\Hands-on_Ex\Hands-on_Ex07\data\geospatial' 
+  `C:\privatejet\ShanmugaPriyaRajasekaran\ISSS626\In-class_Ex\In-class_Ex07\data\geospatial' 
   using driver `ESRI Shapefile'
 Simple feature collection with 323 features and 15 fields
 Geometry type: MULTIPOLYGON
@@ -668,7 +668,7 @@ Projected CRS: SVY21 / Singapore TM
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Hands-on_Ex07_files/figure-html/selling_price_hist-1.png" class="img-fluid figure-img" width="1152"></p>
+<p><img src="In-class_Ex07_files/figure-html/selling_price_hist-1.png" class="img-fluid figure-img" width="1152"></p>
 </figure>
 </div>
 </div>
@@ -700,7 +700,7 @@ Note
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Hands-on_Ex07_files/figure-html/log_selling_price_hist-1.png" class="img-fluid figure-img" width="1152"></p>
+<p><img src="In-class_Ex07_files/figure-html/log_selling_price_hist-1.png" class="img-fluid figure-img" width="1152"></p>
 </figure>
 </div>
 </div>
@@ -730,7 +730,7 @@ Note
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Hands-on_Ex07_files/figure-html/trellis_condo_resale-1.png" class="img-fluid figure-img" width="1152"></p>
+<p><img src="In-class_Ex07_files/figure-html/trellis_condo_resale-1.png" class="img-fluid figure-img" width="1152"></p>
 </figure>
 </div>
 </div>
@@ -767,7 +767,7 @@ Note
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Hands-on_Ex07_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="In-class_Ex07_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -836,7 +836,7 @@ Note
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Hands-on_Ex07_files/figure-html/linear_regression-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="In-class_Ex07_files/figure-html/linear_regression-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -855,7 +855,7 @@ Note
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Hands-on_Ex07_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="1152"></p>
+<p><img src="In-class_Ex07_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="1152"></p>
 </figure>
 </div>
 </div>
@@ -1079,23 +1079,23 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
 <div class="cell">
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tbl_regression</span>(condo.mlr1, <span class="at">intercept =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="nertzktgwl" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#nertzktgwl table {
+<div id="czqejlthpl" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#czqejlthpl table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#nertzktgwl thead, #nertzktgwl tbody, #nertzktgwl tfoot, #nertzktgwl tr, #nertzktgwl td, #nertzktgwl th {
+#czqejlthpl thead, #czqejlthpl tbody, #czqejlthpl tfoot, #czqejlthpl tr, #czqejlthpl td, #czqejlthpl th {
   border-style: none;
 }
 
-#nertzktgwl p {
+#czqejlthpl p {
   margin: 0;
   padding: 0;
 }
 
-#nertzktgwl .gt_table {
+#czqejlthpl .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1121,12 +1121,12 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-left-color: #D3D3D3;
 }
 
-#nertzktgwl .gt_caption {
+#czqejlthpl .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#nertzktgwl .gt_title {
+#czqejlthpl .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1138,7 +1138,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-bottom-width: 0;
 }
 
-#nertzktgwl .gt_subtitle {
+#czqejlthpl .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1150,7 +1150,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-top-width: 0;
 }
 
-#nertzktgwl .gt_heading {
+#czqejlthpl .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1162,13 +1162,13 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-right-color: #D3D3D3;
 }
 
-#nertzktgwl .gt_bottom_border {
+#czqejlthpl .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#nertzktgwl .gt_col_headings {
+#czqejlthpl .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1183,7 +1183,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-right-color: #D3D3D3;
 }
 
-#nertzktgwl .gt_col_heading {
+#czqejlthpl .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1203,7 +1203,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   overflow-x: hidden;
 }
 
-#nertzktgwl .gt_column_spanner_outer {
+#czqejlthpl .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1215,15 +1215,15 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   padding-right: 4px;
 }
 
-#nertzktgwl .gt_column_spanner_outer:first-child {
+#czqejlthpl .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#nertzktgwl .gt_column_spanner_outer:last-child {
+#czqejlthpl .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#nertzktgwl .gt_column_spanner {
+#czqejlthpl .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1235,11 +1235,11 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   width: 100%;
 }
 
-#nertzktgwl .gt_spanner_row {
+#czqejlthpl .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#nertzktgwl .gt_group_heading {
+#czqejlthpl .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1265,7 +1265,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   text-align: left;
 }
 
-#nertzktgwl .gt_empty_group_heading {
+#czqejlthpl .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1280,15 +1280,15 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   vertical-align: middle;
 }
 
-#nertzktgwl .gt_from_md > :first-child {
+#czqejlthpl .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#nertzktgwl .gt_from_md > :last-child {
+#czqejlthpl .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#nertzktgwl .gt_row {
+#czqejlthpl .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1307,7 +1307,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   overflow-x: hidden;
 }
 
-#nertzktgwl .gt_stub {
+#czqejlthpl .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1320,7 +1320,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   padding-right: 5px;
 }
 
-#nertzktgwl .gt_stub_row_group {
+#czqejlthpl .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1334,15 +1334,15 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   vertical-align: top;
 }
 
-#nertzktgwl .gt_row_group_first td {
+#czqejlthpl .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#nertzktgwl .gt_row_group_first th {
+#czqejlthpl .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#nertzktgwl .gt_summary_row {
+#czqejlthpl .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1352,16 +1352,16 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   padding-right: 5px;
 }
 
-#nertzktgwl .gt_first_summary_row {
+#czqejlthpl .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#nertzktgwl .gt_first_summary_row.thick {
+#czqejlthpl .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#nertzktgwl .gt_last_summary_row {
+#czqejlthpl .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1371,7 +1371,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-bottom-color: #D3D3D3;
 }
 
-#nertzktgwl .gt_grand_summary_row {
+#czqejlthpl .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1381,7 +1381,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   padding-right: 5px;
 }
 
-#nertzktgwl .gt_first_grand_summary_row {
+#czqejlthpl .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1391,7 +1391,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-top-color: #D3D3D3;
 }
 
-#nertzktgwl .gt_last_grand_summary_row_top {
+#czqejlthpl .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1401,11 +1401,11 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-bottom-color: #D3D3D3;
 }
 
-#nertzktgwl .gt_striped {
+#czqejlthpl .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#nertzktgwl .gt_table_body {
+#czqejlthpl .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1414,7 +1414,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-bottom-color: #D3D3D3;
 }
 
-#nertzktgwl .gt_footnotes {
+#czqejlthpl .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1428,7 +1428,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-right-color: #D3D3D3;
 }
 
-#nertzktgwl .gt_footnote {
+#czqejlthpl .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1437,7 +1437,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   padding-right: 5px;
 }
 
-#nertzktgwl .gt_sourcenotes {
+#czqejlthpl .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1451,7 +1451,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-right-color: #D3D3D3;
 }
 
-#nertzktgwl .gt_sourcenote {
+#czqejlthpl .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1459,72 +1459,72 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   padding-right: 5px;
 }
 
-#nertzktgwl .gt_left {
+#czqejlthpl .gt_left {
   text-align: left;
 }
 
-#nertzktgwl .gt_center {
+#czqejlthpl .gt_center {
   text-align: center;
 }
 
-#nertzktgwl .gt_right {
+#czqejlthpl .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#nertzktgwl .gt_font_normal {
+#czqejlthpl .gt_font_normal {
   font-weight: normal;
 }
 
-#nertzktgwl .gt_font_bold {
+#czqejlthpl .gt_font_bold {
   font-weight: bold;
 }
 
-#nertzktgwl .gt_font_italic {
+#czqejlthpl .gt_font_italic {
   font-style: italic;
 }
 
-#nertzktgwl .gt_super {
+#czqejlthpl .gt_super {
   font-size: 65%;
 }
 
-#nertzktgwl .gt_footnote_marks {
+#czqejlthpl .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#nertzktgwl .gt_asterisk {
+#czqejlthpl .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#nertzktgwl .gt_indent_1 {
+#czqejlthpl .gt_indent_1 {
   text-indent: 5px;
 }
 
-#nertzktgwl .gt_indent_2 {
+#czqejlthpl .gt_indent_2 {
   text-indent: 10px;
 }
 
-#nertzktgwl .gt_indent_3 {
+#czqejlthpl .gt_indent_3 {
   text-indent: 15px;
 }
 
-#nertzktgwl .gt_indent_4 {
+#czqejlthpl .gt_indent_4 {
   text-indent: 20px;
 }
 
-#nertzktgwl .gt_indent_5 {
+#czqejlthpl .gt_indent_5 {
   text-indent: 25px;
 }
 
-#nertzktgwl .katex-display {
+#czqejlthpl .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#nertzktgwl div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#czqejlthpl div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -1647,23 +1647,23 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
 <span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">label =</span> <span class="fu">list</span>(sigma <span class="sc">~</span> <span class="st">"\U03C3"</span>),</span>
 <span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">include =</span> <span class="fu">c</span>(r.squared, adj.r.squared, AIC, statistic, p.value, sigma))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="fxnqnemlzm" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#fxnqnemlzm table {
+<div id="znlezutfso" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#znlezutfso table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#fxnqnemlzm thead, #fxnqnemlzm tbody, #fxnqnemlzm tfoot, #fxnqnemlzm tr, #fxnqnemlzm td, #fxnqnemlzm th {
+#znlezutfso thead, #znlezutfso tbody, #znlezutfso tfoot, #znlezutfso tr, #znlezutfso td, #znlezutfso th {
   border-style: none;
 }
 
-#fxnqnemlzm p {
+#znlezutfso p {
   margin: 0;
   padding: 0;
 }
 
-#fxnqnemlzm .gt_table {
+#znlezutfso .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1689,12 +1689,12 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-left-color: #D3D3D3;
 }
 
-#fxnqnemlzm .gt_caption {
+#znlezutfso .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#fxnqnemlzm .gt_title {
+#znlezutfso .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1706,7 +1706,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-bottom-width: 0;
 }
 
-#fxnqnemlzm .gt_subtitle {
+#znlezutfso .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1718,7 +1718,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-top-width: 0;
 }
 
-#fxnqnemlzm .gt_heading {
+#znlezutfso .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1730,13 +1730,13 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-right-color: #D3D3D3;
 }
 
-#fxnqnemlzm .gt_bottom_border {
+#znlezutfso .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#fxnqnemlzm .gt_col_headings {
+#znlezutfso .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1751,7 +1751,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-right-color: #D3D3D3;
 }
 
-#fxnqnemlzm .gt_col_heading {
+#znlezutfso .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1771,7 +1771,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   overflow-x: hidden;
 }
 
-#fxnqnemlzm .gt_column_spanner_outer {
+#znlezutfso .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1783,15 +1783,15 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   padding-right: 4px;
 }
 
-#fxnqnemlzm .gt_column_spanner_outer:first-child {
+#znlezutfso .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#fxnqnemlzm .gt_column_spanner_outer:last-child {
+#znlezutfso .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#fxnqnemlzm .gt_column_spanner {
+#znlezutfso .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1803,11 +1803,11 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   width: 100%;
 }
 
-#fxnqnemlzm .gt_spanner_row {
+#znlezutfso .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#fxnqnemlzm .gt_group_heading {
+#znlezutfso .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1833,7 +1833,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   text-align: left;
 }
 
-#fxnqnemlzm .gt_empty_group_heading {
+#znlezutfso .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1848,15 +1848,15 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   vertical-align: middle;
 }
 
-#fxnqnemlzm .gt_from_md > :first-child {
+#znlezutfso .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#fxnqnemlzm .gt_from_md > :last-child {
+#znlezutfso .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#fxnqnemlzm .gt_row {
+#znlezutfso .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1875,7 +1875,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   overflow-x: hidden;
 }
 
-#fxnqnemlzm .gt_stub {
+#znlezutfso .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1888,7 +1888,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   padding-right: 5px;
 }
 
-#fxnqnemlzm .gt_stub_row_group {
+#znlezutfso .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1902,15 +1902,15 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   vertical-align: top;
 }
 
-#fxnqnemlzm .gt_row_group_first td {
+#znlezutfso .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#fxnqnemlzm .gt_row_group_first th {
+#znlezutfso .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#fxnqnemlzm .gt_summary_row {
+#znlezutfso .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1920,16 +1920,16 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   padding-right: 5px;
 }
 
-#fxnqnemlzm .gt_first_summary_row {
+#znlezutfso .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#fxnqnemlzm .gt_first_summary_row.thick {
+#znlezutfso .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#fxnqnemlzm .gt_last_summary_row {
+#znlezutfso .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1939,7 +1939,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-bottom-color: #D3D3D3;
 }
 
-#fxnqnemlzm .gt_grand_summary_row {
+#znlezutfso .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1949,7 +1949,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   padding-right: 5px;
 }
 
-#fxnqnemlzm .gt_first_grand_summary_row {
+#znlezutfso .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1959,7 +1959,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-top-color: #D3D3D3;
 }
 
-#fxnqnemlzm .gt_last_grand_summary_row_top {
+#znlezutfso .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1969,11 +1969,11 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-bottom-color: #D3D3D3;
 }
 
-#fxnqnemlzm .gt_striped {
+#znlezutfso .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#fxnqnemlzm .gt_table_body {
+#znlezutfso .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1982,7 +1982,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-bottom-color: #D3D3D3;
 }
 
-#fxnqnemlzm .gt_footnotes {
+#znlezutfso .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1996,7 +1996,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-right-color: #D3D3D3;
 }
 
-#fxnqnemlzm .gt_footnote {
+#znlezutfso .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2005,7 +2005,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   padding-right: 5px;
 }
 
-#fxnqnemlzm .gt_sourcenotes {
+#znlezutfso .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2019,7 +2019,7 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   border-right-color: #D3D3D3;
 }
 
-#fxnqnemlzm .gt_sourcenote {
+#znlezutfso .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2027,72 +2027,72 @@ PROX_URA_GROWTH_AREA      39163.254     11754.829        0.060      3.332    0.0
   padding-right: 5px;
 }
 
-#fxnqnemlzm .gt_left {
+#znlezutfso .gt_left {
   text-align: left;
 }
 
-#fxnqnemlzm .gt_center {
+#znlezutfso .gt_center {
   text-align: center;
 }
 
-#fxnqnemlzm .gt_right {
+#znlezutfso .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#fxnqnemlzm .gt_font_normal {
+#znlezutfso .gt_font_normal {
   font-weight: normal;
 }
 
-#fxnqnemlzm .gt_font_bold {
+#znlezutfso .gt_font_bold {
   font-weight: bold;
 }
 
-#fxnqnemlzm .gt_font_italic {
+#znlezutfso .gt_font_italic {
   font-style: italic;
 }
 
-#fxnqnemlzm .gt_super {
+#znlezutfso .gt_super {
   font-size: 65%;
 }
 
-#fxnqnemlzm .gt_footnote_marks {
+#znlezutfso .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#fxnqnemlzm .gt_asterisk {
+#znlezutfso .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#fxnqnemlzm .gt_indent_1 {
+#znlezutfso .gt_indent_1 {
   text-indent: 5px;
 }
 
-#fxnqnemlzm .gt_indent_2 {
+#znlezutfso .gt_indent_2 {
   text-indent: 10px;
 }
 
-#fxnqnemlzm .gt_indent_3 {
+#znlezutfso .gt_indent_3 {
   text-indent: 15px;
 }
 
-#fxnqnemlzm .gt_indent_4 {
+#znlezutfso .gt_indent_4 {
   text-indent: 20px;
 }
 
-#fxnqnemlzm .gt_indent_5 {
+#znlezutfso .gt_indent_5 {
   text-indent: 25px;
 }
 
-#fxnqnemlzm .katex-display {
+#znlezutfso .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#fxnqnemlzm div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#znlezutfso div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -2259,7 +2259,7 @@ Note
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Hands-on_Ex07_files/figure-html/resid_fit-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="In-class_Ex07_files/figure-html/resid_fit-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -2295,7 +2295,7 @@ Note
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Hands-on_Ex07_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="In-class_Ex07_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -2308,7 +2308,7 @@ Note
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Hands-on_Ex07_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="In-class_Ex07_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -2319,7 +2319,7 @@ Note
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Hands-on_Ex07_files/figure-html/resid_hist-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="In-class_Ex07_files/figure-html/resid_hist-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -2408,7 +2408,7 @@ max values  :   828833,       1.8e+07,      619,  37, 19.18042832,     3.4657263
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Hands-on_Ex07_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="In-class_Ex07_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -2503,53 +2503,28 @@ Note
 <span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a>                     PROX_SHOPPING_MALL <span class="sc">+</span> PROX_BUS_STOP <span class="sc">+</span> NO_Of_UNITS <span class="sc">+</span> </span>
 <span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a>                     FAMILY_FRIENDLY <span class="sc">+</span> FREEHOLD, </span>
 <span id="cb55-6"><a href="#cb55-6" aria-hidden="true" tabindex="-1"></a>                   <span class="at">data =</span> condo_resale.sp, </span>
-<span id="cb55-7"><a href="#cb55-7" aria-hidden="true" tabindex="-1"></a>                   <span class="at">approach =</span> <span class="st">"CV"</span>, </span>
+<span id="cb55-7"><a href="#cb55-7" aria-hidden="true" tabindex="-1"></a>                   <span class="at">approach =</span> <span class="st">"AIC"</span>, </span>
 <span id="cb55-8"><a href="#cb55-8" aria-hidden="true" tabindex="-1"></a>                   <span class="at">kernel =</span> <span class="st">"gaussian"</span>, </span>
 <span id="cb55-9"><a href="#cb55-9" aria-hidden="true" tabindex="-1"></a>                   <span class="at">adaptive =</span> <span class="cn">FALSE</span>, </span>
 <span id="cb55-10"><a href="#cb55-10" aria-hidden="true" tabindex="-1"></a>                   <span class="at">longlat =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Fixed bandwidth: 17660.96 CV score: 8.259118e+14 
-Fixed bandwidth: 10917.26 CV score: 7.970454e+14 
-Fixed bandwidth: 6749.419 CV score: 7.273273e+14 
-Fixed bandwidth: 4173.553 CV score: 6.300006e+14 
-Fixed bandwidth: 2581.58 CV score: 5.404958e+14 
-Fixed bandwidth: 1597.687 CV score: 4.857515e+14 
-Fixed bandwidth: 989.6077 CV score: 4.722431e+14 
-Fixed bandwidth: 613.7939 CV score: 1.377823e+16 
-Fixed bandwidth: 1221.873 CV score: 4.778717e+14 
-Fixed bandwidth: 846.0596 CV score: 4.791629e+14 
-Fixed bandwidth: 1078.325 CV score: 4.751406e+14 
-Fixed bandwidth: 934.7772 CV score: 4.72518e+14 
-Fixed bandwidth: 1023.495 CV score: 4.730305e+14 
-Fixed bandwidth: 968.6643 CV score: 4.721317e+14 
-Fixed bandwidth: 955.7206 CV score: 4.722072e+14 
-Fixed bandwidth: 976.6639 CV score: 4.721387e+14 
-Fixed bandwidth: 963.7202 CV score: 4.721484e+14 
-Fixed bandwidth: 971.7199 CV score: 4.721293e+14 
-Fixed bandwidth: 973.6083 CV score: 4.721309e+14 
-Fixed bandwidth: 970.5527 CV score: 4.721295e+14 
-Fixed bandwidth: 972.4412 CV score: 4.721296e+14 
-Fixed bandwidth: 971.2741 CV score: 4.721292e+14 
-Fixed bandwidth: 970.9985 CV score: 4.721293e+14 
-Fixed bandwidth: 971.4443 CV score: 4.721292e+14 
-Fixed bandwidth: 971.5496 CV score: 4.721293e+14 
-Fixed bandwidth: 971.3793 CV score: 4.721292e+14 
-Fixed bandwidth: 971.3391 CV score: 4.721292e+14 
-Fixed bandwidth: 971.3143 CV score: 4.721292e+14 
-Fixed bandwidth: 971.3545 CV score: 4.721292e+14 
-Fixed bandwidth: 971.3296 CV score: 4.721292e+14 
-Fixed bandwidth: 971.345 CV score: 4.721292e+14 
-Fixed bandwidth: 971.3355 CV score: 4.721292e+14 
-Fixed bandwidth: 971.3413 CV score: 4.721292e+14 
-Fixed bandwidth: 971.3377 CV score: 4.721292e+14 
-Fixed bandwidth: 971.34 CV score: 4.721292e+14 
-Fixed bandwidth: 971.3405 CV score: 4.721292e+14 
-Fixed bandwidth: 971.3408 CV score: 4.721292e+14 
-Fixed bandwidth: 971.3403 CV score: 4.721292e+14 
-Fixed bandwidth: 971.3406 CV score: 4.721292e+14 
-Fixed bandwidth: 971.3404 CV score: 4.721292e+14 
-Fixed bandwidth: 971.3405 CV score: 4.721292e+14 
-Fixed bandwidth: 971.3405 CV score: 4.721292e+14 </code></pre>
+<pre><code>Fixed bandwidth: 17660.96 AICc value: 42937.77 
+Fixed bandwidth: 10917.26 AICc value: 42886.26 
+Fixed bandwidth: 6749.419 AICc value: 42757.54 
+Fixed bandwidth: 4173.553 AICc value: 42565.01 
+Fixed bandwidth: 2581.58 AICc value: 42368.05 
+Fixed bandwidth: 1597.687 AICc value: 42256.42 
+Fixed bandwidth: 989.6077 AICc value: 42262.3 
+Fixed bandwidth: 1973.501 AICc value: 42279.95 
+Fixed bandwidth: 1365.421 AICc value: 42254.72 
+Fixed bandwidth: 1221.873 AICc value: 42255.41 
+Fixed bandwidth: 1454.139 AICc value: 42254.82 
+Fixed bandwidth: 1310.591 AICc value: 42254.84 
+Fixed bandwidth: 1399.309 AICc value: 42254.71 
+Fixed bandwidth: 1420.252 AICc value: 42254.73 
+Fixed bandwidth: 1386.365 AICc value: 42254.7 
+Fixed bandwidth: 1378.365 AICc value: 42254.71 
+Fixed bandwidth: 1391.309 AICc value: 42254.7 </code></pre>
 </div>
 </div>
 <p>The recommended bandwidth is <strong>971.34 meters</strong>.</p>
@@ -2586,7 +2561,7 @@ The bandwidth is in meters because the model is using projected coordinates, SVY
 <pre><code>   ***********************************************************************
    *                       Package   GWmodel                             *
    ***********************************************************************
-   Program starts at: 2025-10-17 22:42:23.899847 
+   Program starts at: 2025-10-18 15:41:38.932578 
    Call:
    gwr.basic(formula = SELLING_PRICE ~ AREA_SQM + AGE + PROX_CBD + 
     PROX_CHILDCARE + PROX_ELDERLYCARE + PROX_URA_GROWTH_AREA + 
@@ -2645,56 +2620,56 @@ The bandwidth is in meters because the model is using projected coordinates, SVY
 
    *********************Model calibration information*********************
    Kernel function: gaussian 
-   Fixed bandwidth: 971.3405 
+   Fixed bandwidth: 1386.365 
    Regression points: the same locations as observations are used.
    Distance metric: Euclidean distance metric is used.
 
    ****************Summary of GWR coefficient estimates:******************
                                Min.     1st Qu.      Median     3rd Qu.
-   Intercept            -3.5988e+07 -5.1998e+05  7.6780e+05  1.7412e+06
-   AREA_SQM              1.0003e+03  5.2758e+03  7.4740e+03  1.2301e+04
-   AGE                  -1.3475e+05 -2.0813e+04 -8.6260e+03 -3.7784e+03
-   PROX_CBD             -7.7047e+07 -2.3608e+05 -8.3600e+04  3.4646e+04
-   PROX_CHILDCARE       -6.0097e+06 -3.3667e+05 -9.7425e+04  2.9007e+05
-   PROX_ELDERLYCARE     -3.5000e+06 -1.5970e+05  3.1971e+04  1.9577e+05
-   PROX_URA_GROWTH_AREA -3.0170e+06 -8.2013e+04  7.0749e+04  2.2612e+05
-   PROX_MRT             -3.5282e+06 -6.5836e+05 -1.8833e+05  3.6922e+04
-   PROX_PARK            -1.2062e+06 -2.1732e+05  3.5383e+04  4.1335e+05
-   PROX_PRIMARY_SCH     -2.2695e+07 -1.7066e+05  4.8472e+04  5.1555e+05
-   PROX_SHOPPING_MALL   -7.2585e+06 -1.6684e+05 -1.0517e+04  1.5923e+05
-   PROX_BUS_STOP        -1.4676e+06 -4.5207e+04  3.7601e+05  1.1664e+06
-   NO_Of_UNITS          -1.3170e+03 -2.4822e+02 -3.0846e+01  2.5496e+02
-   FAMILY_FRIENDLY      -2.2749e+06 -1.1140e+05  7.6214e+03  1.6107e+05
-   FREEHOLD             -9.2067e+06  3.8073e+04  1.5169e+05  3.7528e+05
+   Intercept            -5.0947e+06  7.5228e+04  9.6933e+05  1.6560e+06
+   AREA_SQM              2.5558e+03  5.4041e+03  7.6995e+03  1.2569e+04
+   AGE                  -8.4563e+04 -2.1045e+04 -1.1083e+04 -5.3192e+03
+   PROX_CBD             -3.0121e+06 -2.2299e+05 -1.0207e+05 -5.3900e+04
+   PROX_CHILDCARE       -3.6679e+06 -1.7018e+05 -1.6108e+04  2.4420e+05
+   PROX_ELDERLYCARE     -4.9526e+05 -4.0047e+04  7.6715e+04  1.9650e+05
+   PROX_URA_GROWTH_AREA -3.0350e+05 -3.0201e+04  5.1598e+04  1.5573e+05
+   PROX_MRT             -2.6892e+06 -3.9441e+05 -2.3485e+05 -1.3171e+05
+   PROX_PARK            -9.1626e+05 -1.2375e+05  4.7999e+04  4.0312e+05
+   PROX_PRIMARY_SCH     -4.7607e+05 -1.2189e+05  2.9963e+04  3.0890e+05
+   PROX_SHOPPING_MALL   -9.7562e+05 -1.2594e+05 -1.2552e+04  1.0019e+05
+   PROX_BUS_STOP        -8.4504e+05  8.8484e+04  3.7699e+05  1.4980e+06
+   NO_Of_UNITS          -1.2111e+03 -3.4940e+02 -5.8441e+01  1.0022e+02
+   FAMILY_FRIENDLY      -1.3608e+06 -5.1541e+04  1.0951e+04  1.5911e+05
+   FREEHOLD             -1.1559e+05  9.5013e+04  2.0430e+05  3.5295e+05
                              Max.
-   Intercept            112793546
-   AREA_SQM                 21575
-   AGE                     434201
-   PROX_CBD               2704596
-   PROX_CHILDCARE         1654087
-   PROX_ELDERLYCARE      38867814
-   PROX_URA_GROWTH_AREA  78515730
-   PROX_MRT               3124316
-   PROX_PARK             18122425
-   PROX_PRIMARY_SCH       4637503
-   PROX_SHOPPING_MALL     1529952
-   PROX_BUS_STOP         11342182
-   NO_Of_UNITS              12907
-   FAMILY_FRIENDLY        1720744
-   FREEHOLD               6073636
+   Intercept            4639265.4
+   AREA_SQM               19642.4
+   AGE                    41275.9
+   PROX_CBD              272116.0
+   PROX_CHILDCARE       1776212.0
+   PROX_ELDERLYCARE     2742988.5
+   PROX_URA_GROWTH_AREA 3038754.5
+   PROX_MRT             1349867.9
+   PROX_PARK            1102849.3
+   PROX_PRIMARY_SCH     2148894.9
+   PROX_SHOPPING_MALL    668261.7
+   PROX_BUS_STOP        4267600.2
+   NO_Of_UNITS             2174.3
+   FAMILY_FRIENDLY      1289044.9
+   FREEHOLD             1001304.5
    ************************Diagnostic information*************************
    Number of data points: 1436 
-   Effective number of parameters (2trace(S) - trace(S'S)): 438.3804 
-   Effective degrees of freedom (n-2trace(S) + trace(S'S)): 997.6196 
-   AICc (GWR book, Fotheringham, et al. 2002, p. 61, eq 2.33): 42263.61 
-   AIC (GWR book, Fotheringham, et al. 2002,GWR p. 96, eq. 4.22): 41632.36 
-   BIC (GWR book, Fotheringham, et al. 2002,GWR p. 61, eq. 2.34): 42515.71 
-   Residual sum of squares: 2.53407e+14 
-   R-square value:  0.8909912 
-   Adjusted R-square value:  0.8430417 
+   Effective number of parameters (2trace(S) - trace(S'S)): 302.5667 
+   Effective degrees of freedom (n-2trace(S) + trace(S'S)): 1133.433 
+   AICc (GWR book, Fotheringham, et al. 2002, p. 61, eq 2.33): 42254.7 
+   AIC (GWR book, Fotheringham, et al. 2002,GWR p. 96, eq. 4.22): 41902.94 
+   BIC (GWR book, Fotheringham, et al. 2002,GWR p. 61, eq. 2.34): 42011.36 
+   Residual sum of squares: 3.334499e+14 
+   R-square value:  0.8565589 
+   Adjusted R-square value:  0.8182339 
 
    ***********************************************************************
-   Program stops at: 2025-10-17 22:42:24.672506 </code></pre>
+   Program stops at: 2025-10-18 15:41:40.399374 </code></pre>
 </div>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -2725,25 +2700,25 @@ Note
 <span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a>                        PROX_PRIMARY_SCH <span class="sc">+</span> PROX_SHOPPING_MALL <span class="sc">+</span> PROX_BUS_STOP <span class="sc">+</span> </span>
 <span id="cb59-5"><a href="#cb59-5" aria-hidden="true" tabindex="-1"></a>                        NO_Of_UNITS <span class="sc">+</span> FAMILY_FRIENDLY <span class="sc">+</span> FREEHOLD, </span>
 <span id="cb59-6"><a href="#cb59-6" aria-hidden="true" tabindex="-1"></a>                      <span class="at">data =</span> condo_resale.sp, </span>
-<span id="cb59-7"><a href="#cb59-7" aria-hidden="true" tabindex="-1"></a>                      <span class="at">approach =</span> <span class="st">"CV"</span>, </span>
+<span id="cb59-7"><a href="#cb59-7" aria-hidden="true" tabindex="-1"></a>                      <span class="at">approach =</span> <span class="st">"AIC"</span>, </span>
 <span id="cb59-8"><a href="#cb59-8" aria-hidden="true" tabindex="-1"></a>                      <span class="at">kernel =</span> <span class="st">"gaussian"</span>, </span>
 <span id="cb59-9"><a href="#cb59-9" aria-hidden="true" tabindex="-1"></a>                      <span class="at">adaptive =</span> <span class="cn">TRUE</span>, </span>
 <span id="cb59-10"><a href="#cb59-10" aria-hidden="true" tabindex="-1"></a>                      <span class="at">longlat =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Adaptive bandwidth: 895 CV score: 7.952401e+14 
-Adaptive bandwidth: 561 CV score: 7.667364e+14 
-Adaptive bandwidth: 354 CV score: 6.953454e+14 
-Adaptive bandwidth: 226 CV score: 6.15223e+14 
-Adaptive bandwidth: 147 CV score: 5.674373e+14 
-Adaptive bandwidth: 98 CV score: 5.426745e+14 
-Adaptive bandwidth: 68 CV score: 5.168117e+14 
-Adaptive bandwidth: 49 CV score: 4.859631e+14 
-Adaptive bandwidth: 37 CV score: 4.646518e+14 
-Adaptive bandwidth: 30 CV score: 4.422088e+14 
-Adaptive bandwidth: 25 CV score: 4.430816e+14 
-Adaptive bandwidth: 32 CV score: 4.505602e+14 
-Adaptive bandwidth: 27 CV score: 4.462172e+14 
-Adaptive bandwidth: 30 CV score: 4.422088e+14 </code></pre>
+<pre><code>Adaptive bandwidth (number of nearest neighbours): 895 AICc value: 42879.45 
+Adaptive bandwidth (number of nearest neighbours): 561 AICc value: 42823.52 
+Adaptive bandwidth (number of nearest neighbours): 354 AICc value: 42677.14 
+Adaptive bandwidth (number of nearest neighbours): 226 AICc value: 42484.37 
+Adaptive bandwidth (number of nearest neighbours): 147 AICc value: 42353.27 
+Adaptive bandwidth (number of nearest neighbours): 98 AICc value: 42280.68 
+Adaptive bandwidth (number of nearest neighbours): 68 AICc value: 42201.18 
+Adaptive bandwidth (number of nearest neighbours): 49 AICc value: 42100.66 
+Adaptive bandwidth (number of nearest neighbours): 37 AICc value: 42055.68 
+Adaptive bandwidth (number of nearest neighbours): 30 AICc value: 41982.22 
+Adaptive bandwidth (number of nearest neighbours): 25 AICc value: 42003.33 
+Adaptive bandwidth (number of nearest neighbours): 32 AICc value: 42035.41 
+Adaptive bandwidth (number of nearest neighbours): 27 AICc value: 41978.63 
+Adaptive bandwidth (number of nearest neighbours): 27 AICc value: 41978.63 </code></pre>
 </div>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -2780,7 +2755,7 @@ Note
 <pre><code>   ***********************************************************************
    *                       Package   GWmodel                             *
    ***********************************************************************
-   Program starts at: 2025-10-17 22:42:30.565971 
+   Program starts at: 2025-10-18 15:41:58.870535 
    Call:
    gwr.basic(formula = SELLING_PRICE ~ AREA_SQM + AGE + PROX_CBD + 
     PROX_CHILDCARE + PROX_ELDERLYCARE + PROX_URA_GROWTH_AREA + 
@@ -2839,56 +2814,56 @@ Note
 
    *********************Model calibration information*********************
    Kernel function: gaussian 
-   Adaptive bandwidth: 30 (number of nearest neighbours)
+   Adaptive bandwidth: 27 (number of nearest neighbours)
    Regression points: the same locations as observations are used.
    Distance metric: Euclidean distance metric is used.
 
    ****************Summary of GWR coefficient estimates:******************
                                Min.     1st Qu.      Median     3rd Qu.
-   Intercept            -1.3487e+08 -2.4669e+05  7.7928e+05  1.6194e+06
-   AREA_SQM              3.3188e+03  5.6285e+03  7.7825e+03  1.2738e+04
-   AGE                  -9.6746e+04 -2.9288e+04 -1.4043e+04 -5.6119e+03
-   PROX_CBD             -2.5330e+06 -1.6256e+05 -7.7242e+04  2.6624e+03
-   PROX_CHILDCARE       -1.2790e+06 -2.0175e+05  8.7158e+03  3.7778e+05
-   PROX_ELDERLYCARE     -1.6212e+06 -9.2050e+04  6.1029e+04  2.8184e+05
-   PROX_URA_GROWTH_AREA -7.2686e+06 -3.0350e+04  4.5869e+04  2.4613e+05
-   PROX_MRT             -4.3781e+07 -6.7282e+05 -2.2115e+05 -7.4593e+04
-   PROX_PARK            -2.9020e+06 -1.6782e+05  1.1601e+05  4.6572e+05
-   PROX_PRIMARY_SCH     -8.6418e+05 -1.6627e+05 -7.7853e+03  4.3222e+05
-   PROX_SHOPPING_MALL   -1.8272e+06 -1.3175e+05 -1.4049e+04  1.3799e+05
-   PROX_BUS_STOP        -2.0579e+06 -7.1461e+04  4.1104e+05  1.2071e+06
-   NO_Of_UNITS          -2.1993e+03 -2.3685e+02 -3.4699e+01  1.1657e+02
-   FAMILY_FRIENDLY      -5.9879e+05 -5.0927e+04  2.6173e+04  2.2481e+05
-   FREEHOLD             -1.6340e+05  4.0765e+04  1.9023e+05  3.7960e+05
-                            Max.
-   Intercept            18758355
-   AREA_SQM                23064
-   AGE                     13303
-   PROX_CBD             11346650
-   PROX_CHILDCARE        2892127
-   PROX_ELDERLYCARE      2465671
-   PROX_URA_GROWTH_AREA  7384059
-   PROX_MRT              1186242
-   PROX_PARK             2588497
-   PROX_PRIMARY_SCH      3381462
-   PROX_SHOPPING_MALL   38038564
-   PROX_BUS_STOP        12081592
-   NO_Of_UNITS              1010
-   FAMILY_FRIENDLY       2072414
-   FREEHOLD              1813995
+   Intercept            -3.4055e+08 -4.9698e+05  7.6667e+05  1.6291e+06
+   AREA_SQM              3.2900e+03  5.5381e+03  7.6847e+03  1.2674e+04
+   AGE                  -1.0016e+05 -2.7556e+04 -1.3592e+04 -4.6598e+03
+   PROX_CBD             -4.0881e+06 -1.9515e+05 -7.3518e+04  2.9526e+04
+   PROX_CHILDCARE       -1.7059e+06 -2.6967e+05 -1.2514e+04  3.4777e+05
+   PROX_ELDERLYCARE     -2.2412e+06 -9.4985e+04  7.9372e+04  3.2765e+05
+   PROX_URA_GROWTH_AREA -1.8375e+07 -2.3765e+04  5.7504e+04  2.9631e+05
+   PROX_MRT             -4.5351e+07 -6.2318e+05 -2.0888e+05 -3.8964e+04
+   PROX_PARK            -1.0166e+08 -2.0084e+05  1.1152e+05  4.4450e+05
+   PROX_PRIMARY_SCH     -4.6505e+06 -1.9579e+05 -9.1754e+03  4.3824e+05
+   PROX_SHOPPING_MALL   -2.4269e+06 -1.4053e+05 -1.3684e+04  1.5823e+05
+   PROX_BUS_STOP        -2.1436e+06 -8.7705e+04  4.1820e+05  1.2784e+06
+   NO_Of_UNITS          -3.2993e+03 -2.2606e+02 -2.1790e+01  1.4231e+02
+   FAMILY_FRIENDLY      -4.0477e+06 -6.5054e+04  2.2989e+04  1.9452e+05
+   FREEHOLD             -1.0164e+08  2.4578e+04  1.8212e+05  3.8182e+05
+                              Max.
+   Intercept            55107367.9
+   AREA_SQM                23242.4
+   AGE                    265480.4
+   PROX_CBD             26220365.8
+   PROX_CHILDCARE        3565627.3
+   PROX_ELDERLYCARE     93434431.6
+   PROX_URA_GROWTH_AREA 25096284.3
+   PROX_MRT              9223676.9
+   PROX_PARK             2754387.0
+   PROX_PRIMARY_SCH      4618809.5
+   PROX_SHOPPING_MALL   39514834.8
+   PROX_BUS_STOP        13319341.1
+   NO_Of_UNITS              9878.1
+   FAMILY_FRIENDLY       2315112.2
+   FREEHOLD              1876281.2
    ************************Diagnostic information*************************
    Number of data points: 1436 
-   Effective number of parameters (2trace(S) - trace(S'S)): 350.3088 
-   Effective degrees of freedom (n-2trace(S) + trace(S'S)): 1085.691 
-   AICc (GWR book, Fotheringham, et al. 2002, p. 61, eq 2.33): 41982.22 
-   AIC (GWR book, Fotheringham, et al. 2002,GWR p. 96, eq. 4.22): 41546.74 
-   BIC (GWR book, Fotheringham, et al. 2002,GWR p. 61, eq. 2.34): 41914.08 
-   Residual sum of squares: 2.528227e+14 
-   R-square value:  0.8912425 
-   Adjusted R-square value:  0.8561185 
+   Effective number of parameters (2trace(S) - trace(S'S)): 393.0807 
+   Effective degrees of freedom (n-2trace(S) + trace(S'S)): 1042.919 
+   AICc (GWR book, Fotheringham, et al. 2002, p. 61, eq 2.33): 41978.63 
+   AIC (GWR book, Fotheringham, et al. 2002,GWR p. 96, eq. 4.22): 41453.88 
+   BIC (GWR book, Fotheringham, et al. 2002,GWR p. 61, eq. 2.34): 42070.13 
+   Residual sum of squares: 2.305296e+14 
+   R-square value:  0.9008324 
+   Adjusted R-square value:  0.8634199 
 
    ***********************************************************************
-   Program stops at: 2025-10-17 22:42:31.483552 </code></pre>
+   Program stops at: 2025-10-18 15:42:00.568321 </code></pre>
 </div>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -2931,57 +2906,57 @@ Note
 <div class="cell-output cell-output-stdout">
 <pre><code>Rows: 1,436
 Columns: 52
-$ Intercept               &lt;dbl&gt; 2050011.67, 1633128.24, 3433608.17, 234358.91,…
-$ AREA_SQM                &lt;dbl&gt; 9561.892, 16576.853, 13091.861, 20730.601, 672…
-$ AGE                     &lt;dbl&gt; -9514.634, -58185.479, -26707.386, -93308.988,…
-$ PROX_CBD                &lt;dbl&gt; -120681.94, -149434.22, -259397.77, 2426853.66…
-$ PROX_CHILDCARE          &lt;dbl&gt; 319266.925, 441102.177, -120116.816, 480825.28…
-$ PROX_ELDERLYCARE        &lt;dbl&gt; -393417.795, 325188.741, 535855.806, 314783.72…
-$ PROX_URA_GROWTH_AREA    &lt;dbl&gt; -159980.203, -142290.389, -253621.206, -267929…
-$ PROX_MRT                &lt;dbl&gt; -299742.96, -2510522.23, -936853.28, -2039479.…
-$ PROX_PARK               &lt;dbl&gt; -172104.47, 523379.72, 209099.85, -759153.26, …
-$ PROX_PRIMARY_SCH        &lt;dbl&gt; 242668.03, 1106830.66, 571462.33, 3127477.21, …
-$ PROX_SHOPPING_MALL      &lt;dbl&gt; 300881.390, -87693.378, -126732.712, -29593.34…
-$ PROX_BUS_STOP           &lt;dbl&gt; 1210615.44, 1843587.22, 1411924.90, 7225577.51…
-$ NO_Of_UNITS             &lt;dbl&gt; 104.8290640, -288.3441183, -9.5532945, -161.35…
-$ FAMILY_FRIENDLY         &lt;dbl&gt; -9075.370, 310074.664, 5949.746, 1556178.531, …
-$ FREEHOLD                &lt;dbl&gt; 303955.61, 396221.27, 168821.75, 1212515.58, 3…
+$ Intercept               &lt;dbl&gt; 2044700.26, 1773153.15, 3520072.36, 1539855.35…
+$ AREA_SQM                &lt;dbl&gt; 9559.598, 15390.155, 13016.013, 21340.305, 678…
+$ AGE                     &lt;dbl&gt; -9500.111, -48975.055, -25897.022, -97109.448,…
+$ PROX_CBD                &lt;dbl&gt; -120265.31, -173034.60, -266084.74, 4535464.61…
+$ PROX_CHILDCARE          &lt;dbl&gt; 318045.039, 348815.035, -194366.004, 286266.93…
+$ PROX_ELDERLYCARE        &lt;dbl&gt; -394643.95, 238275.45, 558021.92, 402763.72, -…
+$ PROX_URA_GROWTH_AREA    &lt;dbl&gt; -159575.59, -31187.00, -253591.14, -4781655.68…
+$ PROX_MRT                &lt;dbl&gt; -299592.54, -2557296.15, -942766.83, -2495885.…
+$ PROX_PARK               &lt;dbl&gt; -172380.89, 442318.02, 246972.65, -937538.48, …
+$ PROX_PRIMARY_SCH        &lt;dbl&gt; 242732.037, 919399.390, 558785.123, 3340638.60…
+$ PROX_SHOPPING_MALL      &lt;dbl&gt; 302051.162, -215149.309, -142022.712, 134573.9…
+$ PROX_BUS_STOP           &lt;dbl&gt; 1209536.14, 1919405.53, 1450141.54, 8743551.68…
+$ NO_Of_UNITS             &lt;dbl&gt; 106.372669, -211.071177, 19.339246, -150.59531…
+$ FAMILY_FRIENDLY         &lt;dbl&gt; -9098.124, 152642.975, -29284.824, 1723147.674…
+$ FREEHOLD                &lt;dbl&gt; 303927.63, 400568.89, 162972.29, 1318502.10, 3…
 $ y                       &lt;dbl&gt; 3000000, 3880000, 3325000, 4250000, 1400000, 1…
-$ yhat                    &lt;dbl&gt; 2886531.8, 3466801.5, 3616527.2, 5435481.6, 13…
-$ residual                &lt;dbl&gt; 113468.16, 413198.52, -291527.20, -1185481.63,…
+$ yhat                    &lt;dbl&gt; 2885980.3, 3464956.3, 3621402.8, 5528248.5, 13…
+$ residual                &lt;dbl&gt; 114019.686, 415043.736, -296402.814, -1278248.…
 $ CV_Score                &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0…
-$ Stud_residual           &lt;dbl&gt; 0.38207013, 1.01433140, -0.83780678, -2.846146…
-$ Intercept_SE            &lt;dbl&gt; 516105.5, 488083.5, 963711.4, 444185.5, 211962…
-$ AREA_SQM_SE             &lt;dbl&gt; 823.2860, 825.2380, 988.2240, 617.4007, 1376.2…
-$ AGE_SE                  &lt;dbl&gt; 5889.782, 6226.916, 6510.236, 6010.511, 8180.3…
-$ PROX_CBD_SE             &lt;dbl&gt; 37411.22, 23615.06, 56103.77, 469337.41, 41064…
-$ PROX_CHILDCARE_SE       &lt;dbl&gt; 319111.1, 299705.3, 349128.5, 304965.2, 698720…
-$ PROX_ELDERLYCARE_SE     &lt;dbl&gt; 120633.34, 84546.69, 129687.07, 127150.69, 327…
-$ PROX_URA_GROWTH_AREA_SE &lt;dbl&gt; 56207.39, 76956.50, 95774.60, 470762.12, 47433…
-$ PROX_MRT_SE             &lt;dbl&gt; 185181.3, 281133.9, 275483.7, 279877.1, 363830…
-$ PROX_PARK_SE            &lt;dbl&gt; 205499.6, 229358.7, 314124.3, 227249.4, 364580…
-$ PROX_PRIMARY_SCH_SE     &lt;dbl&gt; 152400.7, 165150.7, 196662.6, 240878.9, 249087…
-$ PROX_SHOPPING_MALL_SE   &lt;dbl&gt; 109268.8, 98906.8, 119913.3, 177104.1, 301032.…
-$ PROX_BUS_STOP_SE        &lt;dbl&gt; 600668.6, 410222.1, 464156.7, 562810.8, 740922…
-$ NO_Of_UNITS_SE          &lt;dbl&gt; 218.1258, 208.9410, 210.9828, 361.7767, 299.50…
-$ FAMILY_FRIENDLY_SE      &lt;dbl&gt; 131474.73, 114989.07, 146607.22, 108726.62, 16…
-$ FREEHOLD_SE             &lt;dbl&gt; 115954.0, 130110.0, 141031.5, 138239.1, 210641…
-$ Intercept_TV            &lt;dbl&gt; 3.9720784, 3.3460017, 3.5629010, 0.5276150, 1.…
-$ AREA_SQM_TV             &lt;dbl&gt; 11.614302, 20.087361, 13.247868, 33.577223, 4.…
-$ AGE_TV                  &lt;dbl&gt; -1.6154474, -9.3441881, -4.1023685, -15.524301…
-$ PROX_CBD_TV             &lt;dbl&gt; -3.22582173, -6.32792021, -4.62353528, 5.17080…
-$ PROX_CHILDCARE_TV       &lt;dbl&gt; 1.000488185, 1.471786337, -0.344047555, 1.5766…
-$ PROX_ELDERLYCARE_TV     &lt;dbl&gt; -3.26126929, 3.84626245, 4.13191383, 2.4756745…
-$ PROX_URA_GROWTH_AREA_TV &lt;dbl&gt; -2.846248368, -1.848971738, -2.648105057, -5.6…
-$ PROX_MRT_TV             &lt;dbl&gt; -1.61864578, -8.92998600, -3.40075727, -7.2870…
-$ PROX_PARK_TV            &lt;dbl&gt; -0.83749312, 2.28192684, 0.66565951, -3.340617…
-$ PROX_PRIMARY_SCH_TV     &lt;dbl&gt; 1.59230221, 6.70194543, 2.90580089, 12.9836104…
-$ PROX_SHOPPING_MALL_TV   &lt;dbl&gt; 2.753588422, -0.886626400, -1.056869486, -0.16…
-$ PROX_BUS_STOP_TV        &lt;dbl&gt; 2.0154464, 4.4941192, 3.0419145, 12.8383775, 0…
-$ NO_Of_UNITS_TV          &lt;dbl&gt; 0.480589953, -1.380026395, -0.045279967, -0.44…
-$ FAMILY_FRIENDLY_TV      &lt;dbl&gt; -0.06902748, 2.69655779, 0.04058290, 14.312764…
-$ FREEHOLD_TV             &lt;dbl&gt; 2.6213469, 3.0452799, 1.1970499, 8.7711485, 1.…
-$ Local_R2                &lt;dbl&gt; 0.8846744, 0.8899773, 0.8947007, 0.9073605, 0.…
+$ Stud_residual           &lt;dbl&gt; 0.39812858, 1.12993822, -0.89467945, -3.237264…
+$ Intercept_SE            &lt;dbl&gt; 505352.2, 959583.4, 1088656.5, 644451.8, 21882…
+$ AREA_SQM_SE             &lt;dbl&gt; 803.9810, 1041.2806, 1005.1322, 647.0447, 1408…
+$ AGE_SE                  &lt;dbl&gt; 5754.545, 7873.214, 6772.090, 6339.353, 8401.1…
+$ PROX_CBD_SE             &lt;dbl&gt; 36644.67, 46892.76, 64224.98, 723130.45, 42870…
+$ PROX_CHILDCARE_SE       &lt;dbl&gt; 311604.5, 383548.3, 356362.3, 318029.0, 726053…
+$ PROX_ELDERLYCARE_SE     &lt;dbl&gt; 117822.10, 121329.51, 145658.37, 153818.83, 36…
+$ PROX_URA_GROWTH_AREA_SE &lt;dbl&gt; 54991.59, 138590.35, 104509.67, 714454.45, 501…
+$ PROX_MRT_SE             &lt;dbl&gt; 181049.7, 426727.9, 290345.8, 310229.2, 399736…
+$ PROX_PARK_SE            &lt;dbl&gt; 200556.4, 337273.4, 328846.1, 250084.3, 406910…
+$ PROX_PRIMARY_SCH_SE     &lt;dbl&gt; 149035.4, 213215.4, 206844.1, 276593.8, 253671…
+$ PROX_SHOPPING_MALL_SE   &lt;dbl&gt; 106789.05, 168563.26, 124684.33, 237237.76, 33…
+$ PROX_BUS_STOP_SE        &lt;dbl&gt; 587417.1, 527904.1, 468907.1, 625949.7, 748596…
+$ NO_Of_UNITS_SE          &lt;dbl&gt; 213.2704, 232.9495, 211.9892, 452.1575, 315.82…
+$ FAMILY_FRIENDLY_SE      &lt;dbl&gt; 128381.97, 139756.71, 152249.80, 115274.06, 16…
+$ FREEHOLD_SE             &lt;dbl&gt; 113234.6, 170426.6, 146100.1, 149874.1, 215886…
+$ Intercept_TV            &lt;dbl&gt; 4.04608981, 1.84783643, 3.23340951, 2.38940359…
+$ AREA_SQM_TV             &lt;dbl&gt; 11.890328, 14.780026, 12.949553, 32.981191, 4.…
+$ AGE_TV                  &lt;dbl&gt; -1.6508882, -6.2204656, -3.8240810, -15.318510…
+$ PROX_CBD_TV             &lt;dbl&gt; -3.28193222, -3.69000648, -4.14301022, 6.27198…
+$ PROX_CHILDCARE_TV       &lt;dbl&gt; 1.020669014, 0.909442298, -0.545416851, 0.9001…
+$ PROX_ELDERLYCARE_TV     &lt;dbl&gt; -3.34948996, 1.96387060, 3.83103226, 2.6184291…
+$ PROX_URA_GROWTH_AREA_TV &lt;dbl&gt; -2.90181817, -0.22503007, -2.42648497, -6.6927…
+$ PROX_MRT_TV             &lt;dbl&gt; -1.65475280, -5.99280279, -3.24704810, -8.0452…
+$ PROX_PARK_TV            &lt;dbl&gt; -0.8595132, 1.3114524, 0.7510281, -3.7488897, …
+$ PROX_PRIMARY_SCH_TV     &lt;dbl&gt; 1.62868734, 4.31206879, 2.70147945, 12.0777779…
+$ PROX_SHOPPING_MALL_TV   &lt;dbl&gt; 2.82848439, -1.27637129, -1.13905821, 0.567253…
+$ PROX_BUS_STOP_TV        &lt;dbl&gt; 2.0590756, 3.6358978, 3.0925989, 13.9684567, 0…
+$ NO_Of_UNITS_TV          &lt;dbl&gt; 0.49876913, -0.90608143, 0.09122749, -0.333059…
+$ FAMILY_FRIENDLY_TV      &lt;dbl&gt; -0.07086762, 1.09220500, -0.19234721, 14.94826…
+$ FREEHOLD_TV             &lt;dbl&gt; 2.68405282, 2.35038940, 1.11548393, 8.79739845…
+$ Local_R2                &lt;dbl&gt; 0.9172836, 0.9154542, 0.9132622, 0.9192190, 0.…
 $ geometry                &lt;POINT [m]&gt; POINT (22085.12 29951.54), POINT (25656.…</code></pre>
 </div>
 </div>
@@ -2989,7 +2964,7 @@ $ geometry                &lt;POINT [m]&gt; POINT (22085.12 29951.54), POINT (25
 <div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(gwr.adaptive<span class="sc">$</span>SDF<span class="sc">$</span>yhat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
-  171347  1102001  1385528  1751842  1982307 13887901 </code></pre>
+  392814  1098774  1383270  1751256  1985895 13892256 </code></pre>
 </div>
 </div>
 </section>
@@ -3007,7 +2982,7 @@ $ geometry                &lt;POINT [m]&gt; POINT (22085.12 29951.54), POINT (25
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Hands-on_Ex07_files/figure-html/unnamed-chunk-38-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="In-class_Ex07_files/figure-html/unnamed-chunk-38-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -3036,12 +3011,120 @@ $ geometry                &lt;POINT [m]&gt; POINT (22085.12 29951.54), POINT (25
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Hands-on_Ex07_files/figure-html/unnamed-chunk-39-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="In-class_Ex07_files/figure-html/unnamed-chunk-39-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>#Analyzing R² Distribution in Bishan Planning Area</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="do">### Extracting Bishan Data</span></span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract Bishan planning area boundary</span></span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a>bishan_boundary <span class="ot">&lt;-</span> mpsz_svy21 <span class="sc">%&gt;%</span> </span>
+<span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(PLN_AREA_N <span class="sc">==</span> <span class="st">"BISHAN"</span>)</span>
+<span id="cb72-5"><a href="#cb72-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb72-6"><a href="#cb72-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter GWR results for Bishan area</span></span>
+<span id="cb72-7"><a href="#cb72-7" aria-hidden="true" tabindex="-1"></a>bishan_gwr <span class="ot">&lt;-</span> condo_resale.sf.adaptive <span class="sc">%&gt;%</span> </span>
+<span id="cb72-8"><a href="#cb72-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_join</span>(bishan_boundary) <span class="sc">%&gt;%</span> </span>
+<span id="cb72-9"><a href="#cb72-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(PLN_AREA_N))</span>
+<span id="cb72-10"><a href="#cb72-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb72-11"><a href="#cb72-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Check the number of observations in Bishan</span></span>
+<span id="cb72-12"><a href="#cb72-12" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(bishan_gwr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 24</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="do">### Summary Statistics of R² in Bishan</span></span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary of Local R² in Bishan</span></span>
+<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a>bishan_r2_summary <span class="ot">&lt;-</span> <span class="fu">summary</span>(bishan_gwr<span class="sc">$</span>Local_R2)</span>
+<span id="cb74-4"><a href="#cb74-4" aria-hidden="true" tabindex="-1"></a>bishan_r2_summary</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 0.6507  0.6937  0.7100  0.7026  0.7184  0.7455 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Additional statistics</span></span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a>bishan_r2_stats <span class="ot">&lt;-</span> bishan_gwr <span class="sc">%&gt;%</span> </span>
+<span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb76-4"><a href="#cb76-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb76-5"><a href="#cb76-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="fu">n</span>(),</span>
+<span id="cb76-6"><a href="#cb76-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_r2 =</span> <span class="fu">mean</span>(Local_R2),</span>
+<span id="cb76-7"><a href="#cb76-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">median_r2 =</span> <span class="fu">median</span>(Local_R2),</span>
+<span id="cb76-8"><a href="#cb76-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">sd_r2 =</span> <span class="fu">sd</span>(Local_R2),</span>
+<span id="cb76-9"><a href="#cb76-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">min_r2 =</span> <span class="fu">min</span>(Local_R2),</span>
+<span id="cb76-10"><a href="#cb76-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">max_r2 =</span> <span class="fu">max</span>(Local_R2),</span>
+<span id="cb76-11"><a href="#cb76-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">q1_r2 =</span> <span class="fu">quantile</span>(Local_R2, <span class="fl">0.25</span>),</span>
+<span id="cb76-12"><a href="#cb76-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">q3_r2 =</span> <span class="fu">quantile</span>(Local_R2, <span class="fl">0.75</span>)</span>
+<span id="cb76-13"><a href="#cb76-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb76-14"><a href="#cb76-14" aria-hidden="true" tabindex="-1"></a>bishan_r2_stats</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   n   mean_r2 median_r2      sd_r2    min_r2   max_r2    q1_r2     q3_r2
+1 24 0.7026061 0.7100115 0.02620229 0.6506699 0.745465 0.693724 0.7184412</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="do">### Visualizing R² Distribution in Bishan</span></span>
+<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Histogram of Local R² in Bishan</span></span>
+<span id="cb78-3"><a href="#cb78-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(bishan_gwr, <span class="fu">aes</span>(<span class="at">x =</span> Local_R2)) <span class="sc">+</span></span>
+<span id="cb78-4"><a href="#cb78-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">15</span>, <span class="at">fill =</span> <span class="st">"lightblue"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb78-5"><a href="#cb78-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="fu">aes</span>(<span class="at">xintercept =</span> <span class="fu">mean</span>(Local_R2)), <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb78-6"><a href="#cb78-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Distribution of Local R² in Bishan Planning Area"</span>,</span>
+<span id="cb78-7"><a href="#cb78-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Local R²"</span>,</span>
+<span id="cb78-8"><a href="#cb78-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Frequency"</span>) <span class="sc">+</span></span>
+<span id="cb78-9"><a href="#cb78-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="In-class_Ex07_files/figure-html/unnamed-chunk-40-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a><span class="do">### Spatial Distribution of R² in Bishan</span></span>
+<span id="cb79-2"><a href="#cb79-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Map of Local R² in Bishan</span></span>
+<span id="cb79-3"><a href="#cb79-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(bishan_boundary) <span class="sc">+</span></span>
+<span id="cb79-4"><a href="#cb79-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">col =</span> <span class="st">"lightgray"</span>) <span class="sc">+</span></span>
+<span id="cb79-5"><a href="#cb79-5" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(bishan_gwr) <span class="sc">+</span></span>
+<span id="cb79-6"><a href="#cb79-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_dots</span>(<span class="at">col =</span> <span class="st">"Local_R2"</span>, </span>
+<span id="cb79-7"><a href="#cb79-7" aria-hidden="true" tabindex="-1"></a>          <span class="at">palette =</span> <span class="st">"RdYlBu"</span>,</span>
+<span id="cb79-8"><a href="#cb79-8" aria-hidden="true" tabindex="-1"></a>          <span class="at">style =</span> <span class="st">"quantile"</span>,</span>
+<span id="cb79-9"><a href="#cb79-9" aria-hidden="true" tabindex="-1"></a>          <span class="at">size =</span> <span class="fl">0.8</span>,</span>
+<span id="cb79-10"><a href="#cb79-10" aria-hidden="true" tabindex="-1"></a>          <span class="at">title =</span> <span class="st">"Local R²"</span>) <span class="sc">+</span></span>
+<span id="cb79-11"><a href="#cb79-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">"Local R² Distribution in Bishan Planning Area"</span>,</span>
+<span id="cb79-12"><a href="#cb79-12" aria-hidden="true" tabindex="-1"></a>            <span class="at">legend.outside =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="In-class_Ex07_files/figure-html/unnamed-chunk-40-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="do">### Comparison with Overall R² Distribution</span></span>
+<span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare Bishan with overall distribution</span></span>
+<span id="cb80-3"><a href="#cb80-3" aria-hidden="true" tabindex="-1"></a>overall_r2_stats <span class="ot">&lt;-</span> condo_resale.sf.adaptive <span class="sc">%&gt;%</span> </span>
+<span id="cb80-4"><a href="#cb80-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb80-5"><a href="#cb80-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb80-6"><a href="#cb80-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="fu">n</span>(),</span>
+<span id="cb80-7"><a href="#cb80-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_r2 =</span> <span class="fu">mean</span>(Local_R2),</span>
+<span id="cb80-8"><a href="#cb80-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">median_r2 =</span> <span class="fu">median</span>(Local_R2),</span>
+<span id="cb80-9"><a href="#cb80-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">sd_r2 =</span> <span class="fu">sd</span>(Local_R2)</span>
+<span id="cb80-10"><a href="#cb80-10" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb80-11"><a href="#cb80-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb80-12"><a href="#cb80-12" aria-hidden="true" tabindex="-1"></a>comparison <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb80-13"><a href="#cb80-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">Area =</span> <span class="fu">c</span>(<span class="st">"Bishan"</span>, <span class="st">"Overall"</span>),</span>
+<span id="cb80-14"><a href="#cb80-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">Mean_R2 =</span> <span class="fu">c</span>(bishan_r2_stats<span class="sc">$</span>mean_r2, overall_r2_stats<span class="sc">$</span>mean_r2),</span>
+<span id="cb80-15"><a href="#cb80-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">Median_R2 =</span> <span class="fu">c</span>(bishan_r2_stats<span class="sc">$</span>median_r2, overall_r2_stats<span class="sc">$</span>median_r2),</span>
+<span id="cb80-16"><a href="#cb80-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">SD_R2 =</span> <span class="fu">c</span>(bishan_r2_stats<span class="sc">$</span>sd_r2, overall_r2_stats<span class="sc">$</span>sd_r2)</span>
+<span id="cb80-17"><a href="#cb80-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb80-18"><a href="#cb80-18" aria-hidden="true" tabindex="-1"></a>comparison</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     Area   Mean_R2 Median_R2      SD_R2
+1  Bishan 0.7026061 0.7100115 0.02620229
+2 Overall 0.9065623 0.9193610 0.06352212</code></pre>
+</div>
+</div>
+<p>Let us see the distribution of the R2 in the Bishan Planning Area The Local R² values in Bishan show a moderately strong to strong model performance across the planning area, with values ranging from 0.651 to 0.745. This indicates that the GWR model explains between 65.1% to 74.5% of the variation in condominium prices across different locations within Bishan.</p>
+<p><strong>Key Observations:</strong> <strong>Consistently Good Model Fit:</strong> The entire planning area shows R² values above 0.65, suggesting the hedonic pricing model performs reasonably well throughout Bishan without any particularly weak spots.</p>
+<p><strong>Spatial Gradient Pattern:</strong> The R² values appear to follow a spatial pattern rather than being randomly distributed. There are clear clusters of higher and lower explanatory power, indicating that the model captures local relationships more effectively in certain sub-regions.</p>
+<p><strong>No Extremely Poor Performing Areas:</strong> The absence of low R² values (below 0.6) suggests that the selected variables (property size, age, proximity to amenities, etc.) are generally relevant for explaining price variations across all of Bishan.</p>
+<p><strong>Moderate Variation:</strong> The range of approximately 0.1 (from 0.651 to 0.745) indicates that while there are differences in model performance across the area, these differences are not extreme. The model maintains relatively stable explanatory power throughout Bishan.</p>
+<p>This distribution pattern suggests that Bishan’s condominium market follows relatively predictable patterns that are well-captured by the standard hedonic pricing variables, with some subtle local variations in how these factors influence prices across different neighborhoods within the planning area.</p>
 
 
 </section>
