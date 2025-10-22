@@ -1,5 +1,5 @@
 ---
-title: "Take home Exercise 2 : Geographically weighted regression (GWR)"
+title: "Take home Exercise 2 : Geospatial Analytics for Public Good - Urban mobility"
 author: "Priya"
 date: "October 14, 2025"
 date-modified: "last-modified"
