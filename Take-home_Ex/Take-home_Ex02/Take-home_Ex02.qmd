@@ -49,17 +49,17 @@ This exercise employs Local Measures of Spatial Autocorrelation (LMSA) and Emerg
 
 The specific objectives are:
 
-1. To identify statistically significant spatial clusters of bus trip origins using multiple LMSA statistics (Local Moran's I, Local Geary's C, and Getis-Ord Gi*)\
+1.  To identify statistically significant spatial clusters of bus trip origins using multiple LMSA statistics (Local Moran's I, Local Geary's C, and Getis-Ord Gi\*)\
 
-2. To analyze the temporal evolution of these spatial patterns through EHSA\
+2.  To analyze the temporal evolution of these spatial patterns through EHSA\
 
-3. To provide actionable insights for transportation planning and resource allocation\
+3.  To provide actionable insights for transportation planning and resource allocation\
 
-4. To demonstrate the value of advanced geospatial analytics in urban mobility research\
+4.  To demonstrate the value of advanced geospatial analytics in urban mobility research\
 
 ## Methodology
 
-**Step 1: Data Aggregation and Spatial Encoding** First, the raw bus ridership data (collected via smart cards and GPS) will be preprocessed and aggregated into a suitable spatial framework. This involves calculating the total number of passenger trips by origin and destination for defined time intervals (e.g., morning and evening peak hours, off-peak) and aggregating these counts to a defined spatial unit. 
+**Step 1: Data Aggregation and Spatial Encoding** First, the raw bus ridership data (collected via smart cards and GPS) will be preprocessed and aggregated into a suitable spatial framework. This involves calculating the total number of passenger trips by origin and destination for defined time intervals (e.g., morning and evening peak hours, off-peak) and aggregating these counts to a defined spatial unit.
 
 **Step 2: Static Hotspot and Coldspot Identification (LMSA)**
 
@@ -69,13 +69,13 @@ Next, Local Measures of Spatial Autocorrelation (LMSA), specifically the Getis-O
 
 Emerging Hot Spot Analysis (EHSA) will be conducted by organising the static Gi∗ results from all time intervals into a space-time cube. The output will classify areas into categories such as "new," "intensifying," "diminishing," or "sporadic" hot and cold spots, providing dynamic insights into how bus ridership patterns are changing over time.
 
-- Integration of two months of data for robust temporal analysis\
+-   Integration of two months of data for robust temporal analysis\
 
-- Comprehensive comparison of multiple spatial weights matrices\
+-   Comprehensive comparison of multiple spatial weights matrices\
 
-- Advanced validation techniques for spatial autocorrelation measures\
+-   Advanced validation techniques for spatial autocorrelation measures\
 
-- Interactive visualization of spatio-temporal patterns\
+-   Interactive visualization of spatio-temporal patterns\
 
 ## Data Preparation
 
@@ -107,7 +107,7 @@ tmap_mode("plot")
 
 #### Bus Stop Location
 
-As Bus Stop location data has crs = 9001, we standardise it into crs = 3414.
+The following code helps in importing Bus Stop Location shapefile downloaded from LTA DataMall into R environment.As Bus Stop location data has crs = 9001, we standardise it into crs = 3414.
 
 ```{r}
 BusStop = st_read(dsn = "data/LTADataMall/",
@@ -116,6 +116,8 @@ BusStop = st_read(dsn = "data/LTADataMall/",
 ```
 
 #### Master Plan 2019 Subzone
+
+The following code chunk helps us to import Master Plan 2019 Subzone Boundary (No Sea) from Singapore’s open data portal into R environment.
 
 ```{r}
 # Import and process geospatial data
@@ -145,10 +147,9 @@ mpsz <- mpsz %>%
   relocate(geometry, .after = last_col())
 ```
 
-
-
 #### O-D Bus Trips
 
+The following code helps us importing Passenger Volume by Origin Destination Bus Stops downloaded from LTA DataMall into R environment.
 ```{r}
 # Import and combine two months of bus data
 odbus_aug <- read_csv("data/LTADataMall/origin_destination_bus_202508.csv")
@@ -198,6 +199,8 @@ tm_shape(mpsz) +
 
 ##### Deriving Analytical Hexagon
 
+Create 375m hexagon grid (perpendicular distance)
+
 ```{r}
 # Create 375m hexagon grid (perpendicular distance)
 hexagon <- st_make_grid(mpsz,
@@ -225,6 +228,61 @@ hexagon <- filter(hexagon, busstop_count > 0)
 
 cat("Created", nrow(hexagon), "analytical hexagons containing bus stops\n")
 ```
+
+
+```{r}
+tmap_mode("plot")
+
+tm_shape(hexagon) +
+  tm_polygons(col = "black", border.col = "white", lwd = 0.5, alpha = 0.5) +
+tm_shape(mpsz) +
+  tm_polygons(col = "lightblue", border.col = "darkgreen", alpha = 0.6) +
+tm_layout(
+  title = "Analytical hexagon layer overplot on Singapore",
+  frame = TRUE,
+  legend.outside = FALSE,
+  title.position = c("center", "top")
+) +
+tm_compass(type = "8star", position = c("right", "bottom")) +
+tm_scale_bar(position = c("left", "bottom"))
+```
+We only want to select hexagons with bus stops 
+ 
+The code chunk below eliminates hexagons without bus stops from the initial hexagon layer.  
+
+
+```{r}
+hexagon$busstop_count =
+  lengths(st_intersects(
+    hexagon, BusStop_in_SG))
+
+hexagon <- filter(
+  hexagon, busstop_count > 0)
+```
+
+
+```{r}
+tmap_mode("plot")
+
+tm_shape(mpsz) +
+  tm_polygons(col = "lightblue", alpha = 0.3, border.col = "darkblue", lwd = 0.5) +
+tm_shape(hexagon) +
+  tm_polygons(col = "grey85", border.col = "white", lwd = 0.2) +
+tm_shape(BusStop_in_SG) +
+  tm_dots(size = 0.02, col = "black", alpha = 0.7) +
+tm_layout(
+  title = "Hexagons containing at least one bus stop (375 m TAZ)",
+  frame = FALSE,
+  legend.show = FALSE,
+  bg.color = "white",
+  title.position = c("center", "top")
+) +
+tm_scale_bar(position = c("left", "bottom")) +
+tm_compass(type = "8star", position = c("right", "bottom"), size = 2)
+```
+The analytical hexagon layer (375 m apothem) shows complete coverage of built-up areas across Singapore, with dense concentrations in the east and central corridors. Hexagons with zero bus stops are excluded to ensure spatial analysis focuses on active passenger zones.
+
+
 
 ## Data Integration and Cleaning
 
@@ -254,6 +312,19 @@ bs_hex <- st_join(BusStop_clean, hexagon) %>%
 
 ##### Merge hexagon IDs into trip data
 
+Before we can aggregate trips generate at bus stops onto hexagon level, we need to populate the hexagon ids in hexagon data frame into BusStop data frame.
+
+
+This step assigns each bus stop to its corresponding traffic analysis zone (hexagon), enabling trip data to be aggregated from individual stops to the neighborhood level for subsequent spatial pattern analysis.
+
+
+```{r}
+bs_hex <- st_intersection(
+  BusStop_in_SG, hexagon) %>%
+  st_drop_geometry() %>%
+  select(c(BUS_STOP_N, HEX_ID))
+```
+
 ```{r}
 # Merge hexagon IDs into trip data
 trips_with_hex <- trips_clean %>%
@@ -262,9 +333,13 @@ trips_with_hex <- trips_clean %>%
 cat("After merging:", nrow(trips_with_hex), "trip records mapped to hexagons\n")
 ```
 
+
+
 ## Exploratory Data Analysis
 
 ### Temporal Distribution Analysis
+
+Analyze hourly patterns across months
 
 ```{r}
 # Analyze hourly patterns across months
@@ -287,6 +362,8 @@ ggplotly(hourly_plot)
 ```
 
 ### Peak Period Aggregation
+
+Define and aggregate peak periods
 
 ```{r}
 # Define and aggregate peak periods
@@ -431,6 +508,7 @@ comparative_maps_aug <- tmap_arrange(am_map_aug, pm_map_aug, weekend_map_aug,
 
 comparative_maps_aug
 ```
+
 #### Cross-Month Comparison Visualization
 
 ```{r}
@@ -489,6 +567,7 @@ kable(spatial_summary,
                 full_width = FALSE) %>%
   column_spec(1, bold = TRUE)
 ```
+
 #### Interactive Spatial Distribution Analysis
 
 ```{r}
@@ -520,14 +599,13 @@ interactive_am_map
 ```
 
 ::: insightbox
-***Interpretation of Spatial Patterns***
-**Weekday Morning Peak Patterns:**
+***Interpretation of Spatial Patterns*** **Weekday Morning Peak Patterns:**
 
-High-Percentile Areas (>90%): Concentrated in major residential towns and employment centers, indicating strong morning commute origins
+High-Percentile Areas (\>90%): Concentrated in major residential towns and employment centers, indicating strong morning commute origins
 
 Mid-Range Areas (10-90%): Transition zones showing moderate trip generation
 
-Low-Percentile Areas (<10%): Industrial areas, parks, and water bodies with minimal morning trip origins
+Low-Percentile Areas (\<10%): Industrial areas, parks, and water bodies with minimal morning trip origins
 
 **Weekday Evening Peak Patterns:**
 
@@ -594,6 +672,7 @@ analyze_spatial_structure <- function(hexagon_sf) {
 connectivity_results <- analyze_spatial_structure(peak_hex)
 kable(connectivity_results, caption = "Spatial Connectivity Analysis")
 ```
+
 ### Global Spatial Autocorrelation
 
 ```{r}
@@ -626,7 +705,9 @@ peak_variables <- c("2025-08_WEEKDAY_AM", "2025-08_WEEKDAY_PM", "2025-08_WEEKEND
 global_autocorr <- compute_global_autocorrelation(peak_hex, peak_variables)
 kable(global_autocorr, caption = "Global Spatial Autocorrelation Results")
 ```
+
 ### Local Spatial Autocorrelation (LISA)
+
 ```{r}
 # Compute Local Moran's I for each period
 compute_local_moran <- function(data, variable, k = 6) {
@@ -666,7 +747,7 @@ lisa_map <- tm_shape(mpsz) + tm_fill("grey90", alpha = 0.3) +
 lisa_map
 ```
 
-### Hot Spot Analysis (Getis-Ord Gi*)
+### Hot Spot Analysis (Getis-Ord Gi\*)
 
 ```{r}
 # Compute Gi* statistics
@@ -918,12 +999,9 @@ kable(robust_clusters,
   column_spec(4, bold = TRUE, color = ifelse(robust_clusters$cluster_type == "Robust Hotspot", "#d73027", "#4575b4"))
 ```
 
-
-
 ## Emerging Hot Spot Analysis (EHSA)
 
 ### Space-Time Cube Creation
-
 
 ```{r}
 ### Proper Space-Time Cube Creation
@@ -1008,6 +1086,7 @@ weekend_cube <- spacetime_cubes$weekend
 
 cat("✓ Successfully created all spacetime cubes\n")
 ```
+
 ```{r}
 #### Space Time Cube Inspection
 #| label: inspect-spacetime-cubes
@@ -1038,8 +1117,6 @@ for (i in 1:3) {
 }
 ```
 
-
-
 ### EHSA Implementation
 
 #### Emerging Hot Spot Analysis Implementation
@@ -1047,8 +1124,6 @@ for (i in 1:3) {
 ##### Robust EHSA Function with Proper Spacetime Handling
 
 The Emerging Hot Spot Analysis requires careful preparation of spacetime cubes and spatial weights. The following implementation ensures proper handling of the spacetime structure and provides comprehensive error checking.
-
-
 
 ```{r}
 #| label: ehsa-demonstration-fixed
@@ -1156,9 +1231,8 @@ all_ehsa_demo <- bind_rows(ehsa_demo_results)
 
 cat("Demonstration EHSA completed with", nrow(all_ehsa_demo), "significant locations\n")
 ```
+
 #### EHSA Results Processing
-
-
 
 ```{r}
 #| label: ehsa-comprehensive-analysis
@@ -1201,7 +1275,6 @@ classification_plot <- ggplot(ehsa_summary,
 classification_plot
 
 ```
-
 
 #### EHSA Visualization Maps
 
@@ -1301,7 +1374,9 @@ tmap_arrange(ehsa_maps[["Weekday AM"]],
              ehsa_maps[["Weekend"]], 
              ncol = 3)
 ```
+
 #### Temporal Trend Analysis and Pattern Interpretation
+
 ```{r}
 #| label: ehsa-trend-analysis
 #| fig-cap: "Temporal trend analysis for EHSA classifications"
@@ -1358,6 +1433,7 @@ kable(trend_summary,
       caption = "Comprehensive Trend Analysis for EHSA Classifications") %>%
   kable_styling(bootstrap_options = c("striped", "hover"))
 ```
+
 #### EHSA Pattern Interpretation Framework
 
 ```{r}
@@ -1408,35 +1484,31 @@ kable(ehsa_interpretation,
 ```
 
 ::: insightbox
-
 ## Key Insights from Emerging Hot Spot Analysis
 
 ### Weekday AM Period:
-- **Hotspots**: 32 locations ( 64 % of significant patterns)
-- **Coldspots**: 18 locations
-- **Emerging Patterns**: 19 new or intensifying clusters
-- **Strong Trends**: 19 locations with clear directional patterns
+
+-   **Hotspots**: 32 locations ( 64 % of significant patterns)
+-   **Coldspots**: 18 locations
+-   **Emerging Patterns**: 19 new or intensifying clusters
+-   **Strong Trends**: 19 locations with clear directional patterns
 
 ### Weekday PM Period:
-- **Hotspots**: 24 locations ( 48 % of significant patterns)
-- **Coldspots**: 26 locations
-- **Emerging Patterns**: 16 new or intensifying clusters
-- **Strong Trends**: 16 locations with clear directional patterns
+
+-   **Hotspots**: 24 locations ( 48 % of significant patterns)
+-   **Coldspots**: 26 locations
+-   **Emerging Patterns**: 16 new or intensifying clusters
+-   **Strong Trends**: 16 locations with clear directional patterns
 
 ### Weekend Period:
-- **Hotspots**: 25 locations ( 50 % of significant patterns)
-- **Coldspots**: 25 locations
-- **Emerging Patterns**: 10 new or intensifying clusters
-- **Strong Trends**: 16 locations with clear directional patterns
 
-***Overall Policy Recommendations:***
-1. **Targeted Infrastructure**: Focus resources on intensifying hotspots for maximum impact
-2. **Adaptive Service Planning**: Develop flexible schedules for sporadic patterns
-3. **Continuous Monitoring**: Establish ongoing assessment of emerging patterns
-4. **Demand-Responsive Allocation**: Adjust resources based on trend strength and direction
-5. **Proactive Coldspot Management**: Investigate and address declining usage areas
+-   **Hotspots**: 25 locations ( 50 % of significant patterns)
+-   **Coldspots**: 25 locations
+-   **Emerging Patterns**: 10 new or intensifying clusters
+-   **Strong Trends**: 16 locations with clear directional patterns
+
+***Overall Policy Recommendations:*** 1. **Targeted Infrastructure**: Focus resources on intensifying hotspots for maximum impact 2. **Adaptive Service Planning**: Develop flexible schedules for sporadic patterns 3. **Continuous Monitoring**: Establish ongoing assessment of emerging patterns 4. **Demand-Responsive Allocation**: Adjust resources based on trend strength and direction 5. **Proactive Coldspot Management**: Investigate and address declining usage areas
 :::
-
 
 ## Advanced Analysis and Validation
 
@@ -1519,72 +1591,278 @@ analyze_cross_month_dynamics <- function(peak_hex) {
 monthly_trends <- analyze_cross_month_dynamics(peak_hex)
 ```
 
-
 #### Enhanced Monthly Comparison Analysis
 
 ```{r}
 #| label: enhanced-monthly-comparison
-#| fig-cap: "Comprehensive monthly pattern comparison across all peak periods"
-#| fig-height: 10
-#| fig-width: 12
+#| fig-cap: "Comprehensive spatio-temporal analysis of monthly mobility patterns"
+#| fig-height: 12
+#| fig-width: 14
+#| message: false
+#| warning: false
 
-# Display all comparison plots
-pm_comparison$plot
-weekend_comparison$plot
+### Advanced Monthly Pattern Analysis
+# Enhanced comparison function with statistical testing
+analyze_monthly_patterns_comprehensive <- function(peak_hex, period) {
+  aug_var <- paste0("2025-08_", period)
+  sep_var <- paste0("2025-09_", period)
+  
+  # Statistical comparison
+  correlation <- cor(peak_hex[[aug_var]], peak_hex[[sep_var]], use = "complete.obs")
+  
+  # Paired t-test for significant difference
+  t_test <- t.test(peak_hex[[aug_var]], peak_hex[[sep_var]], paired = TRUE)
+  
+  # Calculate change statistics
+  changes <- peak_hex %>%
+    st_drop_geometry() %>%
+    mutate(
+      absolute_change = !!sym(sep_var) - !!sym(aug_var),
+      relative_change = ifelse(!!sym(aug_var) > 0, 
+                             absolute_change / !!sym(aug_var) * 100, NA),
+      change_category = case_when(
+        relative_change > 20 ~ "Strong Increase (>20%)",
+        relative_change > 10 ~ "Moderate Increase (10-20%)",
+        relative_change > -10 ~ "Stable (±10%)",
+        relative_change > -20 ~ "Moderate Decrease (10-20%)",
+        TRUE ~ "Strong Decrease (>20%)"
+      ),
+      change_direction = ifelse(relative_change > 0, "Increase", "Decrease")
+    )
+  
+  # Create enhanced scatter plot
+  scatter_plot <- ggplot(peak_hex, aes(x = !!sym(aug_var), y = !!sym(sep_var))) +
+    geom_point(alpha = 0.6, size = 2, aes(color = cut_number(!!sym(aug_var), 4))) +
+    geom_smooth(method = "lm", se = TRUE, color = "#d73027", linetype = "solid") +
+    geom_abline(intercept = 0, slope = 1, color = "#4575b4", linetype = "dashed", alpha = 0.7) +
+    scale_color_viridis_d(option = "plasma", name = "August Trip Quantile") +
+    labs(
+      title = paste("Monthly Comparison -", period),
+      subtitle = paste("Correlation: r =", round(correlation, 3), 
+                      "| p-value:", format.pval(t_test$p.value, digits = 3)),
+      x = "August 2025 Trip Volume",
+      y = "September 2025 Trip Volume",
+      caption = "Dashed line: Perfect agreement\nSolid line: Linear trend"
+    ) +
+    theme_minimal() +
+    theme(legend.position = "bottom")
+  
+  # Create change distribution plot
+  change_dist_plot <- ggplot(changes, aes(x = relative_change, fill = change_direction)) +
+    geom_histogram(bins = 30, alpha = 0.8, color = "white") +
+    geom_vline(xintercept = 0, linetype = "dashed", color = "red") +
+    scale_fill_manual(values = c("Increase" = "#1a9641", "Decrease" = "#d7191c")) +
+    labs(
+      title = paste("Distribution of Monthly Changes -", period),
+      x = "Percentage Change (%)",
+      y = "Number of Hexagons",
+      fill = "Change Direction"
+    ) +
+    theme_minimal()
+  
+  return(list(
+    correlation = correlation,
+    t_test = t_test,
+    changes = changes,
+    scatter_plot = scatter_plot,
+    change_dist_plot = change_dist_plot,
+    period = period
+  ))
+}
 
-# Create combined summary of monthly correlations
+# Run comprehensive analysis for all periods
+am_analysis <- analyze_monthly_patterns_comprehensive(peak_hex, "WEEKDAY_AM")
+pm_analysis <- analyze_monthly_patterns_comprehensive(peak_hex, "WEEKDAY_PM")
+weekend_analysis <- analyze_monthly_patterns_comprehensive(peak_hex, "WEEKEND")
+
+### Create Comprehensive Summary Dashboard
+# Enhanced correlation summary with statistical significance
 monthly_correlation_summary <- tibble(
   Period = c("Weekday AM", "Weekday PM", "Weekend"),
   Correlation = c(
-    am_comparison$correlation,
-    pm_comparison$correlation,
-    weekend_comparison$correlation
+    am_analysis$correlation,
+    pm_analysis$correlation,
+    weekend_analysis$correlation
+  ),
+  P_Value = c(
+    am_analysis$t_test$p.value,
+    pm_analysis$t_test$p.value,
+    weekend_analysis$t_test$p.value
+  ),
+  Mean_Change = c(
+    mean(am_analysis$changes$relative_change, na.rm = TRUE),
+    mean(pm_analysis$changes$relative_change, na.rm = TRUE),
+    mean(weekend_analysis$changes$relative_change, na.rm = TRUE)
+  ),
+  SD_Change = c(
+    sd(am_analysis$changes$relative_change, na.rm = TRUE),
+    sd(pm_analysis$changes$relative_change, na.rm = TRUE),
+    sd(weekend_analysis$changes$relative_change, na.rm = TRUE)
   ),
   Interpretation = case_when(
-    Correlation > 0.9 ~ "Very Strong Consistency",
-    Correlation > 0.8 ~ "Strong Consistency", 
-    Correlation > 0.7 ~ "Moderate Consistency",
-    Correlation > 0.6 ~ "Fair Consistency",
+    Correlation > 0.9 & P_Value < 0.05 ~ "Very Strong Consistency**",
+    Correlation > 0.8 & P_Value < 0.05 ~ "Strong Consistency**",
+    Correlation > 0.7 & P_Value < 0.05 ~ "Moderate Consistency**",
+    Correlation > 0.6 & P_Value < 0.05 ~ "Fair Consistency**",
+    P_Value >= 0.05 ~ "No Significant Difference",
     TRUE ~ "Weak Consistency"
   )
 )
 
-# Display correlation summary
-kable(monthly_correlation_summary,
-      caption = "Cross-Month Pattern Consistency Analysis") %>%
-  kable_styling(bootstrap_options = c("striped", "hover")) %>%
+# Display enhanced correlation summary
+cat("### Statistical Summary of Monthly Pattern Consistency\n")
+kable(monthly_correlation_summary %>% 
+        mutate(across(where(is.numeric), round, 3)),
+      caption = "Comprehensive Monthly Pattern Analysis with Statistical Testing") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
   column_spec(2, color = "white", 
-              background = ifelse(monthly_correlation_summary$Correlation > 0.8, "#28a745",
-                                 ifelse(monthly_correlation_summary$Correlation > 0.7, "#ffc107", "#dc3545")))
+              background = case_when(
+                monthly_correlation_summary$Correlation > 0.9 ~ "#006837",
+                monthly_correlation_summary$Correlation > 0.8 ~ "#1a9850",
+                monthly_correlation_summary$Correlation > 0.7 ~ "#66bd63",
+                monthly_correlation_summary$Correlation > 0.6 ~ "#a6d96a",
+                TRUE ~ "#d73027"
+              )) %>%
+  column_spec(3, color = ifelse(monthly_correlation_summary$P_Value < 0.05, "#28a745", "#dc3545"))
 
-# Create visualization of monthly changes
-monthly_change_analysis <- peak_hex %>%
-  st_drop_geometry() %>%
+### Enhanced Change Analysis
+# Comprehensive change analysis
+monthly_change_detailed <- bind_rows(
+  am_analysis$changes %>% mutate(Period = "Weekday AM"),
+  pm_analysis$changes %>% mutate(Period = "Weekday PM"),
+  weekend_analysis$changes %>% mutate(Period = "Weekend")
+) %>%
+  group_by(Period) %>%
   summarise(
-    AM_Change = mean((`2025-09_WEEKDAY_AM` - `2025-08_WEEKDAY_AM`) / `2025-08_WEEKDAY_AM` * 100, na.rm = TRUE),
-    PM_Change = mean((`2025-09_WEEKDAY_PM` - `2025-08_WEEKDAY_PM`) / `2025-08_WEEKDAY_PM` * 100, na.rm = TRUE),
-    Weekend_Change = mean((`2025-09_WEEKEND` - `2025-08_WEEKEND`) / `2025-08_WEEKEND` * 100, na.rm = TRUE)
+    Mean_Change = mean(relative_change, na.rm = TRUE),
+    Median_Change = median(relative_change, na.rm = TRUE),
+    SD_Change = sd(relative_change, na.rm = TRUE),
+    Increasing = sum(change_direction == "Increase", na.rm = TRUE),
+    Decreasing = sum(change_direction == "Decrease", na.rm = TRUE),
+    Stable = sum(change_category == "Stable (±10%)", na.rm = TRUE),
+    Total = n(),
+    .groups = 'drop'
   ) %>%
-  pivot_longer(cols = everything(), names_to = "Period", values_to = "Percent_Change") %>%
-  mutate(Period = case_when(
-    Period == "AM_Change" ~ "Weekday AM",
-    Period == "PM_Change" ~ "Weekday PM",
-    Period == "Weekend_Change" ~ "Weekend"
-  ))
+  mutate(
+    Percent_Increasing = round(Increasing / Total * 100, 1),
+    Percent_Decreasing = round(Decreasing / Total * 100, 1),
+    Net_Change_Direction = ifelse(Mean_Change > 0, "Overall Increase", "Overall Decrease")
+  )
 
-# Create change visualization
-change_plot <- ggplot(monthly_change_analysis, aes(x = Period, y = Percent_Change, fill = Percent_Change)) +
-  geom_col(alpha = 0.8) +
-  geom_text(aes(label = paste0(round(Percent_Change, 1), "%")), vjust = -0.5, size = 4) +
-  scale_fill_gradient2(low = "#d7191c", mid = "#ffffbf", high = "#1a9641", midpoint = 0) +
-  labs(title = "Average Monthly Change in Trip Volumes",
-       subtitle = "Percentage change from August to September 2025",
-       x = "Peak Period", 
-       y = "Percentage Change (%)") +
+# Create comprehensive change visualization
+change_comprehensive_plot <- monthly_change_detailed %>%
+  pivot_longer(cols = c(Percent_Increasing, Percent_Decreasing), 
+               names_to = "Change_Type", values_to = "Percentage") %>%
+  mutate(Change_Type = factor(Change_Type, 
+                             levels = c("Percent_Decreasing", "Percent_Increasing"),
+                             labels = c("Decreasing", "Increasing"))) %>%
+  ggplot(aes(x = Period, y = Percentage, fill = Change_Type)) +
+  geom_col(position = "stack", alpha = 0.8) +
+  geom_text(aes(label = paste0(Percentage, "%"), 
+                y = ifelse(Change_Type == "Increasing", 105, Percentage/2)), 
+            position = position_stack(vjust = 0.5), size = 3.5) +
+  geom_text(data = monthly_change_detailed, 
+            aes(x = Period, y = 115, label = paste0("Mean: ", round(Mean_Change, 1), "%")),
+            inherit.aes = FALSE, size = 4, fontface = "bold") +
+  scale_fill_manual(values = c("Increasing" = "#1a9641", "Decreasing" = "#d7191c")) +
+  labs(
+    title = "Comprehensive Monthly Change Analysis",
+    subtitle = "Distribution of increasing vs decreasing locations across peak periods",
+    x = "Peak Period",
+    y = "Percentage of Locations (%)",
+    fill = "Change Direction",
+    caption = "Labels show percentage of locations | Top labels show mean percentage change"
+  ) +
   theme_minimal() +
-  theme(legend.position = "none")
+  theme(legend.position = "bottom")
 
-change_plot
+### Spatial Change Patterns
+# Analyze spatial patterns of change
+spatial_change_analysis <- bind_rows(
+  am_analysis$changes %>% mutate(Period = "Weekday AM"),
+  pm_analysis$changes %>% mutate(Period = "Weekday PM"),
+  weekend_analysis$changes %>% mutate(Period = "Weekend")
+) %>%
+  left_join(hexagon %>% select(HEX_ID, geometry), by = "HEX_ID") %>%
+  st_as_sf()
+
+# Create spatial change map
+spatial_change_map <- tm_shape(mpsz) +
+  tm_fill("grey90", alpha = 0.2) +
+  tm_shape(spatial_change_analysis) +
+  tm_fill("change_category",
+          fill.scale = tm_scale_categorical(
+            values = c(
+              "Strong Increase (>20%)" = "#006837",
+              "Moderate Increase (10-20%)" = "#66bd63",
+              "Stable (±10%)" = "#ffffbf",
+              "Moderate Decrease (10-20%)" = "#fdae61",
+              "Strong Decrease (>20%)" = "#d73027"
+            )
+          ),
+          fill.legend = tm_legend(title = "Monthly Change Category")) +
+  tm_borders(alpha = 0.3) +
+  tm_facets(by = "Period", ncol = 1) +
+  tm_title("Spatial Distribution of Monthly Changes\nAugust to September 2025") +
+  tm_compass(position = c("right", "top")) +
+  tm_scale_bar(position = c("left", "bottom"))
+
+### Display All Visualizations
+cat("### Monthly Pattern Consistency Analysis\n")
+# Display scatter plots in a grid
+scatter_grid <- ggarrange(
+  am_analysis$scatter_plot + theme(legend.position = "none"),
+  pm_analysis$scatter_plot + theme(legend.position = "none"),
+  weekend_analysis$scatter_plot + theme(legend.position = "none"),
+  ncol = 3, nrow = 1,
+  labels = c("A", "B", "C")
+)
+print(scatter_grid)
+
+cat("\n### Change Distribution Analysis\n")
+# Display change distribution plots
+change_dist_grid <- ggarrange(
+  am_analysis$change_dist_plot + theme(legend.position = "none"),
+  pm_analysis$change_dist_plot + theme(legend.position = "none"),
+  weekend_analysis$change_dist_plot + theme(legend.position = "none"),
+  ncol = 3, nrow = 1,
+  labels = c("D", "E", "F")
+)
+print(change_dist_grid)
+
+cat("\n### Comprehensive Change Summary\n")
+print(change_comprehensive_plot)
+
+cat("\n### Spatial Change Patterns\n")
+print(spatial_change_map)
+
+### Key Insights Summary
+cat("### Key Analytical Insights\n\n")
+
+cat("**Pattern Consistency:**\n")
+for(i in 1:nrow(monthly_correlation_summary)) {
+  period <- monthly_correlation_summary$Period[i]
+  corr <- monthly_correlation_summary$Correlation[i]
+  pval <- monthly_correlation_summary$P_Value[i]
+  change <- monthly_change_detailed$Mean_Change[i]
+  
+  cat("• **", period, "**: ", 
+      ifelse(pval < 0.05, "Stable pattern", "Significant change"), 
+      " (r = ", round(corr, 3), 
+      ifelse(pval < 0.05, "**, ", "*"), 
+      " | Mean change: ", round(change, 1), "%)\n", sep = "")
+}
+
+cat("\n**Spatial-Temporal Insights:**\n")
+cat("• **Highest Consistency**: ", 
+    monthly_correlation_summary$Period[which.max(monthly_correlation_summary$Correlation)], 
+    " patterns\n")
+cat("• **Most Dynamic**: ", 
+    monthly_change_detailed$Period[which.max(abs(monthly_change_detailed$Mean_Change))], 
+    " period\n")
+cat("• **Spatial Stability**: ", 
+    round(mean(monthly_change_detailed$Stable / monthly_change_detailed$Total * 100), 1), 
+    "% of locations showed minimal change (±10%)\n")
 ```
 
 ### Sensitivity Analysis
@@ -1650,6 +1928,7 @@ sensitivity_plot
 ```
 
 ### ENHANCE SPATIAL WEIGHTS VALIDATION
+
 ```{r}
 ### Comprehensive Weights Matrix Validation
 #| label: weights-validation
@@ -1702,7 +1981,6 @@ validation_results <- map_dfr(
     mutate(Period = .x)
 )
 ```
-
 
 ### Spatial Validation Methods
 
@@ -1905,7 +2183,9 @@ if (nrow(all_validation) > 0) {
     kable_styling(bootstrap_options = c("striped", "hover"))
 }
 ```
+
 ### STATISTICAL ROBUSTNESS CHECKS
+
 ```{r}
 ### Statistical Significance and Multiple Testing Correction
 #| label: significance-testing
@@ -2084,132 +2364,150 @@ kable(ci_results, caption = "95% Confidence Intervals for Local Moran's I Statis
   kable_styling(bootstrap_options = c("striped", "hover"))
 ```
 
-
-
 ## Results and Interpretation
 
 ### Key Spatial Patterns
-Weekday Morning Peak Patterns:
-Strong hotspots identified in major residential towns including Woodlands, Jurong West, Tampines, and Ang Mo Kio based on Local Moran's I and Gi* analysis
 
-Cold spots concentrated in industrial areas (Tuas, Pioneer, Lim Chu Kang) and peripheral regions
+**Weekday Morning Peak Patterns:**
 
-High-High clusters indicate coordinated morning commute patterns from residential heartlands to employment centers
+-   **Strong hotspots** identified in major residential towns including **Woodlands, Jurong West, Tampines, and Ang Mo Kio** based on Local Moran's I and Gi\* analysis
 
-Spatial outliers detected in transitional zones like Joo Koon (High-Low) and Clementi (Low-High)
+-   **Cold spots** concentrated in industrial areas **(Tuas, Pioneer, Lim Chu Kang)** and peripheral regions
 
-Weekday Evening Peak Patterns:
-Hotspots expand to include mixed-use areas, town centers, and the CBD/Downtown Core
+-   **High-High clusters** indicate coordinated morning commute patterns from residential heartlands to employment centers
 
-Central Business District transitions from morning cold spot to significant evening activity hub
+-   **Spatial outliers** detected in transitional zones like **Joo Koon** (High-Low) and **Clementi** (Low-High)
 
-More dispersed pattern compared to morning peak, reflecting diverse evening travel purposes
+**Weekday Evening Peak Patterns:**
 
-Persistent residential hotspots maintained in Jurong West, Hougang, and Sengkang
+-   **Hotspots expand** to include mixed-use areas, town centers, and the **CBD/Downtown Core**
 
-Weekend/Holiday Patterns:
-Distinct recreational travel patterns with hotspots in Orchard, Marina Bay, and recreational corridors
+-   **Central Business District transitions** from morning cold spot to significant evening activity hub
 
-Residential areas maintain significance but with different temporal intensity and distribution
+-   **More dispersed pattern** compared to morning peak, reflecting diverse evening travel purposes
 
-Emergence of leisure destinations including Sentosa gateway, cultural districts, and shopping belts
+-   **Persistent residential hotspots** maintained in **Jurong West, Hougang, and Sengkang**
 
-More balanced spatial distribution across the island compared to weekday commuting patterns
+**Weekend/Holiday Patterns:**
+
+-   **Distinct recreational travel patterns** with hotspots in **Orchard, Marina Bay, and recreational corridors**
+
+-   **Residential areas maintain significance** but with different temporal intensity and distribution
+
+-   **Emergence of leisure destinations** including **Sentosa gateway, cultural districts, and shopping belts**
+
+-   **More balanced spatial distribution** across the island compared to weekday commuting patterns
 
 ### Temporal Evolution Insights
-Cross-Month Consistency Analysis:
-High pattern consistency between August and September (correlations > 0.85 across all periods)
 
-Weekday AM shows strongest consistency (r = 0.92), indicating stable morning commute patterns
+**Cross-Month Consistency Analysis:**
 
-Minimal seasonal variation observed in the two-month analysis window
+-   High pattern consistency between August and September (correlations \> 0.85 across all periods)
 
-Emerging Hot Spot Analysis Reveals:
-Persistent Hotspots: Areas like Jurong West, Woodlands, and Tampines show consistent high activity across analytical methods
+-   Weekday AM shows strongest consistency (r = 0.92), indicating stable morning commute patterns
 
-Intensifying Patterns: Central areas and Punggol show strengthening trends in weekend mobility
+-   Minimal seasonal variation observed in the two-month analysis window
 
-Sporadic Clusters: Tourist areas and CBD exhibit intermittent hotspot patterns across time periods
+**Emerging Hot Spot Analysis Reveals:**
 
-Methodological Coherence: High agreement between Local Moran's I, Gi*, and EHSA classifications
+-   Persistent Hotspots: Areas like Jurong West, Woodlands, and Tampines show consistent high activity across analytical methods
 
-Sensitivity Analysis Insights:
-Robust spatial autocorrelation across different neighborhood structures (KNN k=4-8)
+-   Intensifying Patterns: Central areas and Punggol show strengthening trends in weekend mobility
 
-Moran's I stability: Minimal variation (0.02-0.04) across different spatial weights configurations
+-   Sporadic Clusters: Tourist areas and CBD exhibit intermittent hotspot patterns across time periods
 
-KNN method superiority: More reliable than contiguity-based methods for hexagon grids
+-   Methodological Coherence: High agreement between Local Moran's I, Gi\*, and EHSA classifications
 
-Consistent significance: All methods identified statistically significant clustering (p < 0.001)
+**Sensitivity Analysis Insights:**
+
+-   Robust spatial autocorrelation across different neighborhood structures (KNN k=4-8)
+
+-   Moran's I stability: Minimal variation (0.02-0.04) across different spatial weights configurations
+
+-   KNN method superiority: More reliable than contiguity-based methods for hexagon grids
+
+-   Consistent significance: All methods identified statistically significant clustering (p \< 0.001)
 
 ### Policy Implications
-Transportation Planning:
-Targeted service optimization in persistent hotspot areas identified through multi-method validation
 
-Dynamic scheduling strategies informed by temporal pattern analysis across peak periods
+**Transportation Planning:**
 
-Infrastructure investments prioritized for areas showing intensifying usage trends
+-   Targeted service optimization in persistent hotspot areas identified through multi-method validation
 
-Demand-responsive allocation based on cross-month consistency and trend strength
+-   Dynamic scheduling strategies informed by temporal pattern analysis across peak periods
 
-Urban Development:
-Transit-oriented development opportunities in emerging hotspot corridors
+-   Infrastructure investments prioritized for areas showing intensifying usage trends
 
-Mixed-use zoning support for areas showing versatile temporal usage patterns
+-   Demand-responsive allocation based on cross-month consistency and trend strength
 
-Connectivity improvements for cold spot areas with development potential
+    **Urban Development:**
 
-Strategic land use planning informed by spatio-temporal mobility patterns
+-   Transit-oriented development opportunities in emerging hotspot corridors
 
-Operational Management:
-Resource allocation optimized through validated spatial clustering patterns
+-   Mixed-use zoning support for areas showing versatile temporal usage patterns
 
-Service monitoring focused on areas with sporadic or emerging patterns
+-   Connectivity improvements for cold spot areas with development potential
 
-Performance evaluation using consistent multi-method spatial metrics
+-   Strategic land use planning informed by spatio-temporal mobility patterns
 
-Adaptive planning responsive to temporal evolution insights
+    **Operational Management:**
 
-##  Conclusion and Limitations
+-    Resource allocation optimized through validated spatial clustering patterns
+
+-   Service monitoring focused on areas with sporadic or emerging patterns
+
+-   Performance evaluation using consistent multi-method spatial metrics
+
+-   Adaptive planning responsive to temporal evolution insights
+
+## Conclusion and Limitations
+
 ### Summary of Findings
-This comprehensive analysis demonstrates the value of integrating multiple geospatial statistical methods for understanding urban mobility patterns. The consistent results across Local Moran's I, Getis-Ord Gi*, and sensitivity-validated approaches provide strong evidence for the identified spatial-temporal patterns.
 
-Key Methodological Contributions:
-Robust Multi-Method Framework: Integration of LMSA, HCSA, and cross-validation techniques
+This comprehensive analysis demonstrates the value of integrating multiple geospatial statistical methods for understanding urban mobility patterns. The consistent results across Local Moran's I, Getis-Ord Gi\*, and sensitivity-validated approaches provide strong evidence for the identified spatial-temporal patterns.
 
-Temporal Dynamics Analysis: Two-month comparison revealing pattern stability
+**Key Methodological Contributions:**
 
-Sensitivity-Validated Results: Consistent findings across different spatial weights configurations
+**Robust Multi-Method Framework:** Integration of LMSA, HCSA, and cross-validation techniques
 
-Policy-Relevant Classification: Translation of statistical patterns to actionable insights
+**Temporal Dynamics Analysis:** Two-month comparison revealing pattern stability
 
-Substantive Urban Mobility Insights:
-Clear spatial hierarchy of trip generation across Singapore's urban fabric
+**Sensitivity-Validated Results:** Consistent findings across different spatial weights configurations
 
-Temporal specialization of different areas across peak periods
+**Policy-Relevant Classification:** Translation of statistical patterns to actionable insights
 
-Stable monthly patterns supporting reliable planning assumptions
+**Substantive Urban Mobility Insights:**
 
-Identified intervention priorities based on pattern persistence and trend strength
+-   Clear spatial hierarchy of trip generation across Singapore's urban fabric
+
+-   Temporal specialization of different areas across peak periods
+
+-   Stable monthly patterns supporting reliable planning assumptions
+
+-   Identified intervention priorities based on pattern persistence and trend strength
 
 ### Limitations and Methodological Considerations
-Data and Temporal Scope:
-Two-month analysis period provides robust short-term insights but limited seasonal perspective
 
-Hexagon aggregation (375m) balances spatial precision with analytical tractability
+**Data and Temporal Scope**:
 
-Peak period focus captures key mobility patterns but may miss off-peak dynamics
+-   Two-month analysis period provides robust short-term insights but limited seasonal perspective
 
-Methodological Constraints:
-Spatial weights sensitivity addressed through comprehensive validation framework
+-   Hexagon aggregation (375m) balances spatial precision with analytical tractability
 
-EHSA demonstration nature acknowledged while maintaining analytical rigor
+-   Peak period focus captures key mobility patterns but may miss off-peak dynamics
 
-Scale effects considered through multi-resolution sensitivity testing
+**Methodological Constraints:**
 
-Analytical Boundaries:
-Bus-focused analysis provides detailed public transport insights but excludes other modes
+-   Spatial weights sensitivity addressed through comprehensive validation framework
 
-Origin-based perspective captures trip generation patterns complementing destination studies
+-   EHSA demonstration nature acknowledged while maintaining analytical rigor
 
-Singapore context offers controlled urban laboratory but limits direct international comparability
+-   Scale effects considered through multi-resolution sensitivity testing
+
+**Analytical Boundaries:**
+
+-   Bus-focused analysis provides detailed public transport insights but excludes other modes
+
+-   Origin-based perspective captures trip generation patterns complementing destination studies
+
+-   Singapore context offers controlled urban laboratory but limits direct international comparability
