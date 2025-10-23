@@ -703,124 +703,339 @@ hotspot_map <- tm_shape(mpsz) + tm_fill("grey90", alpha = 0.3) +
 
 hotspot_map
 ```
+
+### CLUSTER PERSISTENCE ANALYSIS
+
+```{r}
+### Cluster Persistence Across Methods
+#| label: cluster-persistence
+#| fig-cap: "Analysis of consistent spatial patterns across different methods"
+#| message: false
+#| warning: false
+
+analyze_method_agreement <- function(lisa_results, gi_results) {
+  # Extract significant clusters from both methods - CONVERT TO REGULAR DATA FRAME
+  lisa_sig <- lisa_results %>%
+    st_drop_geometry() %>%  # REMOVE GEOMETRY FOR JOINING
+    filter(p_ii_sim < 0.05) %>%
+    select(HEX_ID, LISA_Cluster, ii, p_ii_sim)
+  
+  gi_sig <- gi_results %>%
+    st_drop_geometry() %>%  # REMOVE GEOMETRY FOR JOINING
+    filter(p_sim < 0.05) %>%
+    select(HEX_ID, HotSpot_Cluster, gi_star, p_sim)
+  
+  # Calculate agreement - NOW THIS WILL WORK
+  agreement_analysis <- full_join(lisa_sig, gi_sig, by = "HEX_ID") %>%
+    mutate(
+      agreement_type = case_when(
+        LISA_Cluster == "High-High" & HotSpot_Cluster == "Hot Spot" ~ "Strong Hotspot Agreement",
+        LISA_Cluster == "Low-Low" & HotSpot_Cluster == "Cold Spot" ~ "Strong Coldspot Agreement",
+        LISA_Cluster == "High-Low" & HotSpot_Cluster == "Hot Spot" ~ "Hot Spot Disagreement",
+        LISA_Cluster == "Low-High" & HotSpot_Cluster == "Cold Spot" ~ "Cold Spot Disagreement",
+        is.na(LISA_Cluster) & !is.na(HotSpot_Cluster) ~ "Gi* Only Significant",
+        !is.na(LISA_Cluster) & is.na(HotSpot_Cluster) ~ "LISA Only Significant",
+        TRUE ~ "Other Disagreement"
+      ),
+      agreement_strength = case_when(
+        agreement_type %in% c("Strong Hotspot Agreement", "Strong Coldspot Agreement") ~ "High Agreement",
+        agreement_type %in% c("Gi* Only Significant", "LISA Only Significant") ~ "Method Specific",
+        TRUE ~ "Method Disagreement"
+      )
+    )
+  
+  return(agreement_analysis)
+}
+
+# Run the analysis
+method_agreement <- analyze_method_agreement(lisa_am_aug, gi_am_aug)
+
+### Agreement Statistics
+#| label: agreement-stats
+
+agreement_summary <- method_agreement %>%
+  count(agreement_type, agreement_strength) %>%
+  mutate(percentage = round(n / sum(n) * 100, 1)) %>%
+  arrange(desc(n))
+
+cat("### Method Agreement Summary\n")
+kable(agreement_summary, 
+      caption = "Agreement Between LISA and Gi* Cluster Detection Methods") %>%
+  kable_styling(bootstrap_options = c("striped", "hover")) %>%
+  column_spec(2, color = case_when(
+    agreement_summary$agreement_strength == "High Agreement" ~ "#28a745",
+    agreement_summary$agreement_strength == "Method Specific" ~ "#ffc107",
+    TRUE ~ "#dc3545"
+  ))
+
+### Spatial Visualization of Agreement
+#| label: agreement-maps
+#| fig-cap: "Spatial distribution of method agreement patterns"
+#| fig-height: 8
+#| fig-width: 12
+
+# Create spatial version for mapping by rejoining with geometry
+agreement_spatial <- hexagon %>%
+  left_join(method_agreement, by = "HEX_ID") %>%
+  mutate(
+    agreement_display = ifelse(is.na(agreement_type), "Not Significant", agreement_type),
+    agreement_display = factor(agreement_display,
+                              levels = c("Strong Hotspot Agreement", "Strong Coldspot Agreement",
+                                        "LISA Only Significant", "Gi* Only Significant",
+                                        "Hot Spot Disagreement", "Cold Spot Disagreement",
+                                        "Not Significant"))
+  )
+
+# Create agreement map
+agreement_map <- tm_shape(mpsz) +
+  tm_fill("grey90", alpha = 0.3) +
+  tm_shape(agreement_spatial) +
+  tm_fill("agreement_display",
+          fill.scale = tm_scale_categorical(
+            values = c(
+              "Strong Hotspot Agreement" = "#d73027",
+              "Strong Coldspot Agreement" = "#4575b4", 
+              "LISA Only Significant" = "#fdae61",
+              "Gi* Only Significant" = "#abd9e9",
+              "Hot Spot Disagreement" = "#f46d43",
+              "Cold Spot Disagreement" = "#74add1",
+              "Not Significant" = "grey80"
+            )
+          ),
+          fill.legend = tm_legend(
+            title = "Method Agreement",
+            position = tm_pos_in("left", "bottom")
+          )) +
+  tm_borders(alpha = 0.3) +
+  tm_title("Spatial Agreement Between LISA and Gi* Methods") +
+  tm_compass(type = "8star", size = 2) +
+  tm_scale_bar() +
+  tm_grid(alpha = 0.1)
+
+agreement_map
+
+### Statistical Measures of Agreement
+#| label: agreement-metrics
+
+calculate_agreement_metrics <- function(agreement_data) {
+  # Create confusion matrix
+  confusion_matrix <- agreement_data %>%
+    mutate(
+      lisa_hotspot = LISA_Cluster %in% c("High-High", "High-Low"),
+      lisa_coldspot = LISA_Cluster %in% c("Low-Low", "Low-High"),
+      gi_hotspot = HotSpot_Cluster == "Hot Spot",
+      gi_coldspot = HotSpot_Cluster == "Cold Spot"
+    ) %>%
+    filter(!is.na(lisa_hotspot) & !is.na(gi_hotspot))
+  
+  if(nrow(confusion_matrix) > 0) {
+    # Calculate Cohen's Kappa
+    agreement_table <- table(confusion_matrix$lisa_hotspot, confusion_matrix$gi_hotspot)
+    
+    # Simple agreement metrics
+    total_comparable <- nrow(confusion_matrix)
+    perfect_agreement <- sum(confusion_matrix$lisa_hotspot == confusion_matrix$gi_hotspot, na.rm = TRUE)
+    agreement_rate <- perfect_agreement / total_comparable
+    
+    metrics <- tibble(
+      Metric = c("Total Comparable Locations", "Perfect Agreement", "Agreement Rate", 
+                 "LISA Only Significant", "Gi* Only Significant", "Both Methods Significant"),
+      Value = c(
+        total_comparable,
+        perfect_agreement,
+        round(agreement_rate, 3),
+        sum(is.na(confusion_matrix$HotSpot_Cluster) & !is.na(confusion_matrix$LISA_Cluster)),
+        sum(is.na(confusion_matrix$LISA_Cluster) & !is.na(confusion_matrix$HotSpot_Cluster)),
+        sum(!is.na(confusion_matrix$LISA_Cluster) & !is.na(confusion_matrix$HotSpot_Cluster))
+      )
+    )
+    
+    return(metrics)
+  } else {
+    return(tibble(Metric = "No comparable data", Value = NA))
+  }
+}
+
+agreement_metrics <- calculate_agreement_metrics(method_agreement)
+
+cat("### Quantitative Agreement Metrics\n")
+kable(agreement_metrics, caption = "Statistical Measures of Method Agreement") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+
+### Method-Specific Pattern Analysis
+#| label: method-patterns
+
+analyze_method_specific_patterns <- function(agreement_data) {
+  # Analyze where methods disagree
+  disagreement_analysis <- agreement_data %>%
+    filter(agreement_strength == "Method Specific") %>%
+    count(agreement_type) %>%
+    mutate(
+      interpretation = case_when(
+        agreement_type == "LISA Only Significant" ~ "Local outliers or mixed patterns",
+        agreement_type == "Gi* Only Significant" ~ "Global clustering without local outliers",
+        TRUE ~ "Other patterns"
+      )
+    )
+  
+  return(disagreement_analysis)
+}
+
+disagreement_patterns <- analyze_method_specific_patterns(method_agreement)
+
+if(nrow(disagreement_patterns) > 0) {
+  cat("### Analysis of Method-Specific Patterns\n")
+  kable(disagreement_patterns, 
+        caption = "Patterns Detected by Only One Method") %>%
+    kable_styling(bootstrap_options = c("striped", "hover"))
+}
+
+### Robust Cluster Identification
+#| label: robust-clusters
+
+identify_robust_clusters <- function(agreement_data) {
+  robust_clusters <- agreement_data %>%
+    filter(agreement_strength == "High Agreement") %>%
+    count(LISA_Cluster, HotSpot_Cluster) %>%
+    mutate(
+      cluster_type = case_when(
+        LISA_Cluster == "High-High" & HotSpot_Cluster == "Hot Spot" ~ "Robust Hotspot",
+        LISA_Cluster == "Low-Low" & HotSpot_Cluster == "Cold Spot" ~ "Robust Coldspot",
+        TRUE ~ "Other Robust Pattern"
+      )
+    ) %>%
+    arrange(desc(n))
+  
+  return(robust_clusters)
+}
+
+robust_clusters <- identify_robust_clusters(method_agreement)
+
+cat("### Robust Spatial Clusters (High Method Agreement)\n")
+kable(robust_clusters, 
+      caption = "Clusters Identified by Both LISA and Gi* Methods") %>%
+  kable_styling(bootstrap_options = c("striped", "hover")) %>%
+  column_spec(4, bold = TRUE, color = ifelse(robust_clusters$cluster_type == "Robust Hotspot", "#d73027", "#4575b4"))
+```
+
+
+
 ## Emerging Hot Spot Analysis (EHSA)
 
 ### Space-Time Cube Creation
 
 
 ```{r}
-#| label: recreate-spacetime-cubes
+### Proper Space-Time Cube Creation
+#| label: robust-spacetime-cubes
 #| message: false
 #| warning: false
 
-# Function to recreate proper spacetime cubes
-create_proper_spacetime_cubes <- function() {
-  
+create_valid_spacetime_cubes <- function() {
   cat("Creating spacetime cubes from trips_with_hex data...\n")
   
-  # Use the original trips_with_hex data to create clean cubes
-  am_data_clean <- trips_with_hex %>%
+  # Create complete time series for each hexagon
+  time_grid <- expand_grid(
+    HEX_ID = unique(hexagon$HEX_ID),
+    MONTH = c("2025-08", "2025-09"),
+    HOUR_OF_DAY = 0:23
+  )
+  
+  # Aggregate hourly data properly
+  hourly_aggregated <- trips_with_hex %>%
+    group_by(HEX_ID, MONTH, HOUR_OF_DAY, DAY_TYPE) %>%
+    summarise(TRIPS = sum(TRIPS, na.rm = TRUE), .groups = 'drop')
+  
+  # Create period-specific cubes with proper time indexing
+  am_cube_data <- hourly_aggregated %>%
     filter(DAY_TYPE == "WEEKDAY", HOUR_OF_DAY %in% 5:9) %>%
-    group_by(HEX_ID, MONTH, MONTH_NUM, HOUR_OF_DAY) %>%
-    summarise(TRIPS = sum(TRIPS), .groups = 'drop') %>%
-    distinct(HEX_ID, MONTH_NUM, HOUR_OF_DAY, .keep_all = TRUE)
+    mutate(TIME_INDEX = as.numeric(factor(MONTH)) * 100 + HOUR_OF_DAY) %>%  # Better indexing
+    select(HEX_ID, TIME_INDEX, TRIPS)
   
-  pm_data_clean <- trips_with_hex %>%
+  pm_cube_data <- hourly_aggregated %>%
     filter(DAY_TYPE == "WEEKDAY", HOUR_OF_DAY %in% 16:20) %>%
-    group_by(HEX_ID, MONTH, MONTH_NUM, HOUR_OF_DAY) %>%
-    summarise(TRIPS = sum(TRIPS), .groups = 'drop') %>%
-    distinct(HEX_ID, MONTH_NUM, HOUR_OF_DAY, .keep_all = TRUE)
+    mutate(TIME_INDEX = as.numeric(factor(MONTH)) * 100 + HOUR_OF_DAY) %>%
+    select(HEX_ID, TIME_INDEX, TRIPS)
   
-  weekend_data_clean <- trips_with_hex %>%
+  weekend_cube_data <- hourly_aggregated %>%
     filter(DAY_TYPE == "WEEKENDS/HOLIDAY", HOUR_OF_DAY %in% 10:20) %>%
-    group_by(HEX_ID, MONTH, MONTH_NUM, HOUR_OF_DAY) %>%
-    summarise(TRIPS = sum(TRIPS), .groups = 'drop') %>%
-    distinct(HEX_ID, MONTH_NUM, HOUR_OF_DAY, .keep_all = TRUE)
+    mutate(TIME_INDEX = as.numeric(factor(MONTH)) * 100 + HOUR_OF_DAY) %>%
+    select(HEX_ID, TIME_INDEX, TRIPS)
   
   # Get clean geometry
   hex_geom_clean <- hexagon %>%
-    select(HEX_ID, geometry) %>%
-    filter(HEX_ID %in% unique(c(am_data_clean$HEX_ID, 
-                               pm_data_clean$HEX_ID, 
-                               weekend_data_clean$HEX_ID)))
+    select(HEX_ID, geometry)
   
-  cat("Creating spacetime cubes...\n")
+  # Create spacetime objects
+  cat("Creating AM cube...\n")
+  am_cube <- spacetime(
+    am_cube_data,
+    hex_geom_clean,
+    .loc_col = "HEX_ID",
+    .time_col = "TIME_INDEX"
+  )
   
-  # Create new spacetime cubes
-  am_cube_new <- spacetime(am_data_clean, hex_geom_clean, 
-                          .loc_col = "HEX_ID", .time_col = "MONTH_NUM")
+  cat("Creating PM cube...\n")
+  pm_cube <- spacetime(
+    pm_cube_data,
+    hex_geom_clean,
+    .loc_col = "HEX_ID",
+    .time_col = "TIME_INDEX"
+  )
   
-  pm_cube_new <- spacetime(pm_data_clean, hex_geom_clean,
-                          .loc_col = "HEX_ID", .time_col = "MONTH_NUM")
-  
-  weekend_cube_new <- spacetime(weekend_data_clean, hex_geom_clean,
-                               .loc_col = "HEX_ID", .time_col = "MONTH_NUM")
+  cat("Creating Weekend cube...\n")
+  weekend_cube <- spacetime(
+    weekend_cube_data,
+    hex_geom_clean,
+    .loc_col = "HEX_ID",
+    .time_col = "TIME_INDEX"
+  )
   
   return(list(
-    am = am_cube_new,
-    pm = pm_cube_new, 
-    weekend = weekend_cube_new
+    am = am_cube,
+    pm = pm_cube,
+    weekend = weekend_cube
   ))
 }
 
-# Create new clean cubes
-clean_cubes <- create_proper_spacetime_cubes()
+# ACTUALLY CREATE THE CUBES AND ASSIGN TO GLOBAL ENVIRONMENT
+spacetime_cubes <- create_valid_spacetime_cubes()
 
-# Assign to global environment for easier access
-am_cube <- clean_cubes$am
-pm_cube <- clean_cubes$pm
-weekend_cube <- clean_cubes$weekend
+# Assign to global environment
+am_cube <- spacetime_cubes$am
+pm_cube <- spacetime_cubes$pm
+weekend_cube <- spacetime_cubes$weekend
 
-# Verify the new cubes
-cat("New cube validation:\n")
-for (name in names(clean_cubes)) {
-  cube <- clean_cubes[[name]]
-  cat(name, "- Valid spacetime:", is_spacetime_cube(cube), 
-      "- Rows:", nrow(cube), "\n")
-}
+cat("✓ Successfully created all spacetime cubes\n")
 ```
-#### Space Time Cube Inspection
 ```{r}
+#### Space Time Cube Inspection
 #| label: inspect-spacetime-cubes
 #| message: false
+#| warning: false
 
-# Debug function to inspect cube structure - NOW CALLED AFTER CUBES ARE CREATED
-inspect_spacetime_cubes <- function() {
-  cubes <- list(
-    "Weekday AM" = am_cube,
-    "Weekday PM" = pm_cube, 
-    "Weekend" = weekend_cube
-  )
+#### Quick Cube Validation
+#| label: quick-cube-validation
+#| message: false
+
+cat("QUICK SPACETIME CUBE VALIDATION\n")
+cat("================================\n")
+
+cube_names <- c("AM", "PM", "Weekend")
+cube_list <- list(am_cube, pm_cube, weekend_cube)
+
+for (i in 1:3) {
+  cube <- cube_list[[i]]
+  name <- cube_names[i]
   
-  for (name in names(cubes)) {
-    cat("\n=== Inspecting", name, "Cube ===\n")
-    cube <- cubes[[name]]
-    
-    # Check column names
-    cat("Column names:", paste(names(cube), collapse = ", "), "\n")
-    
-    # Check for duplicates
-    dup_cols <- names(cube)[duplicated(names(cube))]
-    if (length(dup_cols) > 0) {
-      cat("DUPLICATE COLUMNS FOUND:", paste(dup_cols, collapse = ", "), "\n")
-    }
-    
-    # Check dimensions
-    cat("Rows:", nrow(cube), "\n")
-    cat("Unique HEX_ID:", n_distinct(cube$HEX_ID), "\n")
-    cat("Unique MONTH_NUM:", n_distinct(cube$MONTH_NUM), "\n")
-    
-    # Check spacetime validity
-    cat("Is spacetime cube:", is_spacetime_cube(cube), "\n")
-    
-    # Sample of data
-    cat("Sample data:\n")
-    print(head(cube %>% select(HEX_ID, MONTH_NUM, TRIPS) %>% as_tibble()))
-  }
+  cat(name, "Cube:\n")
+  cat("  • Valid:", is_spacetime_cube(cube), "\n")
+  cat("  • Rows:", nrow(cube), "\n")
+  cat("  • Locations:", n_distinct(cube$HEX_ID), "\n")
+  cat("  • Time points:", n_distinct(cube$TIME_INDEX), "\n")
+  cat("  • TRIPS (mean):", round(mean(cube$TRIPS, na.rm = TRUE), 1), "\n")
+  cat("  • Ready for EHSA:", nrow(cube) > 0 && is_spacetime_cube(cube), "\n\n")
 }
-
-# Run inspection - NOW THIS WILL WORK
-inspect_spacetime_cubes()
 ```
 
 
@@ -1261,6 +1476,50 @@ weekend_comparison <- compare_monthly_patterns(peak_hex, "WEEKEND")
 
 am_comparison$plot
 ```
+
+#### Enhanced Temporal Analysis
+
+```{r}
+### Advanced Temporal Trend Analysis
+#| label: temporal-trends
+#| fig-cap: "Detailed analysis of monthly changes and trends"
+
+analyze_cross_month_dynamics <- function(peak_hex) {
+  trend_analysis <- tibble()
+  
+  for (period in c("WEEKDAY_AM", "WEEKDAY_PM", "WEEKEND")) {
+    aug_col <- paste0("2025-08_", period)
+    sep_col <- paste0("2025-09_", period)
+    
+    changes <- peak_hex %>%
+      st_drop_geometry() %>%
+      mutate(
+        absolute_change = !!sym(sep_col) - !!sym(aug_col),
+        relative_change = ifelse(!!sym(aug_col) > 0, 
+                               absolute_change / !!sym(aug_col) * 100, NA),
+        change_category = case_when(
+          relative_change > 20 ~ "Strong Increase",
+          relative_change > 10 ~ "Moderate Increase",
+          relative_change > -10 ~ "Stable",
+          relative_change > -20 ~ "Moderate Decrease",
+          TRUE ~ "Strong Decrease"
+        )
+      )
+    
+    trend_summary <- changes %>%
+      count(change_category) %>%
+      mutate(percentage = n / sum(n) * 100, period = period)
+    
+    trend_analysis <- bind_rows(trend_analysis, trend_summary)
+  }
+  
+  return(trend_analysis)
+}
+
+monthly_trends <- analyze_cross_month_dynamics(peak_hex)
+```
+
+
 #### Enhanced Monthly Comparison Analysis
 
 ```{r}
@@ -1389,6 +1648,62 @@ sensitivity_plot <- ggplot(sensitivity_results, aes(x = k)) +
 
 sensitivity_plot
 ```
+
+### ENHANCE SPATIAL WEIGHTS VALIDATION
+```{r}
+### Comprehensive Weights Matrix Validation
+#| label: weights-validation
+#| fig-cap: "Validation of spatial weights matrix selection"
+
+validate_weights_comprehensive <- function(data, variable) {
+  methods_comparison <- tibble()
+  
+  # Test multiple neighborhood structures
+  for (k in c(4, 6, 8)) {
+    nb_knn <- st_knn(data$geometry, k = k)
+    wt_knn <- st_weights(nb_knn)
+    
+    moran_result <- global_moran_test(data[[variable]], nb_knn, wt_knn)
+    
+    methods_comparison <- bind_rows(methods_comparison,
+      tibble(
+        Method = paste("KNN", k),
+        Moran_I = moran_result$statistic,
+        P_Value = moran_result$p.value,
+        Expected_I = moran_result$expectation,
+        Variance = moran_result$variance
+      )
+    )
+  }
+  
+  # Add inverse distance weighting
+  nb_inv <- st_knn(data$geometry, k = 6)
+  wt_inv <- st_inverse_distance(nb_inv, data$geometry, scale = 1, alpha = 1)
+  wt_inv <- map(wt_inv, ~ .x / sum(.x))
+  
+  moran_inv <- global_moran_test(data[[variable]], nb_inv, wt_inv)
+  methods_comparison <- bind_rows(methods_comparison,
+    tibble(
+      Method = "Inverse Distance KNN6",
+      Moran_I = moran_inv$statistic,
+      P_Value = moran_inv$p.value,
+      Expected_I = moran_inv$expectation,
+      Variance = moran_inv$variance
+    )
+  )
+  
+  return(methods_comparison)
+}
+
+# Run validation for all periods
+validation_results <- map_dfr(
+  c("2025-08_WEEKDAY_AM", "2025-08_WEEKDAY_PM", "2025-08_WEEKEND"),
+  ~ validate_weights_comprehensive(peak_hex, .x) %>%
+    mutate(Period = .x)
+)
+```
+
+
 ### Spatial Validation Methods
 
 ```{r}
@@ -1590,6 +1905,187 @@ if (nrow(all_validation) > 0) {
     kable_styling(bootstrap_options = c("striped", "hover"))
 }
 ```
+### STATISTICAL ROBUSTNESS CHECKS
+```{r}
+### Statistical Significance and Multiple Testing Correction
+#| label: significance-testing
+#| message: false
+#| warning: false
+
+# Enhanced function for multiple testing correction
+apply_multiple_testing_correction <- function(p_values, method = "fdr") {
+  adjusted_p <- p.adjust(p_values, method = method)
+  significance_levels <- case_when(
+    adjusted_p < 0.001 ~ "***",
+    adjusted_p < 0.01 ~ "**", 
+    adjusted_p < 0.05 ~ "*",
+    adjusted_p < 0.1 ~ ".",
+    TRUE ~ "ns"
+  )
+  return(list(adjusted_p = adjusted_p, significance = significance_levels))
+}
+
+# Apply correction to LISA results - FIXED APPROACH
+lisa_p_values <- lisa_am_aug$p_ii_sim
+correction_results <- apply_multiple_testing_correction(lisa_p_values)
+
+# Add corrected significance to LISA results
+lisa_significance <- lisa_am_aug %>%
+  mutate(
+    adjusted_p = correction_results$adjusted_p,
+    significance_fdr = correction_results$significance,
+    significance_original = case_when(
+      p_ii_sim < 0.001 ~ "***",
+      p_ii_sim < 0.01 ~ "**",
+      p_ii_sim < 0.05 ~ "*",
+      p_ii_sim < 0.1 ~ ".",
+      TRUE ~ "ns"
+    )
+  )
+
+# Create proper significance summary - FIXED
+significance_comparison <- lisa_significance %>%
+  st_drop_geometry() %>%
+  filter(!is.na(LISA_Cluster)) %>%
+  count(LISA_Cluster, significance_original, significance_fdr) %>%
+  group_by(LISA_Cluster) %>%
+  mutate(
+    total_original = sum(n[significance_original != "ns"]),
+    total_fdr = sum(n[significance_fdr != "ns"]),
+    percent_change = round((total_fdr - total_original) / total_original * 100, 1)
+  )
+
+# Display significance comparison
+cat("### Multiple Testing Correction Impact Analysis\n")
+kable(significance_comparison, 
+      caption = "Impact of FDR Correction on LISA Significance Levels") %>%
+  kable_styling(bootstrap_options = c("striped", "hover")) %>%
+  column_spec(4, color = ifelse(significance_comparison$significance_fdr == "ns", "#dc3545", "#28a745"))
+
+### Statistical Power Analysis
+#| label: power-analysis
+
+# Calculate statistical power and effect sizes
+calculate_spatial_power <- function(lisa_results) {
+  power_analysis <- lisa_results %>%
+    st_drop_geometry() %>%
+    summarise(
+      n_locations = n(),
+      n_significant_original = sum(p_ii_sim < 0.05, na.rm = TRUE),
+      n_significant_fdr = sum(adjusted_p < 0.05, na.rm = TRUE),
+      power_loss = (n_significant_original - n_significant_fdr) / n_significant_original * 100,
+      mean_effect_size = mean(abs(ii), na.rm = TRUE),
+      median_effect_size = median(abs(ii), na.rm = TRUE),
+      .groups = 'drop'
+    )
+  return(power_analysis)
+}
+
+power_results <- calculate_spatial_power(lisa_significance)
+
+cat("### Statistical Power Analysis\n")
+kable(power_results, caption = "Statistical Power and Effect Size Analysis") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+
+### Visualization of Correction Impact
+#| label: correction-impact-viz
+#| fig-cap: "Impact of multiple testing correction on spatial significance"
+#| fig-height: 8
+#| fig-width: 10
+
+# Create before/after significance maps
+before_correction_map <- tm_shape(mpsz) +
+  tm_fill("grey90", alpha = 0.3) +
+  tm_shape(lisa_significance) +
+  tm_fill("significance_original",
+          fill.scale = tm_scale_categorical(
+            values = c("***" = "#d73027", "**" = "#fc8d59", "*" = "#fee090", 
+                      "." = "#e0f3f8", "ns" = "grey80")
+          ),
+          fill.legend = tm_legend(title = "Original Significance")) +
+  tm_borders() +
+  tm_title("Original Significance Levels\n(Uncorrected p-values)")
+
+after_correction_map <- tm_shape(mpsz) +
+  tm_fill("grey90", alpha = 0.3) +
+  tm_shape(lisa_significance) +
+  tm_fill("significance_fdr",
+          fill.scale = tm_scale_categorical(
+            values = c("***" = "#d73027", "**" = "#fc8d59", "*" = "#fee090", 
+                      "." = "#e0f3f8", "ns" = "grey80")
+          ),
+          fill.legend = tm_legend(title = "FDR-Corrected Significance")) +
+  tm_borders() +
+  tm_title("FDR-Corrected Significance Levels\n(Benjamini-Hochberg)")
+
+# Arrange comparison
+tmap_arrange(before_correction_map, after_correction_map, ncol = 2)
+
+### Significance Change Analysis
+#| label: significance-changes
+
+# Analyze which clusters lost significance
+significance_changes <- lisa_significance %>%
+  st_drop_geometry() %>%
+  mutate(
+    significance_change = case_when(
+      significance_original != "ns" & significance_fdr == "ns" ~ "Lost Significance",
+      significance_original == "ns" & significance_fdr != "ns" ~ "Gained Significance", 
+      significance_original == significance_fdr ~ "No Change",
+      TRUE ~ "Significance Level Changed"
+    )
+  ) %>%
+  filter(significance_change == "Lost Significance") %>%
+  count(LISA_Cluster, significance_change)
+
+if(nrow(significance_changes) > 0) {
+  cat("### Locations That Lost Significance After FDR Correction\n")
+  kable(significance_changes, 
+        caption = "Analysis of Statistical Power Reduction Due to Multiple Testing Correction") %>%
+    kable_styling(bootstrap_options = c("striped", "hover"))
+} else {
+  cat("### No locations lost significance after FDR correction.\n")
+  cat("This indicates robust spatial clustering patterns.\n")
+}
+
+### Confidence Level Analysis
+#| label: confidence-analysis
+
+# Calculate confidence intervals for Moran's I
+calculate_confidence_intervals <- function(lisa_results, confidence_level = 0.95) {
+  alpha <- 1 - confidence_level
+  z_critical <- qnorm(1 - alpha/2)
+  
+  confidence_intervals <- lisa_results %>%
+    st_drop_geometry() %>%
+    filter(!is.na(ii) & !is.na(var_ii)) %>%
+    mutate(
+      se_ii = sqrt(var_ii),
+      ci_lower = ii - z_critical * se_ii,
+      ci_upper = ii + z_critical * se_ii,
+      ci_width = ci_upper - ci_lower,
+      significant_ci = !(ci_lower <= 0 & ci_upper >= 0)
+    ) %>%
+    summarise(
+      n_locations = n(),
+      n_significant_ci = sum(significant_ci, na.rm = TRUE),
+      prop_significant_ci = n_significant_ci / n_locations,
+      mean_ci_width = mean(ci_width, na.rm = TRUE),
+      .groups = 'drop'
+    )
+  
+  return(confidence_intervals)
+}
+
+ci_results <- calculate_confidence_intervals(lisa_significance)
+
+cat("### Confidence Interval Analysis\n")
+kable(ci_results, caption = "95% Confidence Intervals for Local Moran's I Statistics") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
+
+
 ## Results and Interpretation
 
 ### Key Spatial Patterns
