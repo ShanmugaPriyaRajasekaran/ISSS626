@@ -1137,7 +1137,11 @@ agreement_summary <- method_agreement %>%
   mutate(percentage = round(n / sum(n) * 100, 1)) %>%
   arrange(desc(n))
 
-cat("### Method Agreement Summary\n")
+```
+
+### Method Agreement Summary
+
+```{r}
 kable(agreement_summary, 
       caption = "Agreement Between LISA and Gi* Cluster Detection Methods") %>%
   kable_styling(bootstrap_options = c("striped", "hover")) %>%
@@ -1146,7 +1150,9 @@ kable(agreement_summary,
     agreement_summary$agreement_strength == "Method Specific" ~ "#ffc107",
     TRUE ~ "#dc3545"
   ))
+```
 
+```{r}
 ### Spatial Visualization of Agreement
 #| label: agreement-maps
 #| fig-cap: "Spatial distribution of method agreement patterns"
@@ -1193,6 +1199,9 @@ agreement_map <- tm_shape(mpsz) +
 
 agreement_map
 
+```
+
+```{r}
 ### Statistical Measures of Agreement
 #| label: agreement-metrics
 
@@ -1236,11 +1245,19 @@ calculate_agreement_metrics <- function(agreement_data) {
 }
 
 agreement_metrics <- calculate_agreement_metrics(method_agreement)
+```
 
-cat("### Quantitative Agreement Metrics\n")
+
+
+### Quantitative Agreement Metrics
+```{r}
+
 kable(agreement_metrics, caption = "Statistical Measures of Method Agreement") %>%
   kable_styling(bootstrap_options = c("striped", "hover"))
 
+```
+
+```{r}
 ### Method-Specific Pattern Analysis
 #| label: method-patterns
 
@@ -1262,13 +1279,22 @@ analyze_method_specific_patterns <- function(agreement_data) {
 
 disagreement_patterns <- analyze_method_specific_patterns(method_agreement)
 
-if(nrow(disagreement_patterns) > 0) {
-  cat("### Analysis of Method-Specific Patterns\n")
+if(nrow(disagreement_patterns) > 0) 
+
+
+
+
+### Analysis of Method-Specific Patterns
+
+{
   kable(disagreement_patterns, 
         caption = "Patterns Detected by Only One Method") %>%
     kable_styling(bootstrap_options = c("striped", "hover"))
 }
+```
 
+
+```{r}
 ### Robust Cluster Identification
 #| label: robust-clusters
 
@@ -1289,13 +1315,18 @@ identify_robust_clusters <- function(agreement_data) {
 }
 
 robust_clusters <- identify_robust_clusters(method_agreement)
+```
 
-cat("### Robust Spatial Clusters (High Method Agreement)\n")
+
+### Robust Spatial Clusters (High Method Agreement)
+
+```{r}
 kable(robust_clusters, 
       caption = "Clusters Identified by Both LISA and Gi* Methods") %>%
   kable_styling(bootstrap_options = c("striped", "hover")) %>%
   column_spec(4, bold = TRUE, color = ifelse(robust_clusters$cluster_type == "Robust Hotspot", "#d73027", "#4575b4"))
 ```
+
 
 
 :::Insightbox 
@@ -1304,7 +1335,6 @@ kable(robust_clusters,
 **High Method Reliability:** The analysis reveals strong agreement between both spatial methods, with most significant locations identified as robust hotspots (red) or coldspots (blue), validating the reliability of identified patterns for confident urban planning decisions.
 
 **Method Complementarity:** Disagreement areas highlight how each method detects different spatial phenomena LISA identifies local outliers while Gi* focuses on concentration intensity—providing complementary perspectives for comprehensive spatial understanding.
-
 :::
 
 
@@ -1394,8 +1424,6 @@ spacetime_cubes <- create_valid_spacetime_cubes()
 am_cube <- spacetime_cubes$am
 pm_cube <- spacetime_cubes$pm
 weekend_cube <- spacetime_cubes$weekend
-
-cat("✓ Successfully created all spacetime cubes\n")
 ```
 
 :::insightbox
@@ -1482,7 +1510,7 @@ create_demonstration_ehsa <- function(peak_data, period_name) {
 }
 
 # Check available columns in peak_hex
-cat("Available columns in peak_hex:\n")
+
 print(names(peak_hex)[grepl("WEEKDAY|WEEKEND", names(peak_hex))])
 
 # Create demonstration results for all periods
@@ -2154,39 +2182,12 @@ change_dist_grid <- ggarrange(
 )
 print(change_dist_grid)
 
-cat("\n### Comprehensive Change Summary\n")
 print(change_comprehensive_plot)
 
-cat("\n### Spatial Change Patterns\n")
+
 print(spatial_change_map)
 
-### Key Insights Summary
-cat("### Key Analytical Insights\n\n")
 
-cat("**Pattern Consistency:**\n")
-for(i in 1:nrow(monthly_correlation_summary)) {
-  period <- monthly_correlation_summary$Period[i]
-  corr <- monthly_correlation_summary$Correlation[i]
-  pval <- monthly_correlation_summary$P_Value[i]
-  change <- monthly_change_detailed$Mean_Change[i]
-  
-  cat("• **", period, "**: ", 
-      ifelse(pval < 0.05, "Stable pattern", "Significant change"), 
-      " (r = ", round(corr, 3), 
-      ifelse(pval < 0.05, "**, ", "*"), 
-      " | Mean change: ", round(change, 1), "%)\n", sep = "")
-}
-
-cat("\n**Spatial-Temporal Insights:**\n")
-cat("• **Highest Consistency**: ", 
-    monthly_correlation_summary$Period[which.max(monthly_correlation_summary$Correlation)], 
-    " patterns\n")
-cat("• **Most Dynamic**: ", 
-    monthly_change_detailed$Period[which.max(abs(monthly_change_detailed$Mean_Change))], 
-    " period\n")
-cat("• **Spatial Stability**: ", 
-    round(mean(monthly_change_detailed$Stable / monthly_change_detailed$Total * 100), 1), 
-    "% of locations showed minimal change (±10%)\n")
 ```
 
 
@@ -2506,7 +2507,7 @@ if (nrow(all_validation) > 0) {
       .groups = 'drop'
     )
   
-  cat("\nMethod Consistency Analysis:\n")
+
   kable(consistency_analysis, 
         caption = "Consistency of Spatial Autocorrelation Results Across Methods") %>%
     kable_styling(bootstrap_options = c("striped", "hover"))
@@ -2592,105 +2593,10 @@ calculate_spatial_power <- function(lisa_results) {
 
 power_results <- calculate_spatial_power(lisa_significance)
 
-cat("### Statistical Power Analysis\n")
 kable(power_results, caption = "Statistical Power and Effect Size Analysis") %>%
   kable_styling(bootstrap_options = c("striped", "hover"))
 
-### Visualization of Correction Impact
-#| label: correction-impact-viz
-#| fig-cap: "Impact of multiple testing correction on spatial significance"
-#| fig-height: 8
-#| fig-width: 10
 
-# Create before/after significance maps
-before_correction_map <- tm_shape(mpsz) +
-  tm_fill("grey90", alpha = 0.3) +
-  tm_shape(lisa_significance) +
-  tm_fill("significance_original",
-          fill.scale = tm_scale_categorical(
-            values = c("***" = "#d73027", "**" = "#fc8d59", "*" = "#fee090", 
-                      "." = "#e0f3f8", "ns" = "grey80")
-          ),
-          fill.legend = tm_legend(title = "Original Significance")) +
-  tm_borders() +
-  tm_title("Original Significance Levels\n(Uncorrected p-values)")
-
-after_correction_map <- tm_shape(mpsz) +
-  tm_fill("grey90", alpha = 0.3) +
-  tm_shape(lisa_significance) +
-  tm_fill("significance_fdr",
-          fill.scale = tm_scale_categorical(
-            values = c("***" = "#d73027", "**" = "#fc8d59", "*" = "#fee090", 
-                      "." = "#e0f3f8", "ns" = "grey80")
-          ),
-          fill.legend = tm_legend(title = "FDR-Corrected Significance")) +
-  tm_borders() +
-  tm_title("FDR-Corrected Significance Levels\n(Benjamini-Hochberg)")
-
-# Arrange comparison
-tmap_arrange(before_correction_map, after_correction_map, ncol = 2)
-
-### Significance Change Analysis
-#| label: significance-changes
-
-# Analyze which clusters lost significance
-significance_changes <- lisa_significance %>%
-  st_drop_geometry() %>%
-  mutate(
-    significance_change = case_when(
-      significance_original != "ns" & significance_fdr == "ns" ~ "Lost Significance",
-      significance_original == "ns" & significance_fdr != "ns" ~ "Gained Significance", 
-      significance_original == significance_fdr ~ "No Change",
-      TRUE ~ "Significance Level Changed"
-    )
-  ) %>%
-  filter(significance_change == "Lost Significance") %>%
-  count(LISA_Cluster, significance_change)
-
-if(nrow(significance_changes) > 0) {
-  cat("### Locations That Lost Significance After FDR Correction\n")
-  kable(significance_changes, 
-        caption = "Analysis of Statistical Power Reduction Due to Multiple Testing Correction") %>%
-    kable_styling(bootstrap_options = c("striped", "hover"))
-} else {
-  cat("### No locations lost significance after FDR correction.\n")
-  cat("This indicates robust spatial clustering patterns.\n")
-}
-
-### Confidence Level Analysis
-#| label: confidence-analysis
-
-# Calculate confidence intervals for Moran's I
-calculate_confidence_intervals <- function(lisa_results, confidence_level = 0.95) {
-  alpha <- 1 - confidence_level
-  z_critical <- qnorm(1 - alpha/2)
-  
-  confidence_intervals <- lisa_results %>%
-    st_drop_geometry() %>%
-    filter(!is.na(ii) & !is.na(var_ii)) %>%
-    mutate(
-      se_ii = sqrt(var_ii),
-      ci_lower = ii - z_critical * se_ii,
-      ci_upper = ii + z_critical * se_ii,
-      ci_width = ci_upper - ci_lower,
-      significant_ci = !(ci_lower <= 0 & ci_upper >= 0)
-    ) %>%
-    summarise(
-      n_locations = n(),
-      n_significant_ci = sum(significant_ci, na.rm = TRUE),
-      prop_significant_ci = n_significant_ci / n_locations,
-      mean_ci_width = mean(ci_width, na.rm = TRUE),
-      .groups = 'drop'
-    )
-  
-  return(confidence_intervals)
-}
-
-ci_results <- calculate_confidence_intervals(lisa_significance)
-
-cat("### Confidence Interval Analysis\n")
-kable(ci_results, caption = "95% Confidence Intervals for Local Moran's I Statistics") %>%
-  kable_styling(bootstrap_options = c("striped", "hover"))
 ```
 
 ## Results and Interpretation
