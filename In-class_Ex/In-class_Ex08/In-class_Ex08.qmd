@@ -1,0 +1,20 @@
+---
+title: "In class Exercise 8 : Geographically Weighted Predictive Models"
+author: "Priya"
+date: "October 25, 2025"
+date-modified: "last-modified"
+execute: 
+  eval: false
+  echo: true
+  message: false
+  freeze: true
+  warning: false
+format: 
+  html:
+    code-fold: false
+    code-summary: "code chunk"
+    number-sections: true
+    code-overflow: scroll
+    number-depth: 4
+    code-line-numbers: false
+---
