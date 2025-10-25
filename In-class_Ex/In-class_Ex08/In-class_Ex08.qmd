@@ -25,7 +25,10 @@ We load the following packages into R environment.
 
 ```{r}
 pacman::p_load(httr, sf, jsonlite, progress, 
-               tmap, rsample, Metrics, tidyverse)
+               tmap, rsample, Metrics, tidyverse,sf, spdep, GWmodel, SpatialML,
+               tmap, rsample, Metrics, tidyverse,
+               knitr, kableExtra, spatialRF,
+               randomForestExplainer)
 ```
 
 ## Geocoding HDB resale data 
@@ -36,6 +39,156 @@ HDBresale <- read_csv("data/rawdata/HDBresale.csv") %>%
   filter(flat_type == "4 ROOM") %>%
   filter(month >= "2025-09" & month < "2025-10")
 ```
+
+## Preparing Data
+
+### Reading data file to rds
+
+We first read the input data sets that is saved in `simple feature` data
+frame.
+
+```{r}
+mdata <- read_rds("data/rawdata/mdata.rds")
+```
+
+
+### Data Sampling 
+
+Calibrating predictive models are computational intensive, especially random forest method is used. For quick prototyping, a 10% sample will be selected at random from the data by using the code chunk below,
+
+```{r}
+set.seed(1234)
+HDB_sample <- mdata %>%
+  sample_n(1500)
+```
+
+::: callout-warning
+When using GWmodel to calibrate explanatory or predictive models, it is very important to ensure that there are no overlapping point features
+:::
+
+The code chunk below is used to check if there are overlapping point features.
+
+```{r}
+overlapping_points <- HDB_sample %>%
+  mutate(overlap = lengths(st_equals(., .))>1)
+```
+
+
+### Spatial Jitter 
+
+In the code chunk below,
+['st_jitter()'](https://r-spatial.github.io/sf/reference/st_hitter.html) of **sf** package is used to move the point features by 5m to avoid overlapping point features.
+
+
+```{r}
+HDB_sample <- HDB_sample %>%
+  st_jitter(amount = 1)
+```
+
+
+### Data Sampling including spatial sampling 
+
+The entire data are split into training and test data sets with 65% and 35% respectively by using *initial_split()* of **rsample** package. rsample is one of the package of tigymodels.
+
+```{r}
+set.seed(1234)
+resale_split <- initial_split(HDB_sample, 
+                              prop = 6.67/10,)
+train_data <- training(resale_split)
+test_data <- testing(resale_split)
+```
+
+### Computing Adaptive Bandwidth
+
+We use the `bw.gwr()` function from the **GWmodel** package to determine
+the optimal bandwidth. The “CV” (Cross Validation) method is chosen for
+calibration because, between the two available options “CV” and “AIC”,
+the CV method generally produces a smaller bandwidth, allowing the model
+to capture more local variation in the data.
+
+The code chunk below computes and saves the optimal bandwidth. The
+search can be time consuming and computationally intensive.
+
+```{r}
+#| eval: false
+bw_adaptive <- bw.gwr(
+  formula = resale_price ~ floor_area_sqm +
+    storey_order + remaining_lease_mths +
+    PROX_CBD + PROX_ELDERLYCARE + PROX_HAWKER +
+    PROX_MRT + PROX_PARK + PROX_MALL + 
+    PROX_SUPERMARKET + WITHIN_350M_KINDERGARTEN +
+    WITHIN_350M_CHILDCARE + WITHIN_350M_BUS +
+    WITHIN_1KM_PRISCH,
+  data=train_data_sp,
+  approach="CV",
+  kernel="gaussian",
+  adaptive=TRUE,
+  longlat=FALSE)
+```
+
+```{r}
+#| eval: false
+write_rds(bw_adaptive, "data/model/bw_adaptive.rds")
+```
+
+We've found optimal bandwidth is 40 neighour points.
+
+### Constructing the Adaptive Bandwidth GWR Model
+
+Let us call the save bandwidth by using the code chunk below.
+
+```{r}
+bw_adaptive <- read_rds("data/model/bw_adaptive.rds")
+```
+
+
+Then we build the GWR-based hedonic pricing model using adaptive
+bandwidth and Gaussian kernel. Same reason as the previous step, we save
+a copy of the `gwrm` file.
+
+```{r}
+#| eval: false
+gwr_adaptive <- gwr.basic(
+  formula = resale_price ~ floor_area_sqm +
+    storey_order + remaining_lease_mths + 
+    PROX_CBD + PROX_ELDERLYCARE + 
+    PROX_HAWKER + PROX_MRT + PROX_PARK + 
+    PROX_MALL + PROX_SUPERMARKET +
+    WITHIN_350M_KINDERGARTEN +
+    WITHIN_350M_CHILDCARE + 
+    WITHIN_350M_BUS + WITHIN_1KM_PRISCH,
+  data=train_data_sp,
+  bw=bw_adaptive, 
+  kernel = 'gaussian', 
+  adaptive=TRUE,
+  longlat = FALSE)
+write_rds(gwr_adaptive, 
+          "data/model/gwr_adaptive.rds")
+```
+
+### Retrieve gwr Output Object
+
+We re-load the saved `gwrm` object and retrieve the report of model
+output.
+
+```{r}
+#| echo: false
+gwr_adaptive <- read_rds("data/model/gwr_adaptive.rds")
+```
+
+```{r}
+gwr_adaptive
+```
+:::insightbox
+
+The report when we use GW model, Global is least squared model,
+Localised one is Geographically Weighted Regression and then use it for calibration purpose
+
+For explanatory model, take the whole data and compare the Significance stars (least squared model, Adjusted R2) and Diagnostic information.
+
+Adjusted R2 is 0.95822 in GWR model Diagnostic much better than Global regression Significance stars Adjusted R2 0.7387.
+:::
+
 ### Street name which starts with ST. replace with Saint
 
 ```{r}
