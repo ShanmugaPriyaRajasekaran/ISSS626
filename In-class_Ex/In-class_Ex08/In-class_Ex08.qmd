@@ -18,3 +18,100 @@ format:
     number-depth: 4
     code-line-numbers: false
 ---
+
+## Loading the package
+
+We load the following packages into R environment.
+
+```{r}
+pacman::p_load(httr, sf, jsonlite, progress, 
+               tmap, rsample, Metrics, tidyverse)
+```
+
+## Geocoding HDB resale data 
+
+### Basic version 
+```{r}
+HDBresale <- read_csv("data/rawdata/HDBresale.csv") %>%
+  filter(flat_type == "4 ROOM") %>%
+  filter(month >= "2025-09" & month < "2025-10")
+```
+### Street name which starts with ST. replace with Saint
+
+```{r}
+HDBresale$street_name <- gsub(
+  "ST\\.","SAINT",
+  HDBresale$street_name)
+```
+
+
+```{r}
+geocode <- function(block, streetname) {
+  base_url <- "https://onemap.gov.sg/api/common/elastic/search"
+  address <- paste(block,streetname,sep = " ")
+  query <- list("searchVal"= address,
+                "returnGeom"= "Y",
+                "getAddrDetails"= "N", #make it Y if you want full address
+                "pageNum"="1")
+  
+  res <- GET(base_url, query = query)
+  restext<- content(res, as="text")
+  
+  output<- fromJSON(restext) %>%
+    as.data.frame %>%
+    select(results.LATITUDE, results.LONGITUDE)
+  
+  return(output)
+}
+```
+
+### Read all the records , return the geocode , insert the value into HDBresale dataframe
+```{r}
+HDBresale$LATITUDE <- 0
+HDBresale$LONGITUDE <- 0 
+
+for(i in 1:nrow(HDBresale)){
+  temp_output <- geocode(HDBresale[i,4], HDBresale[i,5])
+  
+  HDBresale$LATITUDE[i] <- temp_output$results.LATITUDE
+  HDBresale$LONGITUDE[i] <- temp_output$results.LONGITUDE
+}
+
+```
+
+
+### Convert HDBresale(13 columns) to spatial data (HDBresale_sf) which is geometry area , make sure it is in SVY 21 projection
+
+
+```{r}
+# Convert to spatial data frame
+HDBresale_sf <- HDBresale %>% 
+  st_as_sf(coords = c("LONGITUDE", "LATITUDE"),
+                         crs = 4326) %>%  # WGS84 for lat/lon coordinates
+  st_transform(crs = 3414)  # Transform to SVY21 projection (EPSG:3414)
+
+# Check the result
+print(HDBresale_sf)
+```
+
+
+### Preschool data
+
+```{r}
+preschool = st_read("data/rawdata/PreSchoolsLocation.kml") %>% 
+  st_transform(crs=3414)
+```
+### All the data are in meters, if we want to search 1km(1000 meters), will return true or false and we calculate the number of T or F. Do the same for childcare,kindergardens,bus stop within 350m
+
+```{r}
+within_350m <- st_is_within_distance(
+  HDBresale_sf, preschool, dist = 350)
+
+HDBresale_sf <- HDBresale_sf %>%
+  mutate(prischool_350m = map_int(within_350m,length))
+```
+
+
+
+
+

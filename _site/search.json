@@ -1349,5 +1349,26 @@
     "title": "Hands on Exercise 8 : Geographically Weighted Predictive Models",
     "section": "10 Reference",
     "text": "10 Reference\nKam, T. S. 14 Geographically Weighted Predictive Models. R for Geospatial Data Science and Analytics. https://r4gdsa.netlify.app/chap14.html"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex08/In-class_Ex08.html",
+    "href": "In-class_Ex/In-class_Ex08/In-class_Ex08.html",
+    "title": "In class Exercise 8 : Geographically Weighted Predictive Models",
+    "section": "",
+    "text": "We load the following packages into R environment.\n\npacman::p_load(httr, sf, jsonlite, progress, \n               tmap, rsample, Metrics, tidyverse)"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex08/In-class_Ex08.html#loading-the-package",
+    "href": "In-class_Ex/In-class_Ex08/In-class_Ex08.html#loading-the-package",
+    "title": "In class Exercise 8 : Geographically Weighted Predictive Models",
+    "section": "",
+    "text": "We load the following packages into R environment.\n\npacman::p_load(httr, sf, jsonlite, progress, \n               tmap, rsample, Metrics, tidyverse)"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex08/In-class_Ex08.html#geocoding-hdb-resale-data",
+    "href": "In-class_Ex/In-class_Ex08/In-class_Ex08.html#geocoding-hdb-resale-data",
+    "title": "In class Exercise 8 : Geographically Weighted Predictive Models",
+    "section": "2 Geocoding HDB resale data",
+    "text": "2 Geocoding HDB resale data\n\n2.1 Basic version\n\nHDBresale &lt;- read_csv(\"data/rawdata/HDBresale.csv\") %&gt;%\n  filter(flat_type == \"4 ROOM\") %&gt;%\n  filter(month &gt;= \"2025-09\" & month &lt; \"2025-10\")\n\n\n\n2.2 Street name which starts with ST. replace with Saint\n\nHDBresale$street_name &lt;- gsub(\n  \"ST\\\\.\",\"SAINT\",\n  HDBresale$street_name)\n\n\ngeocode &lt;- function(block, streetname) {\n  base_url &lt;- \"https://onemap.gov.sg/api/common/elastic/search\"\n  address &lt;- paste(block,streetname,sep = \" \")\n  query &lt;- list(\"searchVal\"= address,\n                \"returnGeom\"= \"Y\",\n                \"getAddrDetails\"= \"N\", #make it Y if you want full address\n                \"pageNum\"=\"1\")\n  \n  res &lt;- GET(base_url, query = query)\n  restext&lt;- content(res, as=\"text\")\n  \n  output&lt;- fromJSON(restext) %&gt;%\n    as.data.frame %&gt;%\n    select(results.LATITUDE, results.LONGITUDE)\n  \n  return(output)\n}\n\n\n\n2.3 Read all the records , return the geocode , insert the value into HDBresale dataframe\n\nHDBresale$LATITUDE &lt;- 0\nHDBresale$LONGITUDE &lt;- 0 \n\nfor(i in 1:nrow(HDBresale)){\n  temp_output &lt;- geocode(HDBresale[i,4], HDBresale[i,5])\n  \n  HDBresale$LATITUDE[i] &lt;- temp_output$results.LATITUDE\n  HDBresale$LONGITUDE[i] &lt;- temp_output$results.LONGITUDE\n}\n\n\n\n2.4 Convert HDBresale(13 columns) to spatial data (HDBresale_sf) which is geometry area , make sure it is in SVY 21 projection\n\n# Convert to spatial data frame\nHDBresale_sf &lt;- HDBresale %&gt;% \n  st_as_sf(coords = c(\"LONGITUDE\", \"LATITUDE\"),\n                         crs = 4326) %&gt;%  # WGS84 for lat/lon coordinates\n  st_transform(crs = 3414)  # Transform to SVY21 projection (EPSG:3414)\n\n# Check the result\nprint(HDBresale_sf)\n\n\n\n2.5 Preschool data\n\npreschool = st_read(\"data/rawdata/PreSchoolsLocation.kml\") %&gt;% \n  st_transform(crs=3414)\n\n\n\n2.6 All the data are in meters, if we want to search 1km(1000 meters), will return true or false and we calculate the number of T or F. Do the same for childcare,kindergardens,bus stop within 350m\n\nwithin_350m &lt;- st_is_within_distance(\n  HDBresale_sf, preschool, dist = 350)\n\nHDBresale_sf &lt;- HDBresale_sf %&gt;%\n  mutate(prischool_350m = map_int(within_350m,length))"
   }
 ]
