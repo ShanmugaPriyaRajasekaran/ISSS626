@@ -53,6 +53,8 @@ website:
           href: "In-class_Ex/In-class_Ex06/In-class_Ex06.html"
         - text: "In-class Exercise 7 : Geographically weighted regression (GWR) "
           href: "In-class_Ex/In-class_Ex07/In-class_Ex07.html"
+        - text: "In-class Exercise 8 : Geographically Weighted Predictive Models "
+          href: "In-class_Ex/In-class_Ex08/In-class_Ex08.html"
     right:
       - href: index.qmd
         text: Home
