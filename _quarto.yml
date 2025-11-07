@@ -29,7 +29,7 @@ website:
           href: "Hands-on_Ex/Hands-on_Ex07/Hands-on_Ex07.html"
         - text: "8:  Geographically Weighted Predictive Models"
           href: "Hands-on_Ex/Hands-on_Ex08/Hands-on_Ex08.html"
-        - text: "9:  Local Measures of Spatial Autocorrelation"
+        - text: "9:  Modelling Geographic of Accessibility"
           href: "Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html"
         - text: "10a:  Processing and Visualising Flow Data"
           href: "Hands-on_Ex/Hands-on_Ex10a/Hands-on_Ex10a.html"
