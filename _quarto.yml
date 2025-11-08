@@ -55,6 +55,8 @@ website:
           href: "In-class_Ex/In-class_Ex07/In-class_Ex07.html"
         - text: "In-class Exercise 8 : Geographically Weighted Predictive Models "
           href: "In-class_Ex/In-class_Ex08/In-class_Ex08.html"
+        - text: "In-class Exercise 9 : Modelling Geographic of Accessibility "
+          href: "In-class_Ex/In-class_Ex09/In-class_Ex09.html"
     right:
       - href: index.qmd
         text: Home
