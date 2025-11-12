@@ -1,7 +1,7 @@
 ---
 title: "In class Exercise 9 : Modelling Geographic of Accessibility"
 author: "Priya"
-date: "October 25, 2025"
+date: "November 8, 2025"
 date-modified: "last-modified"
 execute: 
   eval: true

@@ -38,7 +38,9 @@ website:
     - text: "Take-home Exercises"
       menu: 
         - text: "Take-home Exercise2"
-          href: "Take-home_Ex/Take-home_Ex02/Take-home_Ex02.html"             
+          href: "Take-home_Ex/Take-home_Ex02/Take-home_Ex02.html"   
+        - text: "Take-home Exercise3"
+          href: "Take-home_Ex/Take-home_Ex03/Take-home_Ex03.html"  
     - text: "In-Class Exercises"
       menu: 
         - text: "In-class Exercise 3a : Interactive K-function"

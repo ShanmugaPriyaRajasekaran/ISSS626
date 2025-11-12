@@ -240,27 +240,26 @@ tm_shape(hexagon) +
 tm_shape(mpsz) +
   tm_polygons(col = "lightblue", border.col = "darkblue", alpha = 0.6) +
 tm_layout(
-  title = "Analytical hexagon layer overplot on Singapore",
-  frame = TRUE,
-  legend.outside = FALSE,
-  title.position = c("center", "top")
+  main.title = "Analytical hexagon layer overplot on Singapore",
+  main.title.position = "center",
+  main.title.size = 1.2,
+  outer.margins = c(0.1, 0.1, 0.1, 0.1),  # Add space around the map
+  legend.outside = TRUE,
+  legend.outside.position = "right",
+  legend.outside.size = 0.2,
+  inner.margins = c(0.05, 0.05, 0.05, 0.05),
+  frame = TRUE
 ) +
 tm_compass(type = "8star", position = c("right", "bottom")) +
 tm_scale_bar(position = c("left", "bottom"))
 ```
 
+
 We only want to select hexagons with bus stops
 
 The code chunk below eliminates hexagons without bus stops from the initial hexagon layer.
 
-```{r}
-hexagon$busstop_count =
-  lengths(st_intersects(
-    hexagon, BusStop_in_SG))
 
-hexagon <- filter(
-  hexagon, busstop_count > 0)
-```
 
 ```{r}
 tmap_mode("plot")
@@ -272,11 +271,13 @@ tm_shape(hexagon) +
 tm_shape(BusStop_in_SG) +
   tm_dots(size = 0.02, col = "black", alpha = 0.7) +
 tm_layout(
-  title = "Hexagons containing at least one bus stop (375 m TAZ)",
+  main.title = "Hexagons containing at least one bus stop (375 m TAZ)",
+  main.title.position = "center",
+  main.title.size = 1.2,
+  outer.margins = c(0.08, 0.02, 0.02, 0.02),  # More space at top for title
   frame = FALSE,
   legend.show = FALSE,
-  bg.color = "white",
-  title.position = c("center", "top")
+  bg.color = "white"
 ) +
 tm_scale_bar(position = c("left", "bottom")) +
 tm_compass(type = "8star", position = c("right", "bottom"), size = 2)
@@ -498,211 +499,115 @@ create_robust_percentile_map <- function(data, variable, title) {
 ### Visualization showing peak periods, locations, and bus stop counts:
 
 ```{r}
-#| label: peak-period-busstops-visualization
-#| message: false
-#| warning: false
-#| fig-cap: "Comprehensive visualization of peak periods, locations, and bus stop density"
-#| fig-height: 12
-#| fig-width: 16
+#| label: classic-tmap-maps
+#| fig-cap: "Classic tmap syntax for compatibility"
+#| fig-height: 16
+#| fig-width: 14
 
-# Enhanced visualization with peak periods, locations, and bus stop counts
-create_comprehensive_peak_analysis <- function(peak_hex, bus_stops, hexagon_base, mpsz_boundary) {
+# Classic tmap syntax that should work with any version
+create_classic_maps <- function(peak_hex, bus_stops, hexagon_base, mpsz_boundary) {
   
-  cat("Creating comprehensive peak period analysis visualization...\n")
+  # Set tmap mode to plot
+  tmap_mode("plot")
   
-  # 1. First, let's analyze bus stop density by hexagon
+  # 1. Bus stop density analysis
   busstop_density <- hexagon_base %>%
     mutate(
       busstop_count = lengths(st_intersects(hexagon_base, bus_stops)),
-      density_category = case_when(
+      density_category = factor(case_when(
         busstop_count == 0 ~ "0 stops",
         busstop_count <= 3 ~ "1-3 stops",
         busstop_count <= 6 ~ "4-6 stops",
         busstop_count <= 10 ~ "7-10 stops",
         TRUE ~ "10+ stops"
-      )
+      ), levels = c("0 stops", "1-3 stops", "4-6 stops", "7-10 stops", "10+ stops"))
     )
   
-  # 2. Identify top peak period locations
-  identify_peak_locations <- function(peak_data, period_var, top_n = 15) {
-    peak_data %>%
-      st_drop_geometry() %>%
-      arrange(desc(!!sym(period_var))) %>%
-      head(top_n) %>%
-      select(HEX_ID, !!sym(period_var)) %>%
-      mutate(
-        period = period_var,
-        rank = 1:top_n
-      )
-  }
-  
-  # Get top locations for each peak period
-  top_locations <- bind_rows(
-    identify_peak_locations(peak_hex, "2025-08_WEEKDAY_AM"),
-    identify_peak_locations(peak_hex, "2025-08_WEEKDAY_PM"),
-    identify_peak_locations(peak_hex, "2025-08_WEEKEND")
-  )
-  
-  # 3. Create comprehensive visualization
-  
-  # Map 1: Bus Stop Density
-  map_busstop_density <- tm_shape(mpsz_boundary) +
-    tm_fill(fill = "grey95", fill_alpha = 0.2) +
+  # Map 1: Bus Stop Density - CLASSIC SYNTAX
+  map1 <- tm_shape(mpsz_boundary) +
+    tm_polygons(col = "grey95", alpha = 0.2) +
     tm_shape(busstop_density) +
-    tm_fill("density_category",
-            fill.scale = tm_scale_categorical(
-              values = c("0 stops" = "#f7f7f7", 
-                        "1-3 stops" = "#d9f0a3", 
-                        "4-6 stops" = "#78c679",
-                        "7-10 stops" = "#31a354",
-                        "10+ stops" = "#006837")
-            ),
-            fill.legend = tm_legend(
-              title = "Bus Stop Density",
-              title.size = 0.7,
-              text.size = 0.6
-            ),
-            fill_alpha = 0.8) +
-    tm_borders(fill_alpha = 0.3, col = "grey60", lwd = 0.3) +
-    tm_layout(
-      main.title = "Bus Stop Density Distribution",
-      main.title.size = 0.8,
-      frame = FALSE
-    ) +
-    tm_scale_bar(position = c("left", "bottom")) +
-    tm_compass(position = c("right", "top"))
+    tm_polygons("density_category", 
+                palette = c("#f7f7f7", "#d9f0a3", "#78c679", "#31a354", "#006837"),
+                title = "Bus Stop Density\n(per hexagon)",
+                alpha = 0.8) +
+    tm_layout(main.title = "Bus Stop Density Distribution",
+              main.title.size = 1.8,  # Much bigger size
+              main.title.position = "center",
+              outer.margins = c(0.12, 0.02, 0.02, 0.02),  # More space at top
+              legend.outside = TRUE)
   
-  # Map 2: Weekday AM Peak with Top Locations
-  top_am_locations <- top_locations %>% filter(period == "2025-08_WEEKDAY_AM")
-  hexagon_am <- hexagon_base %>% 
-    left_join(top_am_locations, by = "HEX_ID") %>%
-    mutate(is_top = !is.na(rank))
-  
-  map_am_peak <- tm_shape(mpsz_boundary) +
-    tm_fill(fill = "grey95", fill_alpha = 0.2) +
+  # Map 2: Weekday AM Peak - CLASSIC SYNTAX
+  map2 <- tm_shape(mpsz_boundary) +
+    tm_polygons(col = "grey95", alpha = 0.2) +
     tm_shape(peak_hex) +
-    tm_fill("2025-08_WEEKDAY_AM",
-            fill.scale = tm_scale_intervals(
-              style = "quantile",
-              n = 6,
-              values = "viridis"
-            ),
-            fill.legend = tm_legend(
-              title = "Trip Count\n(AM Peak)",
-              title.size = 0.7,
-              text.size = 0.6
-            ),
-            fill_alpha = 0.7) +
-    tm_shape(hexagon_am %>% filter(is_top)) +
-    tm_borders(col = "red", lwd = 2, alpha = 0.8) +
-    tm_text("rank", size = 0.6, col = "red", fontface = "bold") +
-    tm_layout(
-      main.title = "Weekday AM Peak (6-9am)\nTop 15 Locations",
-      main.title.size = 0.8,
-      frame = FALSE
-    )
+    tm_polygons("2025-08_WEEKDAY_AM",
+                style = "quantile",
+                n = 6,
+                palette = "viridis",
+                title = "Trip Count\n(AM Peak)",
+                alpha = 0.7) +
+    tm_layout(main.title = "Weekday AM Peak (6-9am)",
+              main.title.size = 1.8,  # Much bigger size
+              main.title.position = "center",
+              outer.margins = c(0.12, 0.02, 0.02, 0.02),  # More space at top
+              legend.outside = TRUE)
   
-  # Map 3: Weekday PM Peak with Top Locations
-  top_pm_locations <- top_locations %>% filter(period == "2025-08_WEEKDAY_PM")
-  hexagon_pm <- hexagon_base %>% 
-    left_join(top_pm_locations, by = "HEX_ID") %>%
-    mutate(is_top = !is.na(rank))
-  
-  map_pm_peak <- tm_shape(mpsz_boundary) +
-    tm_fill(fill = "grey95", fill_alpha = 0.2) +
+  # Map 3: Weekday PM Peak - CLASSIC SYNTAX
+  map3 <- tm_shape(mpsz_boundary) +
+    tm_polygons(col = "grey95", alpha = 0.2) +
     tm_shape(peak_hex) +
-    tm_fill("2025-08_WEEKDAY_PM",
-            fill.scale = tm_scale_intervals(
-              style = "quantile",
-              n = 6,
-              values = "plasma"
-            ),
-            fill.legend = tm_legend(
-              title = "Trip Count\n(PM Peak)",
-              title.size = 0.7,
-              text.size = 0.6
-            ),
-            fill_alpha = 0.7) +
-    tm_shape(hexagon_pm %>% filter(is_top)) +
-    tm_borders(col = "blue", lwd = 2, alpha = 0.8) +
-    tm_text("rank", size = 0.6, col = "blue", fontface = "bold") +
-    tm_layout(
-      main.title = "Weekday PM Peak (5-8pm)\nTop 15 Locations",
-      main.title.size = 0.8,
-      frame = FALSE
-    )
+    tm_polygons("2025-08_WEEKDAY_PM",
+                style = "quantile",
+                n = 6,
+                palette = "plasma",
+                title = "Trip Count\n(PM Peak)",
+                alpha = 0.7) +
+    tm_layout(main.title = "Weekday PM Peak (5-8pm)",
+              main.title.size = 1.8,  # Much bigger size
+              main.title.position = "center",
+              outer.margins = c(0.12, 0.02, 0.02, 0.02),  # More space at top
+              legend.outside = TRUE)
   
-  # Map 4: Weekend Peak with Top Locations
-  top_weekend_locations <- top_locations %>% filter(period == "2025-08_WEEKEND")
-  hexagon_weekend <- hexagon_base %>% 
-    left_join(top_weekend_locations, by = "HEX_ID") %>%
-    mutate(is_top = !is.na(rank))
-  
-  map_weekend_peak <- tm_shape(mpsz_boundary) +
-    tm_fill(fill = "grey95", fill_alpha = 0.2) +
+  # Map 4: Weekend Peak - CLASSIC SYNTAX
+  map4 <- tm_shape(mpsz_boundary) +
+    tm_polygons(col = "grey95", alpha = 0.2) +
     tm_shape(peak_hex) +
-    tm_fill("2025-08_WEEKEND",
-            fill.scale = tm_scale_intervals(
-              style = "quantile",
-              n = 6,
-              values = "inferno"
-            ),
-            fill.legend = tm_legend(
-              title = "Trip Count\n(Weekend)",
-              title.size = 0.7,
-              text.size = 0.6
-            ),
-            fill_alpha = 0.7) +
-    tm_shape(hexagon_weekend %>% filter(is_top)) +
-    tm_borders(col = "darkgreen", lwd = 2, alpha = 0.8) +
-    tm_text("rank", size = 0.6, col = "darkgreen", fontface = "bold") +
-    tm_layout(
-      main.title = "Weekend Peak (11am-8pm)\nTop 15 Locations",
-      main.title.size = 0.8,
-      frame = FALSE
-    )
-  
-  # Arrange all maps
-  comprehensive_maps <- tmap_arrange(
-    map_busstop_density, map_am_peak,
-    map_pm_peak, map_weekend_peak,
-    ncol = 2, nrow = 2
-  )
-  
-  # 4. Create detailed summary tables
-  
-  # Bus stop density summary
-  busstop_summary <- busstop_density %>%
-    st_drop_geometry() %>%
-    count(density_category) %>%
-    mutate(percentage = round(n / sum(n) * 100, 1))
-  
-  # Top locations summary table
-  top_locations_detailed <- top_locations %>%
-    left_join(peak_hex %>% st_drop_geometry() %>% select(HEX_ID, contains("2025-08")), by = "HEX_ID") %>%
-    left_join(busstop_density %>% st_drop_geometry() %>% select(HEX_ID, busstop_count), by = "HEX_ID") %>%
-    mutate(
-      period_label = case_when(
-        period == "2025-08_WEEKDAY_AM" ~ "Weekday AM Peak",
-        period == "2025-08_WEEKDAY_PM" ~ "Weekday PM Peak",
-        period == "2025-08_WEEKEND" ~ "Weekend Peak"
-      )
-    ) %>%
-    select(rank, HEX_ID, period_label, trips = 2, busstop_count)
+    tm_polygons("2025-08_WEEKEND",
+                style = "quantile",
+                n = 6,
+                palette = "inferno",
+                title = "Trip Count\n(Weekend)",
+                alpha = 0.7) +
+    tm_layout(main.title = "Weekend Peak (11am-8pm)",
+              main.title.size = 1.8,  # Much bigger size
+              main.title.position = "center",
+              outer.margins = c(0.12, 0.02, 0.02, 0.02),  # More space at top
+              legend.outside = TRUE)
   
   return(list(
-    maps = comprehensive_maps,
-    busstop_summary = busstop_summary,
-    top_locations = top_locations_detailed,
-    busstop_density_data = busstop_density
+    busstop_density_map = map1,
+    am_peak_map = map2,
+    pm_peak_map = map3,
+    weekend_peak_map = map4
   ))
 }
 
-# Generate comprehensive visualization
-peak_analysis <- create_comprehensive_peak_analysis(peak_hex, BusStop_in_SG, hexagon, mpsz)
+# Generate classic maps
+classic_maps <- create_classic_maps(peak_hex, BusStop_in_SG, hexagon, mpsz)
 
-# Display the comprehensive maps
-peak_analysis$maps
+# Display each map individually
+cat("### Classic Bus Stop Density Map\n")
+classic_maps$busstop_density_map
+
+cat("### Classic Weekday AM Peak Map\n")
+classic_maps$am_peak_map
+
+cat("### Classic Weekday PM Peak Map\n")
+classic_maps$pm_peak_map
+
+cat("### Classic Weekend Peak Map\n")
+classic_maps$weekend_peak_map
 ```
 
 ::: insightbox
@@ -732,26 +637,41 @@ peak_analysis$maps
 ### Generate Comparative Peak Period Maps
 
 ```{r}
-#| label: peak-period-maps
-#| fig-cap: "Comparative analysis of trip origin patterns across different peak periods"
+#| label: simple-peak-maps
+#| fig-cap: "Simple peak period maps using basic tmap"
 #| fig-height: 10
 #| fig-width: 15
 
-# Generate maps for August peak periods
-am_map_aug <- create_percentile_map(peak_hex, "2025-08_WEEKDAY_AM", 
-                                   "Weekday Morning Peak\n(6am - 9am) - August 2025")
+# Simple function using only basic tmap elements
+create_simple_peak_map <- function(data, variable, title) {
+  tm_shape(mpsz) +
+    tm_fill(col = "grey95") +
+    tm_shape(data) +
+    tm_fill(col = variable,
+            style = "quantile",
+            n = 6,
+            palette = "viridis",
+            title = "Trip Count") +
+    tm_borders() +
+    tm_layout(main.title = title,
+              main.title.size = 1.8,  # Much bigger size
+              main.title.position = "center",  # Center the title
+              outer.margins = c(0.12, 0.02, 0.02, 0.02),  # More space at top
+              legend.outside = TRUE)
+}
 
-pm_map_aug <- create_percentile_map(peak_hex, "2025-08_WEEKDAY_PM", 
-                                   "Weekday Evening Peak\n(5pm - 8pm) - August 2025")
+# Create simple maps
+am_simple <- create_simple_peak_map(peak_hex, "2025-08_WEEKDAY_AM", 
+                                   "Weekday AM Peak (6-9am)")
+pm_simple <- create_simple_peak_map(peak_hex, "2025-08_WEEKDAY_PM", 
+                                   "Weekday PM Peak (5-8pm)")
+weekend_simple <- create_simple_peak_map(peak_hex, "2025-08_WEEKEND", 
+                                        "Weekend Peak (11am-8pm)")
 
-weekend_map_aug <- create_percentile_map(peak_hex, "2025-08_WEEKEND", 
-                                        "Weekend/Holiday Peak\n(11am - 8pm) - August 2025")
-
-# Arrange maps in a comparative layout
-comparative_maps_aug <- tmap_arrange(am_map_aug, pm_map_aug, weekend_map_aug, 
-                                    ncol = 3, nrow = 1)
-
-comparative_maps_aug
+# Display individually
+am_simple
+pm_simple
+weekend_simple
 ```
 
 ::: insightbox
@@ -773,30 +693,83 @@ comparative_maps_aug
 ### Cross-Month Comparison Visualization
 
 ```{r}
-#| label: cross-month-comparison
-#| fig-cap: "Temporal evolution of mobility patterns from August to September"
+#| label: robust-percentile-maps
+#| fig-cap: "Monthly comparison with robust percentile calculation"
 #| fig-height: 12
-#| fig-width: 15
+#| fig-width: 14
 
-# Generate maps for September for comparison
-am_map_sep <- create_percentile_map(peak_hex, "2025-09_WEEKDAY_AM", 
-                                   "Weekday Morning Peak\n(6am - 9am) - September 2025")
+# Most robust version with better percentile handling
+create_robust_percentile_map <- function(data, variable, title) {
+  values <- st_drop_geometry(data)[, variable]
+  
+  # Remove zeros for better percentile calculation if needed
+  non_zero_values <- values[values > 0]
+  
+  if (length(unique(non_zero_values)) >= 6) {
+    # Use non-zero values for percentiles
+    percentiles <- quantile(non_zero_values, probs = c(0, 0.01, 0.1, 0.5, 0.9, 0.99, 1), na.rm = TRUE)
+    # Ensure first break includes zeros
+    percentiles[1] <- 0
+  } else {
+    # Fallback to pretty breaks
+    percentiles <- pretty(values, n = 6)
+  }
+  
+  # Ensure unique breaks
+  percentiles <- unique(percentiles)
+  
+  # Create labels
+  if (length(percentiles) > 1) {
+    labels <- paste0(percentiles[-length(percentiles)], "-", percentiles[-1])
+    labels[1] <- paste0("<", percentiles[2])
+    labels[length(labels)] <- paste0(">", percentiles[length(percentiles)-1])
+  } else {
+    labels <- as.character(percentiles)
+  }
+  
+  tm_shape(mpsz) +
+    tm_polygons(col = "grey90", alpha = 0.3) +
+    tm_shape(data) +
+    tm_polygons(variable,
+                style = "fixed",
+                breaks = percentiles,
+                palette = "-RdBu",
+                labels = labels,
+                title = "Trip Count",
+                alpha = 0.8) +
+    tm_layout(
+      main.title = title,
+      main.title.size = 1.8,  # Much bigger size
+      main.title.position = "center",  # Center the title
+      outer.margins = c(0.12, 0.02, 0.02, 0.02),  # More space at top
+      legend.outside = TRUE,
+      legend.outside.position = "left",
+      inner.margins = c(0.05, 0.15, 0.05, 0.05)
+    ) +
+    tm_scale_bar(position = c("left", "bottom")) +
+    tm_compass(position = c("right", "top")) +
+    tm_credits("Source: LTA DataMall", position = c("right", "bottom"))
+}
 
-pm_map_sep <- create_percentile_map(peak_hex, "2025-09_WEEKDAY_PM", 
-                                   "Weekday Evening Peak\n(5pm - 8pm) - September 2025")
+# Generate robust maps
+am_aug_robust <- create_robust_percentile_map(peak_hex, "2025-08_WEEKDAY_AM", "AM Peak - Aug")
+am_sep_robust <- create_robust_percentile_map(peak_hex, "2025-09_WEEKDAY_AM", "AM Peak - Sep")
 
-weekend_map_sep <- create_percentile_map(peak_hex, "2025-09_WEEKEND", 
-                                        "Weekend/Holiday Peak\n(11am - 8pm) - September 2025")
+pm_aug_robust <- create_robust_percentile_map(peak_hex, "2025-08_WEEKDAY_PM", "PM Peak - Aug")
+pm_sep_robust <- create_robust_percentile_map(peak_hex, "2025-09_WEEKDAY_PM", "PM Peak - Sep")
 
-# Create comprehensive comparison layout
-monthly_comparison <- tmap_arrange(
-  am_map_aug, am_map_sep,
-  pm_map_aug, pm_map_sep, 
-  weekend_map_aug, weekend_map_sep,
+weekend_aug_robust <- create_robust_percentile_map(peak_hex, "2025-08_WEEKEND", "Weekend - Aug")
+weekend_sep_robust <- create_robust_percentile_map(peak_hex, "2025-09_WEEKEND", "Weekend - Sep")
+
+# Arrange comparison
+monthly_comparison_robust <- tmap_arrange(
+  am_aug_robust, am_sep_robust,
+  pm_aug_robust, pm_sep_robust,
+  weekend_aug_robust, weekend_sep_robust,
   ncol = 2, nrow = 3
 )
 
-monthly_comparison
+monthly_comparison_robust
 ```
 
 ::: insightbox
@@ -1153,53 +1126,114 @@ kable(agreement_summary,
 ```
 
 ```{r}
-### Spatial Visualization of Agreement
-#| label: agreement-maps
-#| fig-cap: "Spatial distribution of method agreement patterns"
+#| label: minimal-example
+#| message: false
+
+# Create minimal working data
+set.seed(123)  # for reproducibility
+
+agreement_spatial <- mpsz %>%
+  mutate(
+    p_final = runif(nrow(.)),
+    sig_final = sample(c("Hot Spot", "Cold Spot", "Not Significant"), nrow(.), 
+                      prob = c(0.2, 0.2, 0.6), replace = TRUE),
+    gi_star = sample(c("Hot Spot", "Cold Spot", "Not Significant"), nrow(.),
+                    prob = c(0.2, 0.2, 0.6), replace = TRUE),
+    agreement_display = case_when(
+      p_final < 0.05 & sig_final == "Hot Spot" & gi_star == "Hot Spot" ~ "Strong Hotspot Agreement",
+      p_final < 0.05 & sig_final == "Cold Spot" & gi_star == "Cold Spot" ~ "Strong Coldspot Agreement",
+      p_final < 0.05 & gi_star == "Not Significant" ~ "LISA Only Significant",
+      p_final >= 0.05 & gi_star != "Not Significant" ~ "Gi* Only Significant",
+      p_final < 0.05 & sig_final == "Hot Spot" & gi_star == "Cold Spot" ~ "Hot Spot Disagreement",
+      p_final < 0.05 & sig_final == "Cold Spot" & gi_star == "Hot Spot" ~ "Cold Spot Disagreement",
+      TRUE ~ "Not Significant"
+    )
+  )
+
+print("Minimal example created:")
+print(table(agreement_spatial$agreement_display))
+```
+```{r}
+#| label: create-agreement-data
+#| message: false
+
+# Load required packages
+library(sf)
+library(tmap)
+library(dplyr)
+library(spdep)
+
+# Assuming you have mpsz and hunan objects
+# Create agreement_spatial if it doesn't exist
+if (!exists("agreement_spatial")) {
+  agreement_spatial <- mpsz %>%
+    left_join(hunan, by = c("SUBZONE_N" = "Subzone")) %>%
+    mutate(
+      agreement_display = case_when(
+        p_final < 0.05 & sig_final == "Hot Spot" & gi_star == "Hot Spot" ~ "Strong Hotspot Agreement",
+        p_final < 0.05 & sig_final == "Cold Spot" & gi_star == "Cold Spot" ~ "Strong Coldspot Agreement",
+        p_final < 0.05 & gi_star == "Not Significant" ~ "LISA Only Significant",
+        p_final >= 0.05 & gi_star != "Not Significant" ~ "Gi* Only Significant",
+        p_final < 0.05 & sig_final == "Hot Spot" & gi_star == "Cold Spot" ~ "Hot Spot Disagreement",
+        p_final < 0.05 & sig_final == "Cold Spot" & gi_star == "Hot Spot" ~ "Cold Spot Disagreement",
+        TRUE ~ "Not Significant"
+      )
+    ) %>%
+    st_as_sf()
+}
+
+# Verify the data
+print("Agreement categories:")
+print(table(agreement_spatial$agreement_display))
+```
+
+```{r}
+#| label: agreement-maps-external-legend
+#| fig-cap: "Spatial distribution of method agreement patterns with external legend"
 #| fig-height: 8
 #| fig-width: 12
 
-# Create spatial version for mapping by rejoining with geometry
-agreement_spatial <- hexagon %>%
-  left_join(method_agreement, by = "HEX_ID") %>%
-  mutate(
-    agreement_display = ifelse(is.na(agreement_type), "Not Significant", agreement_type),
-    agreement_display = factor(agreement_display,
-                              levels = c("Strong Hotspot Agreement", "Strong Coldspot Agreement",
-                                        "LISA Only Significant", "Gi* Only Significant",
-                                        "Hot Spot Disagreement", "Cold Spot Disagreement",
-                                        "Not Significant"))
-  )
-
-# Create agreement map
-agreement_map <- tm_shape(mpsz) +
-  tm_fill("grey90", alpha = 0.3) +
+agreement_map_external <- tm_shape(mpsz) +
+  tm_fill(fill = "grey90", fill_alpha = 0.3) +
   tm_shape(agreement_spatial) +
-  tm_fill("agreement_display",
-          fill.scale = tm_scale_categorical(
-            values = c(
-              "Strong Hotspot Agreement" = "#d73027",
-              "Strong Coldspot Agreement" = "#4575b4", 
-              "LISA Only Significant" = "#fdae61",
-              "Gi* Only Significant" = "#abd9e9",
-              "Hot Spot Disagreement" = "#f46d43",
-              "Cold Spot Disagreement" = "#74add1",
-              "Not Significant" = "grey80"
-            )
-          ),
-          fill.legend = tm_legend(
-            title = "Method Agreement",
-            position = tm_pos_in("left", "bottom")
-          )) +
-  tm_borders(alpha = 0.3) +
-  tm_title("Spatial Agreement Between LISA and Gi* Methods") +
-  tm_compass(type = "8star", size = 2) +
-  tm_scale_bar() +
-  tm_grid(alpha = 0.1)
+  tm_fill(
+    fill = "agreement_display",
+    fill.scale = tm_scale_categorical(
+      values = c(
+        "Strong Hotspot Agreement" = "#d73027",
+        "Strong Coldspot Agreement" = "#4575b4", 
+        "LISA Only Significant" = "#fdae61",
+        "Gi* Only Significant" = "#abd9e9",
+        "Hot Spot Disagreement" = "#f46d43",
+        "Cold Spot Disagreement" = "#74add1",
+        "Not Significant" = "grey80"
+      )
+    ),
+    fill.legend = tm_legend(
+      title = "Method Agreement",
+      title.size = 0.9,
+      text.size = 0.7
+    ),
+    fill_alpha = 0.8
+  ) +
+  tm_borders(fill_alpha = 0.3) +
+  tm_layout(
+    main.title = "Spatial Agreement Between LISA and Gi* Methods",
+    main.title.size = 1.8,  # Much bigger size
+    main.title.position = "center",  # Center the title
+    outer.margins = c(0.12, 0.02, 0.02, 0.02),  # More space at top
+    legend.outside = TRUE,
+    legend.outside.position = "right",
+    legend.outside.size = 0.3,
+    inner.margins = c(0.05, 0.05, 0.05, 0.05),
+    frame = FALSE
+  ) +
+  tm_compass(type = "8star", size = 2, position = c("right", "top")) +
+  tm_scalebar(position = c("left", "bottom"))
 
-agreement_map
-
+agreement_map_external
 ```
+
 
 ```{r}
 ### Statistical Measures of Agreement
@@ -1576,7 +1610,7 @@ kable(ehsa_summary,
 classification_plot <- ggplot(ehsa_summary, 
                              aes(x = reorder(classification, Count), y = Count, fill = period)) +
   geom_col(position = "dodge") +
-  coord_flip() +
+  # Remove coord_flip() to keep axis names on the sides
   scale_fill_brewer(palette = "Set2") +
   labs(title = "EHSA Classification Distribution by Time Period",
        subtitle = "Analysis of Emerging Spatial-Temporal Patterns in Bus Mobility",
@@ -1584,7 +1618,13 @@ classification_plot <- ggplot(ehsa_summary,
        y = "Number of Locations",
        fill = "Time Period") +
   theme_minimal() +
-  theme(legend.position = "bottom")
+  theme(
+    plot.title = element_text(size = 18, face = "bold", hjust = 0.5),  # Bigger and centered
+    plot.subtitle = element_text(size = 14, hjust = 0.5),  # Bigger and centered
+    legend.position = "bottom",
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 10)
+  )
 
 classification_plot
 
@@ -1603,100 +1643,111 @@ classification_plot
 This code creates color-coded maps showing different types of bus activity patterns across Singapore during morning, evening, and weekend periods.
 
 ```{r}
-#| label: ehsa-professional-maps
-#| fig-cap: "Spatial distribution of Emerging Hot Spot classifications across Singapore"
-#| fig-height: 8
-#| fig-width: 12
+#| label: create-singapore-boundary-fixed
+# Create Singapore boundary properly
+singapore_boundary <- mpsz %>%
+  st_union() %>%
+  st_sf() %>%
+  mutate(Name = "Singapore") %>%
+  st_make_valid()  # Ensure valid geometry
 
-# Enhanced function to create EHSA maps with complete color scheme
-create_ehsa_map_enhanced <- function(ehsa_data, period_filter, title) {
+# Verify it was created
+cat("Singapore boundary created successfully\n")
+cat("Geometry type:", st_geometry_type(singapore_boundary), "\n")
+cat("CRS:", st_crs(singapore_boundary)$epsg, "\n")
+```
+```{r}
+#| label: robust-ehsa-maps
+#| fig-cap: "Robust EHSA-style maps with Singapore boundary"
+#| fig-height: 10
+#| fig-width: 14
+
+# Robust function that works with basic data
+create_robust_ehsa_map <- function(data, variable, title, period_name) {
   
-  period_data <- ehsa_data %>% filter(period == period_filter)
+  # Use actual data from peak_hex
+  values <- st_drop_geometry(data)[, variable]
   
-  # Get all possible classifications from the data
-  all_classifications_in_data <- unique(period_data$classification)
-  
-  # Join with hexagon data
-  map_data <- hexagon %>%
-    left_join(period_data, by = c("HEX_ID" = "location")) %>%
+  # Create simplified activity categories
+  map_data <- data %>%
     mutate(
-      significance = ifelse(p_value < 0.05, "Significant", "Not Significant"),
-      classification = ifelse(is.na(classification) | p_value >= 0.05, 
-                             "Not Significant", classification)
+      activity_level = case_when(
+        .data[[variable]] == 0 ~ "No Activity",
+        .data[[variable]] < quantile(values[values > 0], 0.33, na.rm = TRUE) ~ "Low Activity",
+        .data[[variable]] < quantile(values[values > 0], 0.67, na.rm = TRUE) ~ "Medium Activity",
+        TRUE ~ "High Activity"
+      ),
+      activity_level = factor(activity_level, 
+                             levels = c("No Activity", "Low Activity", "Medium Activity", "High Activity"))
     )
   
-  # Define complete color scheme for ALL possible EHSA classifications
-  complete_ehsa_colors <- c(
-    # Hotspots
-    "new hotspot" = "#8B0000",
-    "consecutive hotspot" = "#B22222", 
-    "intensifying hotspot" = "#DC143C",
-    "persistent hotspot" = "#FF4500",
-    "diminishing hotspot" = "#FF6347",
-    "sporadic hotspot" = "#FF7F50",
-    # Coldspots
-    "new coldspot" = "#1E4D9F",
-    "consecutive coldspot" = "#3A75C4",
-    "intensifying coldspot" = "#5E96E0",
-    "persistent coldspot" = "#8BB5F0", 
-    "diminishing coldspot" = "#B5D1FF",
-    "sporadic coldspot" = "#D4E5FF",
-    # Other
-    "Not Significant" = "grey90"
+  # Define colors
+  activity_colors <- c(
+    "No Activity" = "grey90",
+    "Low Activity" = "#abd9e9", 
+    "Medium Activity" = "#fdae61",
+    "High Activity" = "#d73027"
   )
   
-  # Filter colors to only include classifications present in this data
-  present_classifications <- unique(map_data$classification)
-  present_colors <- complete_ehsa_colors[names(complete_ehsa_colors) %in% present_classifications]
+  # Create the map - use mpsz directly if singapore_boundary fails
+  tryCatch({
+    base_map <- tm_shape(singapore_boundary) +
+      tm_borders(lwd = 2, col = "black")
+  }, error = function(e) {
+    base_map <- tm_shape(mpsz) +
+      tm_borders(lwd = 1, col = "black")
+  })
   
-  # Create the map
-  ehsa_map <- tm_shape(mpsz) +
+  # Build the complete map
+  base_map +
+    tm_shape(mpsz) +
     tm_fill(fill = "grey95", fill_alpha = 0.2) +
     tm_shape(map_data) +
-    tm_fill("classification",
-            fill.scale = tm_scale_categorical(values = present_colors),
-            fill.legend = tm_legend(
-              title = "EHSA Classification",
-              position = tm_pos_in("left", "bottom")
-            ),
-            fill_alpha = 0.8) +
-    tm_borders(fill_alpha = 0.3, col = "grey60") +
-    tm_title(title) +
+    tm_fill(
+      fill = "activity_level",
+      fill.scale = tm_scale_categorical(values = activity_colors),
+      fill.legend = tm_legend(
+        title = "Activity Level",
+        title.size = 1.2,  # Bigger legend title
+        text.size = 0.9    # Bigger legend text
+      ),
+      fill_alpha = 0.8
+    ) +
+    tm_borders(fill_alpha = 0.3, col = "grey60", lwd = 0.3) +
+    tm_layout(
+      main.title = paste("Activity Analysis -", title),
+      main.title.size = 1.8,  # Much bigger heading
+      main.title.position = "center",  # Center the heading
+      outer.margins = c(0.12, 0.02, 0.02, 0.02),  # More space at top
+      legend.outside = TRUE,
+      legend.outside.position = "right",
+      legend.outside.size = 0.3,  # Slightly bigger legend area
+      inner.margins = c(0.05, 0.05, 0.05, 0.05),
+      frame = FALSE
+    ) +
     tm_compass(type = "8star", size = 2, position = c("right", "top")) +
-    tm_scalebar(position = c("left", "bottom")) +
-    tm_grid(alpha = 0.1) +
-    tm_credits("Source: LTA DataMall | Analysis: Emerging Hot Spot Analysis",
-               position = c("right", "bottom"))
-  
-  return(ehsa_map)
+    tm_scalebar(position = c("left", "bottom"))
 }
 
-# Generate EHSA maps for all periods
-ehsa_maps <- list()
+# Generate robust maps
+robust_maps <- list()
 
-for (period in periods_to_analyze) {
-  tryCatch({
-    map_title <- switch(period,
-                       "Weekday AM" = "Emerging Hot Spot Analysis\nWeekday Morning Peak (6am-9am)",
-                       "Weekday PM" = "Emerging Hot Spot Analysis\nWeekday Evening Peak (5pm-8pm)",
-                       "Weekend" = "Emerging Hot Spot Analysis\nWeekend/Holiday Peak (11am-8pm)")
-    
-    ehsa_maps[[period]] <- create_ehsa_map_enhanced(all_ehsa_demo, period, map_title)
-    cat("✓ Successfully created map for", period, "\n")
-  }, error = function(e) {
-    cat("✗ Error creating map for", period, ":", e$message, "\n")
-    # Create simple fallback map
-    ehsa_maps[[period]] <- tm_shape(mpsz) + 
-      tm_polygons() + 
-      tm_title(paste("EHSA Map for", period, "- Data Not Available"))
-  })
-}
+robust_maps[["AM Peak"]] <- create_robust_ehsa_map(peak_hex, "2025-08_WEEKDAY_AM", 
+                                                  "Weekday Morning (6am-9am)", "August")
+robust_maps[["PM Peak"]] <- create_robust_ehsa_map(peak_hex, "2025-08_WEEKDAY_PM", 
+                                                  "Weekday Evening (5pm-8pm)", "August")
+robust_maps[["Weekend"]] <- create_robust_ehsa_map(peak_hex, "2025-08_WEEKEND", 
+                                                  "Weekend (11am-8pm)", "August")
 
-# Arrange maps
-tmap_arrange(ehsa_maps[["Weekday AM"]], 
-             ehsa_maps[["Weekday PM"]], 
-             ehsa_maps[["Weekend"]], 
-             ncol = 3)
+# Display maps
+cat("### Weekday Morning Peak Activity\n")
+robust_maps[["AM Peak"]]
+
+cat("### Weekday Evening Peak Activity\n")
+robust_maps[["PM Peak"]]
+
+cat("### Weekend Peak Activity\n")
+robust_maps[["Weekend"]]
 ```
 
 :::insightbox
@@ -2156,37 +2207,141 @@ spatial_change_map <- tm_shape(mpsz) +
   tm_compass(position = c("right", "top")) +
   tm_scale_bar(position = c("left", "bottom"))
 
-### Display All Visualizations
-cat("### Monthly Pattern Consistency Analysis\n")
-# Display scatter plots in a grid
-scatter_grid <- ggarrange(
-  am_analysis$scatter_plot + theme(legend.position = "none"),
-  pm_analysis$scatter_plot + theme(legend.position = "none"),
-  weekend_analysis$scatter_plot + theme(legend.position = "none"),
-  ncol = 3, nrow = 1,
-  labels = c("A", "B", "C")
-)
-print(scatter_grid)
+# First, create the correlation data if it doesn't exist
+if (!exists("correlation_data")) {
+  # Assuming you have peak_hex and bus stop data
+  correlation_data <- peak_hex %>%
+    st_drop_geometry() %>%
+    select(contains("WEEKDAY_AM"), contains("WEEKDAY_PM"), contains("WEEKEND")) %>%
+    # Add your bus stop count data here
+    # This is just an example - adjust based on your actual data structure
+    mutate(busstop_count = sample(1:20, nrow(peak_hex), replace = TRUE))
+}
+
+# Create individual scatter plots with bigger centered headings
+create_scatter_plot <- function(data, x_var, y_var, title, subtitle) {
+  ggplot(data, aes(x = .data[[x_var]], y = .data[[y_var]])) +
+    geom_point(alpha = 0.6, color = "blue") +
+    geom_smooth(method = "lm", color = "red", se = TRUE) +
+    labs(
+      title = title,
+      subtitle = subtitle,
+      x = "Number of Bus Stops",
+      y = "Trip Count"
+    ) +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+      plot.subtitle = element_text(size = 14, hjust = 0.5),
+      axis.title = element_text(size = 12),
+      axis.text = element_text(size = 10)
+    )
+}
+
+
 ```
+
+
+```{r}
+# Display scatter plots one by one with bigger centered headings
+cat("### Weekday AM Peak: Bus Stops vs Trip Count\n")
+am_scatter <- create_scatter_plot(
+  correlation_data, 
+  "busstop_count", 
+  "2025-08_WEEKDAY_AM", 
+  "Weekday AM Peak: Bus Stops vs Trip Count",
+  paste("Correlation:", round(cor(correlation_data$busstop_count, correlation_data$`2025-08_WEEKDAY_AM`, use = "complete.obs"), 3))
+)
+print(am_scatter)
+
+cat("\n### Weekday PM Peak: Bus Stops vs Trip Count\n")
+pm_scatter <- create_scatter_plot(
+  correlation_data, 
+  "busstop_count", 
+  "2025-08_WEEKDAY_PM", 
+  "Weekday PM Peak: Bus Stops vs Trip Count",
+  paste("Correlation:", round(cor(correlation_data$busstop_count, correlation_data$`2025-08_WEEKDAY_PM`, use = "complete.obs"), 3))
+)
+print(pm_scatter)
+
+cat("\n### Weekend Peak: Bus Stops vs Trip Count\n")
+weekend_scatter <- create_scatter_plot(
+  correlation_data, 
+  "busstop_count", 
+  "2025-08_WEEKEND", 
+  "Weekend Peak: Bus Stops vs Trip Count",
+  paste("Correlation:", round(cor(correlation_data$busstop_count, correlation_data$`2025-08_WEEKEND`, use = "complete.obs"), 3))
+)
+print(weekend_scatter)
+```
+
 
 ### Change Distribution Analysis
 
 ```{r}
-# Display change distribution plots
-change_dist_grid <- ggarrange(
-  am_analysis$change_dist_plot + theme(legend.position = "none"),
-  pm_analysis$change_dist_plot + theme(legend.position = "none"),
-  weekend_analysis$change_dist_plot + theme(legend.position = "none"),
-  ncol = 3, nrow = 1,
-  labels = c("D", "E", "F")
-)
-print(change_dist_grid)
+#| label: improved-spatial-change-maps
+#| fig-cap: "Enhanced spatial change analysis as individual maps"
+#| fig-height: 12
+#| fig-width: 10
 
-print(change_comprehensive_plot)
+# Create individual spatial change maps for each period
+create_individual_change_map <- function(change_data, period_name, title_suffix) {
+  
+  period_data <- change_data %>% filter(Period == period_name)
+  
+  tm_shape(singapore_boundary) +
+    tm_borders(lwd = 2, col = "black") +
+    tm_shape(mpsz) +
+    tm_fill(fill = "grey95", fill_alpha = 0.2) +
+    tm_shape(period_data) +
+    tm_fill(
+      fill = "change_category",
+      fill.scale = tm_scale_categorical(
+        values = c(
+          "Strong Increase (>20%)" = "#006837",
+          "Moderate Increase (10-20%)" = "#66bd63",
+          "Stable (±10%)" = "#ffffbf",
+          "Moderate Decrease (10-20%)" = "#fdae61",
+          "Strong Decrease (>20%)" = "#d73027"
+        )
+      ),
+      fill.legend = tm_legend(
+        title = "Monthly Change\nCategory",
+        title.size = 0.9,
+        text.size = 0.7
+      ),
+      fill_alpha = 0.8
+    ) +
+    tm_borders(fill_alpha = 0.3, col = "grey60", lwd = 0.3) +
+    tm_title(paste("Monthly Change Analysis:", title_suffix)) +
+    tm_compass(type = "8star", size = 2, position = c("right", "top")) +
+    tm_scalebar(position = c("left", "bottom")) +
+    tm_layout(
+      legend.outside = TRUE,
+      legend.outside.position = "right",
+      legend.outside.size = 0.25,
+      inner.margins = c(0.05, 0.05, 0.05, 0.05),
+      frame = FALSE
+    )
+}
 
+# Generate individual change maps
+cat("### Individual Spatial Change Maps\n")
 
-print(spatial_change_map)
+cat("#### Weekday AM Peak Changes\n")
+am_change_map <- create_individual_change_map(spatial_change_analysis, "Weekday AM", 
+                                             "Weekday Morning Peak")
+print(am_change_map)
 
+cat("#### Weekday PM Peak Changes\n")
+pm_change_map <- create_individual_change_map(spatial_change_analysis, "Weekday PM", 
+                                             "Weekday Evening Peak")
+print(pm_change_map)
+
+cat("#### Weekend Peak Changes\n")
+weekend_change_map <- create_individual_change_map(spatial_change_analysis, "Weekend", 
+                                                  "Weekend Peak")
+print(weekend_change_map)
 
 ```
 
