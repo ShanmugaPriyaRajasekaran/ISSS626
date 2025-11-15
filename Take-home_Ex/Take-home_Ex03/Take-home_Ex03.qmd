@@ -1,0 +1,185 @@
+---
+title: "Take home Exercise 3 : Modelling HDB Resale Prices with Geographically Weighted Methods"
+author: "Priya"
+date: "November 4, 2025"
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  message: false
+  freeze: true
+  warning: false
+format: 
+  html:
+    code-fold: false
+    code-summary: "code chunk"
+    number-sections: true
+    code-overflow: scroll
+    number-depth: 4
+    code-line-numbers: false
+---
+
+## Overview
+
+This study develops predictive models for HDB 4-room resale prices in Singapore using geographically weighted methods. The analysis compares traditional linear regression, geographically weighted regression (GWR), and random forest approaches to identify the most accurate predictive model for housing prices from July to September 2025 based on data from July 2024 to June 2025.
+
+## Loading Packages
+
+```{r}
+pacman::p_load(httr, sf, jsonlite, progress, 
+               tmap, rsample, Metrics, tidyverse, sf, spdep, GWmodel, SpatialML,
+               knitr, kableExtra, spatialRF,
+               randomForestExplainer, plotly,
+               corrplot, ggspatial, units, caret)
+```
+
+## Data Preparation
+Loading and Temporal Filtering
+
+```{r}
+#| label: load-data
+
+# Training data: July 2024 - June 2025
+train_raw <- read_csv("data/rawdata/HDBresale.csv") %>%
+  filter(flat_type == "4 ROOM") %>%
+  filter(month >= "2024-07" & month <= "2025-06")
+
+# Test data: July 2025 - September 2025  
+test_raw <- read_csv("data/rawdata/HDBresale.csv") %>%
+  filter(flat_type == "4 ROOM") %>%
+  filter(month >= "2025-07" & month <= "2025-09")
+
+cat("Training data points:", nrow(train_raw), "\n")
+cat("Test data points:", nrow(test_raw), "\n")
+
+```
+
+## Data Cleaning and Feature Engineering
+
+```{r}
+#| label: data-cleaning
+
+clean_street_names <- function(data) {
+  data %>%
+    mutate(street_name = gsub("ST\\.", "SAINT", street_name))
+}
+
+engineer_features <- function(data) {
+  data %>%
+    mutate(
+      # Convert storey range to ordinal scale
+      storey_order = case_when(
+        storey_range == "01 TO 03" ~ 1,
+        storey_range == "04 TO 06" ~ 2,
+        storey_range == "07 TO 09" ~ 3,
+        storey_range == "10 TO 12" ~ 4,
+        storey_range == "13 TO 15" ~ 5,
+        storey_range == "16 TO 18" ~ 6,
+        storey_range == "19 TO 21" ~ 7,
+        storey_range == "22 TO 24" ~ 8,
+        storey_range == "25 TO 27" ~ 9,
+        storey_range == "28 TO 30" ~ 10,
+        storey_range == "31 TO 33" ~ 11,
+        storey_range == "34 TO 36" ~ 12,
+        storey_range == "37 TO 39" ~ 13,
+        storey_range == "40 TO 42" ~ 14,
+        TRUE ~ 7  # Default for unknown ranges
+      ),
+      # Calculate remaining lease in months
+      lease_commence_year = as.numeric(lease_commence_date),
+      current_year = 2025,
+      flat_age = current_year - lease_commence_year,
+      remaining_lease_years = 99 - flat_age,
+      remaining_lease_mths = remaining_lease_years * 12
+    ) %>%
+    select(-lease_commence_year, -current_year, -flat_age, -remaining_lease_years)
+}
+
+# Apply cleaning and feature engineering
+train_clean <- train_raw %>% clean_street_names() %>% engineer_features()
+test_clean <- test_raw %>% clean_street_names() %>% engineer_features()
+```
+
+Feature engineering transforms categorical variables (storey_range) into ordinal numeric variables and calculates remaining lease in months, which are more suitable for regression models.
+
+## Geocoding with Error Handling
+
+```{r}
+#| label: improved-geocoding
+
+# Improved geocoding function with error handling
+geocode_safe <- function(block, streetname, max_retries = 3) {
+  base_url <- "https://onemap.gov.sg/api/common/elastic/search"
+  address <- paste(block, streetname, sep = " ")
+  query <- list("searchVal" = address,
+                "returnGeom" = "Y",
+                "getAddrDetails" = "N",
+                "pageNum" = "1")
+  
+  for (attempt in 1:max_retries) {
+    tryCatch({
+      res <- GET(base_url, query = query)
+      if (res$status_code == 200) {
+        restext <- content(res, as = "text")
+        output <- fromJSON(restext)
+        
+        if (!is.null(output$results) && nrow(output$results) > 0) {
+          return(data.frame(
+            LATITUDE = as.numeric(output$results$LATITUDE[1]),
+            LONGITUDE = as.numeric(output$results$LONGITUDE[1])
+          ))
+        }
+      }
+    }, error = function(e) {
+      if (attempt == max_retries) {
+        warning(paste("Failed to geocode:", address))
+        return(data.frame(LATITUDE = NA, LONGITUDE = NA))
+      }
+      Sys.sleep(0.5) # Wait before retry
+    })
+  }
+  return(data.frame(LATITUDE = NA, LONGITUDE = NA))
+}
+
+# Sample data for computational efficiency
+set.seed(1234)
+train_sample <- train_clean %>% sample_n(1000)  # Increased sample size
+test_sample <- test_clean %>% sample_n(500)    
+
+# Geocode training data
+train_sample$LATITUDE <- NA
+train_sample$LONGITUDE <- NA
+
+cat("Geocoding training data...\n")
+pb <- progress_bar$new(total = nrow(train_sample))
+for(i in 1:nrow(train_sample)) {
+  temp_output <- geocode_safe(train_sample$block[i], train_sample$street_name[i])
+  train_sample$LATITUDE[i] <- temp_output$LATITUDE
+  train_sample$LONGITUDE[i] <- temp_output$LONGITUDE
+  pb$tick()
+}
+
+# Geocode test data
+test_sample$LATITUDE <- NA
+test_sample$LONGITUDE <- NA
+
+cat("Geocoding test data...\n")
+pb <- progress_bar$new(total = nrow(test_sample))
+for(i in 1:nrow(test_sample)) {
+  temp_output <- geocode_safe(test_sample$block[i], test_sample$street_name[i])
+  test_sample$LATITUDE[i] <- temp_output$LATITUDE
+  test_sample$LONGITUDE[i] <- temp_output$LONGITUDE
+  pb$tick()
+}
+
+# Remove failed geocoding attempts
+train_sample <- train_sample %>% filter(!is.na(LATITUDE))
+test_sample <- test_sample %>% filter(!is.na(LATITUDE))
+
+cat("Successfully geocoded training samples:", nrow(train_sample), "\n")
+cat("Successfully geocoded test samples:", nrow(test_sample), "\n")
+```
+;
+
+
+
