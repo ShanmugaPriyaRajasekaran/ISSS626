@@ -335,5 +335,6 @@ huff_share_wider <- huff_share %>%
   select(VILLCODE, Store_CD, p_ij) %>%
     pivot_wider(names_from = Store_CD, 
                 values_from = p_ij)
+
 ```
 
