@@ -43,7 +43,7 @@ Store_sales_data.csv provides store sales data
 
 H_CNT - Number of household
 P_CNT - Total population count
-M_CNT - Male population
+M_CNT - Male population 
 F_CNT - Female population count
 
 ```{r}
@@ -89,6 +89,8 @@ summary(store_sales)
 
 ### Aggregating store sales
 
+Aggregation by Store code
+
 ```{r}
 store_sales_aggre <- store_sales %>%
   group_by(`Store Code`) %>%
@@ -99,6 +101,7 @@ store_sales_aggre <- store_sales %>%
 
 ### Relational join
 
+
 ```{r}
 stores <- stores %>%
   left_join(store_sales_aggre,
@@ -106,6 +109,8 @@ stores <- stores %>%
               Store_CD == `Store Code`)) %>%
   mutate(Store_size = 100)
 ```
+
+Summary just to check if there are any missing data
 
 ```{r}
 summary(stores)
@@ -118,12 +123,15 @@ glimpse(pop2019)
 ```{r}
 glimpse(village)
 ```
+Removing the "-" sign from the values
+
 ```{r}
 pop2019 <- pop2019 %>%
   mutate(V_ID = str_remove_all(
     V_ID, "-"))
 ```
 
+Append all the population figures to geometric figures
 ```{r}
 village <- village %>%
   left_join(pop2019,
@@ -132,9 +140,12 @@ village <- village %>%
 ```
 
 ### Check for missing or zero values
+
+There are 5 missing values , we need to tidy it up
 ```{r}
 summary(village)
 ```
+Removing the 5 missing records,
 ```{r}
 village <- village %>%
   filter(!is.na(P_CNT)) 
@@ -202,13 +213,14 @@ summary(interaction_matrix)
 
 ## Computing Huff model
 
+
 ```{r}
 huff_share <- huff.shares(
   interaction_matrix, "VILLCODE", "Store_CD", 
   "Store_size", "distance")
 ```
 
-### Trade area analysis for a single store
+### Trade area analysis for a single store TG
 ```{r}
 market_share <- huff_share %>%
   filter(Store_CD == "TG")
@@ -234,7 +246,44 @@ tm_shape(Trade_area) +
               fill.legend = tm_legend(
                 title = "Patronage Probability")) +
   tm_shape(selected_store) +
-    tm_dots(size = 0.3,
+    tm_dots(size = 0.5,
+            fill = "red",
+            col = "black") +
+  tm_title("Distribution of Patronage Probability of Store TG by village") +
+  tm_layout(frame = TRUE) +
+  tm_borders(fill_alpha = 0.5) +
+  tm_compass(type="8star", size = 2) +
+  tm_scalebar() +
+  tm_grid(alpha =0.2) 
+```
+
+### Trade area analysis for a single store BT
+```{r}
+market_share <- huff_share %>%
+  filter(Store_CD == "BT")
+```
+
+```{r}
+Trade_area <- village %>%
+  left_join(market_share)
+```
+
+```{r}
+selected_store <- stores %>%
+  filter(Store_CD == "BT")
+```
+
+```{r}
+tm_shape(Trade_area) +
+  tm_polygons(fill = "p_ij",
+              fill.scale = tm_scale_intervals(
+                style = "quantile", 
+                n = 10,
+                values = "brewer.blues"),
+              fill.legend = tm_legend(
+                title = "Patronage Probability")) +
+  tm_shape(selected_store) +
+    tm_dots(size = 0.5,
             fill = "red",
             col = "black") +
   tm_title("Distribution of Patronage Probability of Store BT by village") +
@@ -244,6 +293,10 @@ tm_shape(Trade_area) +
   tm_scalebar() +
   tm_grid(alpha =0.2) 
 ```
+
+
+
+
 ###  Store sales analysis
 
 ```{r}
