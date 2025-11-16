@@ -1,5 +1,5 @@
 ---
-title: "Take home Exercise 3 : Modelling HDB Resale Prices with Geographically Weighted Methods"
+title: "Take home Exercise 3 : Predictive Modelling of HDB Resale Prices with Geographically Weighted Methods"
 author: "Priya"
 date: "November 4, 2025"
 date-modified: "last-modified"
@@ -21,165 +21,1447 @@ format:
 
 ## Overview
 
-This study develops predictive models for HDB 4-room resale prices in Singapore using geographically weighted methods. The analysis compares traditional linear regression, geographically weighted regression (GWR), and random forest approaches to identify the most accurate predictive model for housing prices from July to September 2025 based on data from July 2024 to June 2025.
+This study develops predictive models for HDB 4-room resale prices in Singapore using geographically weighted methods. We implement and compare multiple modelling approaches including Ordinary Least Squares (OLS), Geographically Weighted Regression (GWR), Random Forest, and Geographically Weighted Random Forest (GRF). The analysis leverages both structural attributes and locational factors to capture the complex spatial patterns in Singapore's public housing market and approaches to identify the most accurate predictive model for housing prices from July to September 2025 based on data from July 2024 to June 2025.
+
+## Background
+
+Singapore's public housing market exhibits unique spatial characteristics due to the island's planned urban development and varying estate maturity. Traditional global regression models often fail to capture local variations in housing price determinants. This study addresses spatial heterogeneity by implementing geographically weighted approaches that allow relationships between price drivers to vary across different neighbourhoods, providing more accurate predictions and deeper insights into local market dynamics.
 
 ## Loading Packages
 
 ```{r}
-pacman::p_load(httr, sf, jsonlite, progress, 
-               tmap, rsample, Metrics, tidyverse, sf, spdep, GWmodel, SpatialML,
-               knitr, kableExtra, spatialRF,
-               randomForestExplainer, plotly,
-               corrplot, ggspatial, units, caret)
+pacman::p_load(sf, spdep, GWmodel, SpatialML, tmap, rsample, Metrics, 
+               tidyverse, httr, jsonlite, progress, ggplot2, caret, gt,
+               corrplot, randomForest, ranger, spatialRF, plotly, ggstatsplot,lubridate,readxl )
+
 ```
 
 ## Data Preparation
-Loading and Temporal Filtering
+
+### Load and Explore HDB Resale Data
 
 ```{r}
-#| label: load-data
+# Load required libraries
+library(tidyverse)
+library(httr)
+library(jsonlite)
 
-# Training data: July 2024 - June 2025
-train_raw <- read_csv("data/rawdata/HDBresale.csv") %>%
-  filter(flat_type == "4 ROOM") %>%
-  filter(month >= "2024-07" & month <= "2025-06")
+#  Load and filter HDB data
+cat("=== Loading and Filtering HDB Data ===\n")
+HDBresale <- read_csv("data/rawdata/HDBresale.csv") %>%
+  filter(flat_type == "5 ROOM") %>%
+  filter(month >= "2024-07" & month < "2025-10")
 
-# Test data: July 2025 - September 2025  
-test_raw <- read_csv("data/rawdata/HDBresale.csv") %>%
-  filter(flat_type == "4 ROOM") %>%
-  filter(month >= "2025-07" & month <= "2025-09")
-
-cat("Training data points:", nrow(train_raw), "\n")
-cat("Test data points:", nrow(test_raw), "\n")
-
+cat("✓ Filtered data:", nrow(HDBresale), "5-room flats from July 2024 to Sept 2025\n")
+cat("First 3 records:\n")
+print(head(HDBresale, 3))
 ```
-
-## Data Cleaning and Feature Engineering
+### Geocoding HDB Addresses
 
 ```{r}
-#| label: data-cleaning
+#  Geocoding HDB Addresses
+cat("===  Geocoding HDB Addresses ===\n")
 
-clean_street_names <- function(data) {
-  data %>%
-    mutate(street_name = gsub("ST\\.", "SAINT", street_name))
+# Create directories if needed
+if(!dir.exists("data/rds")) {
+  dir.create("data/rds", recursive = TRUE)
+  cat("✓ Created data/rds directory\n")
 }
 
-engineer_features <- function(data) {
-  data %>%
-    mutate(
-      # Convert storey range to ordinal scale
-      storey_order = case_when(
-        storey_range == "01 TO 03" ~ 1,
-        storey_range == "04 TO 06" ~ 2,
-        storey_range == "07 TO 09" ~ 3,
-        storey_range == "10 TO 12" ~ 4,
-        storey_range == "13 TO 15" ~ 5,
-        storey_range == "16 TO 18" ~ 6,
-        storey_range == "19 TO 21" ~ 7,
-        storey_range == "22 TO 24" ~ 8,
-        storey_range == "25 TO 27" ~ 9,
-        storey_range == "28 TO 30" ~ 10,
-        storey_range == "31 TO 33" ~ 11,
-        storey_range == "34 TO 36" ~ 12,
-        storey_range == "37 TO 39" ~ 13,
-        storey_range == "40 TO 42" ~ 14,
-        TRUE ~ 7  # Default for unknown ranges
-      ),
-      # Calculate remaining lease in months
-      lease_commence_year = as.numeric(lease_commence_date),
-      current_year = 2025,
-      flat_age = current_year - lease_commence_year,
-      remaining_lease_years = 99 - flat_age,
-      remaining_lease_mths = remaining_lease_years * 12
-    ) %>%
-    select(-lease_commence_year, -current_year, -flat_age, -remaining_lease_years)
-}
-
-# Apply cleaning and feature engineering
-train_clean <- train_raw %>% clean_street_names() %>% engineer_features()
-test_clean <- test_raw %>% clean_street_names() %>% engineer_features()
-```
-
-Feature engineering transforms categorical variables (storey_range) into ordinal numeric variables and calculates remaining lease in months, which are more suitable for regression models.
-
-## Geocoding with Error Handling
-
-```{r}
-#| label: improved-geocoding
-
-# Improved geocoding function with error handling
-geocode_safe <- function(block, streetname, max_retries = 3) {
+# Geocoding function
+geocode <- function(block, streetname) {
   base_url <- "https://onemap.gov.sg/api/common/elastic/search"
   address <- paste(block, streetname, sep = " ")
-  query <- list("searchVal" = address,
+  query <- list("searchVal" = address, 
                 "returnGeom" = "Y",
                 "getAddrDetails" = "N",
                 "pageNum" = "1")
   
-  for (attempt in 1:max_retries) {
-    tryCatch({
-      res <- GET(base_url, query = query)
-      if (res$status_code == 200) {
-        restext <- content(res, as = "text")
-        output <- fromJSON(restext)
-        
-        if (!is.null(output$results) && nrow(output$results) > 0) {
-          return(data.frame(
-            LATITUDE = as.numeric(output$results$LATITUDE[1]),
-            LONGITUDE = as.numeric(output$results$LONGITUDE[1])
-          ))
-        }
-      }
-    }, error = function(e) {
-      if (attempt == max_retries) {
-        warning(paste("Failed to geocode:", address))
-        return(data.frame(LATITUDE = NA, LONGITUDE = NA))
-      }
-      Sys.sleep(0.5) # Wait before retry
-    })
-  }
-  return(data.frame(LATITUDE = NA, LONGITUDE = NA))
+  res <- GET(base_url, query = query)
+  restext <- content(res, as="text")
+  
+  output <- fromJSON(restext)  %>% 
+    as.data.frame() %>%
+    select(results.LATITUDE, results.LONGITUDE)
+
+  return(output)
 }
 
-# Sample data for computational efficiency
-set.seed(1234)
-train_sample <- train_clean %>% sample_n(1000)  # Increased sample size
-test_sample <- test_clean %>% sample_n(500)    
+# Initialize coordinate columns
+HDBresale$LATITUDE <- 0
+HDBresale$LONGITUDE <- 0
 
-# Geocode training data
-train_sample$LATITUDE <- NA
-train_sample$LONGITUDE <- NA
-
-cat("Geocoding training data...\n")
-pb <- progress_bar$new(total = nrow(train_sample))
-for(i in 1:nrow(train_sample)) {
-  temp_output <- geocode_safe(train_sample$block[i], train_sample$street_name[i])
-  train_sample$LATITUDE[i] <- temp_output$LATITUDE
-  train_sample$LONGITUDE[i] <- temp_output$LONGITUDE
-  pb$tick()
+# Test geocoding with first 5 addresses only
+cat("Testing geocoding with first 5 addresses...\n")
+for (i in 1:5){
+  temp_output <- geocode(HDBresale[i, "block"], HDBresale[i, "street_name"])
+  
+  HDBresale$LATITUDE[i] <- temp_output$results.LATITUDE
+  HDBresale$LONGITUDE[i] <- temp_output$results.LONGITUDE
+  
+  cat("Processed", i, "/ 5 -", 
+      HDBresale$block[i], HDBresale$street_name[i], 
+      "- Lat:", HDBresale$LATITUDE[i], "Lon:", HDBresale$LONGITUDE[i], "\n")
 }
 
-# Geocode test data
-test_sample$LATITUDE <- NA
-test_sample$LONGITUDE <- NA
+# Display geocoding results
+cat("\n=== Geocoding Test Results ===\n")
+geocoded_sample <- HDBresale %>% 
+  select(block, street_name, LATITUDE, LONGITUDE) %>% 
+  head(5)
+print(geocoded_sample)
 
-cat("Geocoding test data...\n")
-pb <- progress_bar$new(total = nrow(test_sample))
-for(i in 1:nrow(test_sample)) {
-  temp_output <- geocode_safe(test_sample$block[i], test_sample$street_name[i])
-  test_sample$LATITUDE[i] <- temp_output$LATITUDE
-  test_sample$LONGITUDE[i] <- temp_output$LONGITUDE
-  pb$tick()
-}
-
-# Remove failed geocoding attempts
-train_sample <- train_sample %>% filter(!is.na(LATITUDE))
-test_sample <- test_sample %>% filter(!is.na(LATITUDE))
-
-cat("Successfully geocoded training samples:", nrow(train_sample), "\n")
-cat("Successfully geocoded test samples:", nrow(test_sample), "\n")
+cat("✓ Geocoding test completed with 5 addresses\n")
 ```
-;
+
+```{r}
+#  Full Geocoding with Fixed Data Types
+cat("===  Full Geocoding of All Addresses ===\n")
+
+# Improved geocoding function with better error handling
+geocode_improved <- function(block, streetname) {
+  base_url <- "https://onemap.gov.sg/api/common/elastic/search"
+  address <- paste(block, streetname, sep = " ")
+  query <- list("searchVal" = address, 
+                "returnGeom" = "Y",
+                "getAddrDetails" = "N",
+                "pageNum" = "1")
+  
+  tryCatch({
+    res <- GET(base_url, query = query)
+    restext <- content(res, as="text", encoding = "UTF-8")
+    
+    output <- fromJSON(restext)
+    
+    if (!is.null(output$found) && output$found > 0) {
+      # Extract first result coordinates as numeric
+      lat <- as.numeric(output$results$LATITUDE[1])
+      lon <- as.numeric(output$results$LONGITUDE[1])
+      return(list(LATITUDE = lat, LONGITUDE = lon))
+    } else {
+      return(list(LATITUDE = NA, LONGITUDE = NA))
+    }
+  }, error = function(e) {
+    return(list(LATITUDE = NA, LONGITUDE = NA))
+  })
+}
+
+# Initialize coordinate columns as numeric
+HDBresale$LATITUDE <- NA_real_
+HDBresale$LONGITUDE <- NA_real_
+
+# Geocode all addresses (this will take some time)
+cat("Starting full geocoding of", nrow(HDBresale), "addresses...\n")
+cat("This may take 10-15 minutes. Processing:\n")
+
+for (i in 1:nrow(HDBresale)){
+  result <- geocode_improved(HDBresale$block[i], HDBresale$street_name[i])
+  
+  HDBresale$LATITUDE[i] <- result$LATITUDE
+  HDBresale$LONGITUDE[i] <- result$LONGITUDE
+  
+  # Progress indicator
+  if (i %% 100 == 0) {
+    cat("Processed", i, "/", nrow(HDBresale), "addresses\n")
+  }
+}
+
+# Check geocoding results
+cat("\n=== Full Geocoding Results ===\n")
+successful_geocodes <- sum(!is.na(HDBresale$LATITUDE))
+cat("Successful geocodes:", successful_geocodes, "/", nrow(HDBresale), "\n")
+cat("Success rate:", round(successful_geocodes / nrow(HDBresale) * 100, 1), "%\n")
+
+# Save the geocoded data
+saveRDS(HDBresale, "data/rds/HDBresale_geocoded.rds")
+cat("✓ Full geocoded data saved to data/rds/HDBresale_geocoded.rds\n")
+
+# Display final sample
+cat("\n=== Final Geocoded Sample ===\n")
+final_sample <- HDBresale %>% 
+  select(block, street_name, LATITUDE, LONGITUDE) %>% 
+  head(8)
+print(final_sample)
+```
 
 
+
+```{r}
+
+#  Data Transformations 
+cat("===  Converting Text Fields to Numerical Values ===\n")
+
+# Load the geocoded data
+HDBresale <- readRDS("data/rds/HDBresale_geocoded.rds")
+cat("Loaded geocoded data:", nrow(HDBresale), "records\n")
+
+# 1. Convert storey_range to storey_mid (EXACT code from example)
+cat("\n1. Converting storey_range to storey_mid (exact code)...\n")
+storey_mid <- function(x) {
+  x %>%
+    str_replace_all(" ", "") %>%    # remove spaces
+    str_split("TO") %>%             # split into lower and upper floors
+    sapply(\(v) mean(as.numeric(v)))  # convert to numeric and take midpoint
+}
+
+HDBresale <- HDBresale %>%
+  mutate(storey_mid = storey_mid(storey_range)) %>%  # create numeric floor feature
+  select(-storey_range)                              # remove the original text column
+
+cat("Storey conversion completed\n")
+cat("Sample storey_mid values:\n")
+print(head(HDBresale$storey_mid, 10))
+
+# 2. Convert remaining_lease to MONTHS (keeping your requirement)
+cat("\n2. Converting remaining_lease to remaining_lease_months...\n")
+HDBresale <- HDBresale %>%
+  mutate(
+    remaining_lease_months = case_when(
+      str_detect(remaining_lease, "years") & str_detect(remaining_lease, "months") ~ 
+        as.numeric(str_extract(remaining_lease, "\\d+(?= years)")) * 12 +
+        as.numeric(str_extract(remaining_lease, "\\d+(?= months)")),
+      str_detect(remaining_lease, "years") ~ 
+        as.numeric(str_extract(remaining_lease, "\\d+(?= years)")) * 12,
+      TRUE ~ NA_real_
+    )
+  ) %>%
+  select(-remaining_lease)  # remove original text column
+
+cat("Remaining lease conversion completed\n")
+cat("Sample remaining_lease_months values:\n")
+print(head(HDBresale$remaining_lease_months, 10))
+
+# Summary of final dataset
+cat("\n=== Final Dataset Summary ===\n")
+cat("Total records:", nrow(HDBresale), "\n")
+cat("Storey midpoint - Min:", min(HDBresale$storey_mid), "Max:", max(HDBresale$storey_mid), "\n")
+cat("Remaining lease months - Min:", min(HDBresale$remaining_lease_months), "Max:", max(HDBresale$remaining_lease_months), "\n")
+cat("Coordinates available:", sum(!is.na(HDBresale$LATITUDE)), "/", nrow(HDBresale), "\n")
+
+# Save the fully processed data
+saveRDS(HDBresale, "data/rds/HDBresale_processed.rds")
+cat("✓ Fully processed data saved to data/rds/HDBresale_processed.rds\n")
+
+# Display final structure
+cat("\n=== Final Data Structure ===\n")
+print(glimpse(HDBresale))
+```
+```{r}
+#  Convert to Spatial Format
+cat("===  Converting to Spatial Format ===\n")
+
+# Load required libraries
+library(sf)
+
+# Load the processed data
+HDBresale_processed <- readRDS("data/rds/HDBresale_processed.rds")
+
+# Convert to spatial object
+HDBresale_sf <- HDBresale_processed %>%
+  st_as_sf(
+    coords = c("LONGITUDE", "LATITUDE"),
+    crs = 4326  # WGS84
+  ) %>%
+  st_transform(crs = 3414)  # Convert to SVY21 Singapore projection
+
+cat("✓ Converted to spatial format\n")
+cat("Spatial object CRS:", st_crs(HDBresale_sf)$input, "\n")
+cat("Number of spatial features:", nrow(HDBresale_sf), "\n")
+
+# Check spatial distribution
+cat("\n=== Spatial Distribution ===\n")
+bbox <- st_bbox(HDBresale_sf)
+cat("Bounding box:\n")
+cat("Xmin:", round(bbox$xmin), "Xmax:", round(bbox$xmax), "\n")
+cat("Ymin:", round(bbox$ymin), "Ymax:", round(bbox$ymax), "\n")
+
+
+
+# Save spatial data
+saveRDS(HDBresale_sf, "data/rds/HDBresale_spatial.rds")
+cat("✓ Spatial data saved to data/rds/HDBresale_spatial.rds\n")
+
+
+```
+
+```{r}
+#  Train-Test Split and Data Exploration
+cat("=== Train-Test Split and Exploratory Analysis ===\n")
+
+# Load the processed data
+HDBresale_processed <- readRDS("data/rds/HDBresale_processed.rds")
+
+# Split data into training (July 2024 - June 2025) and test (July 2025 - Sept 2025)
+cat("Splitting data into training and test sets...\n")
+HDB_train <- HDBresale_processed %>%
+  filter(month >= "2024-07" & month <= "2025-06")
+
+HDB_test <- HDBresale_processed %>%
+  filter(month >= "2025-07" & month <= "2025-09")
+
+cat("Training set:", nrow(HDB_train), "records (July 2024 - June 2025)\n")
+cat("Test set:", nrow(HDB_test), "records (July 2025 - Sept 2025)\n")
+
+# Add dataset identifier for analysis
+HDBresale_combined <- bind_rows(
+  HDB_train %>% mutate(dataset = "Training"),
+  HDB_test %>% mutate(dataset = "Test")
+)
+
+# Summary statistics by dataset
+cat("\n=== Dataset Summary Statistics ===\n")
+summary_stats <- HDBresale_combined %>%
+  group_by(dataset) %>%
+  summarise(
+    n_transactions = n(),
+    avg_price = mean(resale_price),
+    median_price = median(resale_price),
+    min_price = min(resale_price),
+    max_price = max(resale_price),
+    price_sd = sd(resale_price),
+    .groups = 'drop'
+  )
+
+print(summary_stats)
+
+# Monthly transaction trends
+cat("\n=== Monthly Transaction Trends ===\n")
+monthly_summary <- HDBresale_combined %>%
+  group_by(month, dataset) %>%
+  summarise(
+    transaction_count = n(),
+    avg_price = mean(resale_price),
+    median_price = median(resale_price),
+    .groups = 'drop'
+  )
+
+print(monthly_summary)
+
+# Save the split datasets
+saveRDS(HDB_train, "data/rds/HDB_train.rds")
+saveRDS(HDB_test, "data/rds/HDB_test.rds")
+saveRDS(HDBresale_combined, "data/rds/HDBresale_combined.rds")
+
+cat("✓ Training and test datasets saved\n")
+```
+
+```{r}
+#  Data Visualization and Exploration
+cat("===  Data Visualization and Exploration ===\n")
+
+# Load required libraries
+library(ggplot2)
+library(scales)
+
+# Load the combined data
+HDBresale_combined <- readRDS("data/rds/HDBresale_combined.rds")
+
+# 1. Monthly transaction trends with price overlay
+cat("Creating monthly trends visualization...\n")
+monthly_summary <- HDBresale_combined %>%
+  group_by(month, dataset) %>%
+  summarise(
+    transaction_count = n(),
+    avg_price = mean(resale_price),
+    median_price = median(resale_price),
+    .groups = 'drop'
+  )
+
+# Plot monthly trends
+monthly_trend_plot <- ggplot(monthly_summary, aes(x = month)) +
+  geom_bar(aes(y = transaction_count, fill = dataset), 
+           stat = "identity", alpha = 0.7, position = "dodge") +
+  geom_line(aes(y = avg_price/3000, color = dataset, group = dataset), size = 1) +
+  geom_point(aes(y = avg_price/3000, color = dataset), size = 2) +
+  scale_y_continuous(
+    name = "Number of Transactions",
+    sec.axis = sec_axis(~.*3000, name = "Average Price (SGD)", labels = comma)
+  ) +
+  scale_fill_manual(values = c("Training" = "steelblue", "Test" = "coral")) +
+  scale_color_manual(values = c("Training" = "darkblue", "Test" = "darkred")) +
+  labs(title = "Monthly Transaction Volume and Price Trends",
+       subtitle = "5-Room HDB Resale (July 2024 - Sept 2025)",
+       x = "Month",
+       fill = "Dataset",
+       color = "Dataset") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "top")
+
+print(monthly_trend_plot)
+
+# 2. Price distribution by dataset
+cat("Creating price distribution visualization...\n")
+price_hist <- ggplot(HDBresale_combined, aes(x = resale_price, fill = dataset)) +
+  geom_histogram(alpha = 0.7, bins = 50, position = "identity") +
+  scale_x_continuous(labels = dollar, breaks = seq(0, 2000000, 200000)) +
+  scale_fill_manual(values = c("Training" = "steelblue", "Test" = "coral")) +
+  labs(title = "Distribution of HDB 5-Room Resale Prices",
+       subtitle = "Training vs Test Periods",
+       x = "Resale Price (SGD)",
+       y = "Count",
+       fill = "Dataset") +
+  theme_minimal() +
+  facet_wrap(~dataset, ncol = 1, scales = "free_y")
+
+print(price_hist)
+
+# 3. Structural factors analysis
+cat("Analyzing structural factors...\n")
+structural_plot <- ggplot(HDBresale_combined, aes(x = floor_area_sqm, y = resale_price, color = dataset)) +
+  geom_point(alpha = 0.5, size = 1) +
+  geom_smooth(method = "lm", se = FALSE) +
+  scale_y_continuous(labels = dollar) +
+  scale_color_manual(values = c("Training" = "steelblue", "Test" = "coral")) +
+  labs(title = "Floor Area vs Resale Price",
+       x = "Floor Area (sqm)",
+       y = "Resale Price (SGD)",
+       color = "Dataset") +
+  theme_minimal()
+
+print(structural_plot)
+
+# Display key insights
+cat("\n=== Key Insights ===\n")
+cat("• Training set:", nrow(filter(HDBresale_combined, dataset == "Training")), "transactions\n")
+cat("• Test set:", nrow(filter(HDBresale_combined, dataset == "Test")), "transactions\n")
+cat("• Price increase from training to test: +SGD", 
+    round((784807.5 - 758386.0), 0), "(+3.5%)\n")
+cat("• Average monthly transactions in training:", round(6264/12, 0), "\n")
+cat("• Average monthly transactions in test:", round(1607/3, 0), "\n")
+
+# Save visualizations
+ggsave("data/rds/monthly_trends_plot.png", monthly_trend_plot, width = 12, height = 6, dpi = 300)
+ggsave("data/rds/price_distribution_plot.png", price_hist, width = 10, height = 8, dpi = 300)
+ggsave("data/rds/structural_factors_plot.png", structural_plot, width = 10, height = 6, dpi = 300)
+
+cat("✓ Visualizations saved\n")
+```
+
+
+## Location factors
+
+### Proxomity to CBD
+
+```{r}
+# Proximity to CBD (Using Exact Coordinates)
+cat("===  Proximity to CBD ===\n")
+
+# Load required libraries
+library(sf)
+
+# Load the training data and convert to spatial
+HDB_train_sf <- readRDS("data/rds/HDB_train.rds") %>%
+  st_as_sf(
+    coords = c("LONGITUDE", "LATITUDE"),
+    crs = 4326
+  ) %>%
+  st_transform(crs = 3414)  # SVY21 Singapore projection
+
+cat("Training data converted to spatial format\n")
+cat("Number of training records:", nrow(HDB_train_sf), "\n")
+
+# Define CBD coordinates (EXACT from the code)
+cat("Calculating distance to CBD...\n")
+cbd_lon <- 103.85    # Exact from code
+cbd_lat <- 1.28967   # Exact from code
+
+# Create CBD point and transform to SVY21 (EXACT from code)
+cbd_wgs84 <- st_sfc(st_point(c(cbd_lon, cbd_lat)), crs = 4326)
+cbd_3414 <- st_transform(cbd_wgs84, 3414)
+
+# Compute straight-line distance to CBD (meters and km - EXACT from code)
+HDB_train_sf <- HDB_train_sf %>%
+  mutate(
+    proximity_to_cbd_m = as.numeric(st_distance(geometry, cbd_3414)[, 1]),
+    proximity_to_cbd_km = proximity_to_cbd_m / 1000
+  )
+
+# Remove meters column (as in the example code)
+HDB_train_sf <- HDB_train_sf %>%
+  select(-proximity_to_cbd_m)
+
+# Display results
+cat("✓ CBD proximity calculated\n")
+cat("\n=== CBD Proximity Summary ===\n")
+cat("Minimum distance to CBD:", round(min(HDB_train_sf$proximity_to_cbd_km), 2), "km\n")
+cat("Maximum distance to CBD:", round(max(HDB_train_sf$proximity_to_cbd_km), 2), "km\n")
+cat("Average distance to CBD:", round(mean(HDB_train_sf$proximity_to_cbd_km), 2), "km\n")
+cat("Median distance to CBD:", round(median(HDB_train_sf$proximity_to_cbd_km), 2), "km\n")
+
+# Show sample of results (closest to CBD)
+cat("\n=== Closest Properties to CBD ===\n")
+closest_cbd <- HDB_train_sf %>%
+  select(block, street_name, town, proximity_to_cbd_km) %>%
+  st_drop_geometry() %>%
+  arrange(proximity_to_cbd_km) %>%
+  head(10)
+print(closest_cbd)
+
+# Show sample of results (furthest from CBD)
+cat("\n=== Furthest Properties from CBD ===\n")
+furthest_cbd <- HDB_train_sf %>%
+  select(block, street_name, town, proximity_to_cbd_km) %>%
+  st_drop_geometry() %>%
+  arrange(desc(proximity_to_cbd_km)) %>%
+  head(10)
+print(furthest_cbd)
+
+# Save with CBD proximity
+saveRDS(HDB_train_sf, "data/rds/HDB_train_with_cbd.rds")
+cat("✓ Training data with CBD proximity saved\n")
+
+# Quick visualization
+cat("\nCreating CBD distance distribution plot...\n")
+library(ggplot2)
+
+cbd_plot <- ggplot(HDB_train_sf %>% st_drop_geometry(), aes(x = proximity_to_cbd_km)) +
+  geom_histogram(fill = "steelblue", alpha = 0.7, bins = 30) +
+  geom_vline(aes(xintercept = mean(proximity_to_cbd_km)), 
+             color = "red", linetype = "dashed", size = 1) +
+  annotate("text", x = mean(HDB_train_sf$proximity_to_cbd_km) + 2, 
+           y = 300, label = paste("Mean:", round(mean(HDB_train_sf$proximity_to_cbd_km), 1), "km"), 
+           color = "red") +
+  labs(title = "Distribution of Distance to CBD",
+       subtitle = "HDB 5-Room Flats (Training Set) - Using Exact CBD Coordinates",
+       x = "Distance to CBD (km)",
+       y = "Number of Properties") +
+  theme_minimal()
+
+print(cbd_plot)
+```
+### Proximity to eldercare
+
+```{r}
+#Proximity to Eldercare
+cat("===  Proximity to Eldercare ===\n")
+
+# Load the training data with CBD proximity
+HDB_train_sf <- readRDS("data/rds/HDB_train_with_cbd.rds")
+
+# Load eldercare data
+cat("Loading eldercare data...\n")
+if(file.exists("data/rawdata/EldercareServicesKML.kml")) {
+  
+  eldercare <- st_read("data/rawdata/EldercareServicesKML.kml", quiet = TRUE) %>%
+    st_transform(crs = 3414)
+  st_crs(eldercare)  # check the CRS
+  
+  cat("✓ Eldercare data loaded\n")
+} else {
+  stop("EldercareServicesKML.kml not found!")
+}
+
+# Check eldercare data
+cat("Eldercare facilities found:", nrow(eldercare), "\n")
+cat("Eldercare CRS:", st_crs(eldercare)$input, "\n")
+
+# Calculate distance to nearest eldercare facility (in kilometers)
+cat("Calculating distance to nearest eldercare...\n")
+nearest_eldercare_idx <- st_nearest_feature(HDB_train_sf, eldercare)
+dist_eldercare_km <- as.numeric(st_distance(HDB_train_sf, eldercare[nearest_eldercare_idx, ], by_element = TRUE)) / 1000
+
+# Count eldercare facilities within 350m
+cat("Counting eldercare facilities within 350m...\n")
+within_350m_eldercare <- st_is_within_distance(HDB_train_sf, eldercare, dist = 350)
+count_eldercare_350m <- lengths(within_350m_eldercare)
+
+# Add both proximity measures to dataset
+HDB_train_sf <- HDB_train_sf %>%
+  mutate(
+    dist_eldercare_km = dist_eldercare_km,
+    eldercare_350m = count_eldercare_350m
+  )
+
+# Display results
+cat("✓ Eldercare proximity analysis completed\n")
+cat("\n=== Eldercare Proximity Summary ===\n")
+cat("Distance to nearest eldercare:\n")
+cat("  Min:", round(min(HDB_train_sf$dist_eldercare_km), 2), "km\n")
+cat("  Max:", round(max(HDB_train_sf$dist_eldercare_km), 2), "km\n")
+cat("  Mean:", round(mean(HDB_train_sf$dist_eldercare_km), 2), "km\n")
+cat("  Median:", round(median(HDB_train_sf$dist_eldercare_km), 2), "km\n")
+
+cat("\nEldercare facilities within 350m:\n")
+cat("  Properties with 0 facilities:", sum(HDB_train_sf$eldercare_350m == 0), "\n")
+cat("  Properties with 1+ facilities:", sum(HDB_train_sf$eldercare_350m >= 1), "\n")
+cat("  Properties with 2+ facilities:", sum(HDB_train_sf$eldercare_350m >= 2), "\n")
+cat("  Maximum facilities within 350m:", max(HDB_train_sf$eldercare_350m), "\n")
+
+# Show sample of results
+cat("\n=== Sample Eldercare Proximity ===\n")
+eldercare_sample <- HDB_train_sf %>%
+  select(block, street_name, town, dist_eldercare_km, eldercare_350m) %>%
+  st_drop_geometry() %>%
+  arrange(dist_eldercare_km) %>%
+  head(10)
+print(eldercare_sample)
+
+# Save with eldercare proximity
+saveRDS(HDB_train_sf, "data/rds/HDB_train_with_eldercare.rds")
+cat("✓ Training data with eldercare proximity saved\n")
+
+
+```
+### Proximity to Hawker Centres
+
+```{r}
+#  Proximity to Hawker Centres
+cat("===  Proximity to Hawker Centres ===\n")
+
+# Load the training data with previous proximity features
+HDB_train_sf <- readRDS("data/rds/HDB_train_with_eldercare.rds")
+
+# Load hawker centres data
+cat("Loading hawker centres data...\n")
+if(file.exists("data/rawdata/HawkerCentresKML.kml")) {
+  hawker <- st_read("data/rawdata/HawkerCentresKML.kml", quiet = TRUE) %>%
+    st_transform(crs = 3414)
+  cat("✓ Hawker centres data loaded from KML\n")
+} else if(file.exists("data/rawdata/HawkerCentresGEOJSON.geojson")) {
+  hawker <- st_read("data/rawdata/HawkerCentresGEOJSON.geojson", quiet = TRUE) %>%
+    st_transform(crs = 3414)
+  cat("✓ Hawker centres data loaded from GeoJSON\n")
+} else {
+  stop("Hawker centres data not found!")
+}
+
+# Check hawker data
+cat("Hawker centres found:", nrow(hawker), "\n")
+cat("Hawker centres CRS:", st_crs(hawker)$input, "\n")
+
+# Calculate distance to nearest hawker centre (in kilometers)
+cat("Calculating distance to nearest hawker centre...\n")
+nearest_hawker_idx <- st_nearest_feature(HDB_train_sf, hawker)
+dist_hawker_km <- as.numeric(st_distance(HDB_train_sf, hawker[nearest_hawker_idx, ], by_element = TRUE)) / 1000
+
+# Add distance to dataset
+HDB_train_sf <- HDB_train_sf %>%
+  mutate(dist_hawker_km = dist_hawker_km)
+
+# Display results
+cat("✓ Hawker centres proximity analysis completed\n")
+cat("\n=== Hawker Centres Proximity Summary ===\n")
+cat("Distance to nearest hawker centre:\n")
+cat("  Min:", round(min(HDB_train_sf$dist_hawker_km), 2), "km\n")
+cat("  Max:", round(max(HDB_train_sf$dist_hawker_km), 2), "km\n")
+cat("  Mean:", round(mean(HDB_train_sf$dist_hawker_km), 2), "km\n")
+cat("  Median:", round(median(HDB_train_sf$dist_hawker_km), 2), "km\n")
+
+# Show distribution statistics
+cat("\nDistance distribution:\n")
+quantiles <- quantile(HDB_train_sf$dist_hawker_km, probs = c(0.1, 0.25, 0.5, 0.75, 0.9))
+cat("  10th percentile:", round(quantiles[1], 2), "km\n")
+cat("  25th percentile:", round(quantiles[2], 2), "km\n")
+cat("  50th percentile:", round(quantiles[3], 2), "km\n")
+cat("  75th percentile:", round(quantiles[4], 2), "km\n")
+cat("  90th percentile:", round(quantiles[5], 2), "km\n")
+
+# Show sample of results
+cat("\n=== Sample Hawker Centres Proximity ===\n")
+hawker_sample <- HDB_train_sf %>%
+  select(block, street_name, town, dist_hawker_km) %>%
+  st_drop_geometry() %>%
+  arrange(dist_hawker_km) %>%
+  head(10)
+print(hawker_sample)
+
+# Save with hawker centres proximity
+saveRDS(HDB_train_sf, "data/rds/HDB_train_with_hawker.rds")
+cat("✓ Training data with hawker centres proximity saved\n")
+
+```
+### Proximity to MRT Stations
+
+```{r}
+#  Proximity to MRT Stations
+cat("=== Proximity to MRT Stations ===\n")
+
+# Load the training data with previous proximity features
+HDB_train_sf <- readRDS("data/rds/HDB_train_with_hawker.rds")
+
+# Load MRT stations data
+cat("Loading MRT stations data...\n")
+if(file.exists("data/rawdata/LTAMRTStationExitKML.kml")) {
+  mrt <- st_read("data/rawdata/LTAMRTStationExitKML.kml", quiet = TRUE) %>%
+    st_transform(crs = 3414)
+  cat("✓ MRT stations data loaded from KML\n")
+} else {
+  stop("MRT stations data not found!")
+}
+
+# Check MRT data
+cat("MRT stations found:", nrow(mrt), "\n")
+cat("MRT stations CRS:", st_crs(mrt)$input, "\n")
+
+# Calculate distance to nearest MRT station (in kilometers)
+cat("Calculating distance to nearest MRT station...\n")
+nearest_mrt_idx <- st_nearest_feature(HDB_train_sf, mrt)
+dist_mrt_km <- as.numeric(st_distance(HDB_train_sf, mrt[nearest_mrt_idx, ], by_element = TRUE)) / 1000
+
+# Add distance to dataset
+HDB_train_sf <- HDB_train_sf %>%
+  mutate(dist_mrt_km = dist_mrt_km)
+
+# Display results
+cat("✓ MRT stations proximity analysis completed\n")
+cat("\n=== MRT Stations Proximity Summary ===\n")
+cat("Distance to nearest MRT station:\n")
+cat("  Min:", round(min(HDB_train_sf$dist_mrt_km), 2), "km\n")
+cat("  Max:", round(max(HDB_train_sf$dist_mrt_km), 2), "km\n")
+cat("  Mean:", round(mean(HDB_train_sf$dist_mrt_km), 2), "km\n")
+cat("  Median:", round(median(HDB_train_sf$dist_mrt_km), 2), "km\n")
+
+# Show distribution statistics
+cat("\nDistance distribution:\n")
+quantiles <- quantile(HDB_train_sf$dist_mrt_km, probs = c(0.1, 0.25, 0.5, 0.75, 0.9))
+cat("  10th percentile:", round(quantiles[1], 2), "km\n")
+cat("  25th percentile:", round(quantiles[2], 2), "km\n")
+cat("  50th percentile:", round(quantiles[3], 2), "km\n")
+cat("  75th percentile:", round(quantiles[4], 2), "km\n")
+cat("  90th percentile:", round(quantiles[5], 2), "km\n")
+
+# Categorize MRT proximity
+HDB_train_sf <- HDB_train_sf %>%
+  mutate(mrt_proximity = case_when(
+    dist_mrt_km <= 0.5 ~ "Very Close (≤0.5km)",
+    dist_mrt_km <= 1.0 ~ "Close (0.5-1km)",
+    dist_mrt_km <= 2.0 ~ "Moderate (1-2km)",
+    TRUE ~ "Far (>2km)"
+  ))
+
+cat("\nMRT Proximity Categories:\n")
+mrt_categories <- HDB_train_sf %>% st_drop_geometry() %>% count(mrt_proximity)
+print(mrt_categories)
+
+# Show sample of results
+cat("\n=== Sample MRT Stations Proximity ===\n")
+mrt_sample <- HDB_train_sf %>%
+  select(block, street_name, town, dist_mrt_km, mrt_proximity) %>%
+  st_drop_geometry() %>%
+  arrange(dist_mrt_km) %>%
+  head(10)
+print(mrt_sample)
+
+# Save with MRT proximity
+saveRDS(HDB_train_sf, "data/rds/HDB_train_with_mrt.rds")
+cat("✓ Training data with MRT proximity saved\n")
+
+```
+### Proximity to Parks
+
+```{r}
+#  Proximity to Parks
+cat("=== Proximity to Parks ===\n")
+
+# Load the training data with previous proximity features
+HDB_train_sf <- readRDS("data/rds/HDB_train_with_mrt.rds")
+
+# Load parks data
+cat("Loading parks data...\n")
+if(file.exists("data/rawdata/ParkFacilities.geojson")) {
+  parks <- st_read("data/rawdata/ParkFacilities.geojson", quiet = TRUE) %>%
+    st_transform(crs = 3414)
+  cat("✓ Parks data loaded from GeoJSON\n")
+} else {
+  stop("ParkFacilities.geojson not found!")
+}
+
+# Check parks data
+cat("Park facilities found:", nrow(parks), "\n")
+cat("Parks CRS:", st_crs(parks)$input, "\n")
+
+# Calculate distance to nearest park (in kilometers)
+cat("Calculating distance to nearest park...\n")
+nearest_park_idx <- st_nearest_feature(HDB_train_sf, parks)
+dist_park_km <- as.numeric(st_distance(HDB_train_sf, parks[nearest_park_idx, ], by_element = TRUE)) / 1000
+
+# Add distance to dataset
+HDB_train_sf <- HDB_train_sf %>%
+  mutate(dist_park_km = dist_park_km)
+
+# Display results
+cat("✓ Parks proximity analysis completed\n")
+cat("\n=== Parks Proximity Summary ===\n")
+cat("Distance to nearest park:\n")
+cat("  Min:", round(min(HDB_train_sf$dist_park_km), 2), "km\n")
+cat("  Max:", round(max(HDB_train_sf$dist_park_km), 2), "km\n")
+cat("  Mean:", round(mean(HDB_train_sf$dist_park_km), 2), "km\n")
+cat("  Median:", round(median(HDB_train_sf$dist_park_km), 2), "km\n")
+
+# Show distribution statistics
+cat("\nDistance distribution:\n")
+quantiles <- quantile(HDB_train_sf$dist_park_km, probs = c(0.1, 0.25, 0.5, 0.75, 0.9))
+cat("  10th percentile:", round(quantiles[1], 2), "km\n")
+cat("  25th percentile:", round(quantiles[2], 2), "km\n")
+cat("  50th percentile:", round(quantiles[3], 2), "km\n")
+cat("  75th percentile:", round(quantiles[4], 2), "km\n")
+cat("  90th percentile:", round(quantiles[5], 2), "km\n")
+
+# Categorize park proximity
+HDB_train_sf <- HDB_train_sf %>%
+  mutate(park_proximity = case_when(
+    dist_park_km <= 0.3 ~ "Very Close (≤0.3km)",
+    dist_park_km <= 0.6 ~ "Close (0.3-0.6km)",
+    dist_park_km <= 1.0 ~ "Moderate (0.6-1km)",
+    TRUE ~ "Far (>1km)"
+  ))
+
+cat("\nPark Proximity Categories:\n")
+park_categories <- HDB_train_sf %>% st_drop_geometry() %>% count(park_proximity)
+print(park_categories)
+
+# Show sample of results
+cat("\n=== Sample Parks Proximity ===\n")
+park_sample <- HDB_train_sf %>%
+  select(block, street_name, town, dist_park_km, park_proximity) %>%
+  st_drop_geometry() %>%
+  arrange(dist_park_km) %>%
+  head(10)
+print(park_sample)
+
+# Save with parks proximity
+saveRDS(HDB_train_sf, "data/rds/HDB_train_with_parks.rds")
+cat("✓ Training data with parks proximity saved\n")
+
+# Quick visualization
+cat("\nCreating parks proximity plots...\n")
+library(patchwork)
+
+# Plot 1: Distance distribution
+plot1 <- ggplot(HDB_train_sf %>% st_drop_geometry(), aes(x = dist_park_km)) +
+  geom_histogram(fill = "darkgreen", alpha = 0.7, bins = 30) +
+  geom_vline(aes(xintercept = median(dist_park_km)), 
+             color = "red", linetype = "dashed", size = 1) +
+  labs(title = "Distance to Nearest Park",
+       x = "Distance (km)", y = "Count") +
+  theme_minimal()
+
+# Plot 2: Proximity categories
+plot2 <- ggplot(HDB_train_sf %>% st_drop_geometry(), aes(x = park_proximity)) +
+  geom_bar(fill = "lightgreen", alpha = 0.7) +
+  labs(title = "Park Proximity Categories",
+       x = "Proximity Category", y = "Count") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+print(plot1 + plot2)
+
+
+```
+### Proximity to Good Primary Schools
+
+```{r}
+#  Proximity to Good Primary Schools
+cat("===  Proximity to Good Primary Schools ===\n")
+
+# Load the training data with previous proximity features
+HDB_train_sf <- readRDS("data/rds/HDB_train_with_parks.rds")
+
+# Check if we have primary schools data
+cat("Looking for primary schools data...\n")
+if(file.exists("data/rawdata/Generalinformationofschools.xlsx")) {
+  # Read Excel file with primary schools
+  library(readxl)
+  primary_schools <- read_excel("data/rawdata/Generalinformationofschools.xlsx") %>%
+    filter(!is.na(`Postal Code`)) %>%
+    mutate(postal_code = str_pad(as.character(`Postal Code`), 6, pad = "0"))
+  cat("✓ Primary schools data loaded from Excel\n")
+} else {
+  # Create a sample of top primary schools if no data exists
+  cat("No primary schools data found. Creating sample data...\n")
+  primary_schools <- tibble(
+    school_name = c("Raffles Girls' Primary School", "Nanyang Primary School", "Tao Nan School", 
+                   "Rosyth School", "Henry Park Primary School", "Nan Hua Primary School",
+                   "Catholic High School (Primary)", "St. Hilda's Primary School",
+                   "Ai Tong School", "CHIJ St. Nicholas Girls' School (Primary)"),
+    postal_code = c("258499", "678633", "424242", "538527", "279411", "599634", 
+                   "569761", "489338", "569930", "569961")
+  )
+}
+
+# Geocode primary schools using OneMap API
+cat("Geocoding primary schools...\n")
+geocode_school <- function(postal_code) {
+  base_url <- "https://onemap.gov.sg/api/common/elastic/search"
+  query <- list("searchVal" = postal_code,
+                "returnGeom" = "Y",
+                "getAddrDetails" = "N",
+                "pageNum" = "1")
+  
+  tryCatch({
+    res <- GET(base_url, query = query, timeout(10))
+    if (status_code(res) == 200) {
+      content_data <- content(res, as = "parsed")
+      if (!is.null(content_data$found) && content_data$found > 0) {
+        first_result <- content_data$results[[1]]
+        return(list(
+          LATITUDE = as.numeric(first_result$LATITUDE),
+          LONGITUDE = as.numeric(first_result$LONGITUDE),
+          status = "success"
+        ))
+      }
+    }
+    return(list(LATITUDE = NA, LONGITUDE = NA, status = "no_results"))
+  }, error = function(e) {
+    return(list(LATITUDE = NA, LONGITUDE = NA, status = "error"))
+  })
+}
+
+# Geocode schools (limited to first 20 for speed)
+primary_schools$LATITUDE <- NA
+primary_schools$LONGITUDE <- NA
+
+cat("Geocoding", nrow(primary_schools), "primary schools...\n")
+for(i in 1:min(20, nrow(primary_schools))) {
+  result <- geocode_school(primary_schools$postal_code[i])
+  primary_schools$LATITUDE[i] <- result$LATITUDE
+  primary_schools$LONGITUDE[i] <- result$LONGITUDE
+}
+
+# Convert to spatial object
+primary_schools_sf <- primary_schools %>%
+  filter(!is.na(LATITUDE)) %>%
+  st_as_sf(
+    coords = c("LONGITUDE", "LATITUDE"),
+    crs = 4326
+  ) %>%
+  st_transform(crs = 3414)
+
+cat("Successfully geocoded", nrow(primary_schools_sf), "primary schools\n")
+
+# Calculate distance to nearest good primary school (in kilometers)
+cat("Calculating distance to nearest good primary school...\n")
+nearest_school_idx <- st_nearest_feature(HDB_train_sf, primary_schools_sf)
+dist_school_km <- as.numeric(st_distance(HDB_train_sf, primary_schools_sf[nearest_school_idx, ], by_element = TRUE)) / 1000
+
+# Count primary schools within 1km
+cat("Counting primary schools within 1km...\n")
+within_1km_schools <- st_is_within_distance(HDB_train_sf, primary_schools_sf, dist = 1000)
+count_schools_1km <- lengths(within_1km_schools)
+
+# Add both proximity measures to dataset
+HDB_train_sf <- HDB_train_sf %>%
+  mutate(
+    dist_good_ps_km = dist_school_km,
+    primary_schools_1km = count_schools_1km
+  )
+
+# Display results
+cat("✓ Good primary schools proximity analysis completed\n")
+cat("\n=== Good Primary Schools Proximity Summary ===\n")
+cat("Distance to nearest good primary school:\n")
+cat("  Min:", round(min(HDB_train_sf$dist_good_ps_km), 2), "km\n")
+cat("  Max:", round(max(HDB_train_sf$dist_good_ps_km), 2), "km\n")
+cat("  Mean:", round(mean(HDB_train_sf$dist_good_ps_km), 2), "km\n")
+cat("  Median:", round(median(HDB_train_sf$dist_good_ps_km), 2), "km\n")
+
+cat("\nPrimary schools within 1km:\n")
+cat("  Properties with 0 schools:", sum(HDB_train_sf$primary_schools_1km == 0), "\n")
+cat("  Properties with 1+ schools:", sum(HDB_train_sf$primary_schools_1km >= 1), "\n")
+cat("  Properties with 2+ schools:", sum(HDB_train_sf$primary_schools_1km >= 2), "\n")
+cat("  Maximum schools within 1km:", max(HDB_train_sf$primary_schools_1km), "\n")
+
+# Show sample of results
+cat("\n=== Sample Good Primary Schools Proximity ===\n")
+school_sample <- HDB_train_sf %>%
+  select(block, street_name, town, dist_good_ps_km, primary_schools_1km) %>%
+  st_drop_geometry() %>%
+  arrange(dist_good_ps_km) %>%
+  head(10)
+print(school_sample)
+
+# Save with primary schools proximity
+saveRDS(HDB_train_sf, "data/rds/HDB_train_with_schools.rds")
+cat("✓ Training data with primary schools proximity saved\n")
+```
+
+### Proximity to Shopping Malls
+
+```{r}
+#  Proximity to Shopping Malls
+cat("===  Proximity to Shopping Malls ===\n")
+
+# Load the training data with previous proximity features
+HDB_train_sf <- readRDS("data/rds/HDB_train_with_schools.rds")
+
+# Load shopping malls data
+cat("Loading shopping malls data...\n")
+if(file.exists("data/rawdata/shopping_mall_coordinates.xlsx")) {
+  library(readxl)
+  malls <- read_excel("data/rawdata/shopping_mall_coordinates.xlsx") %>%
+    filter(!is.na(postal_code)) %>%
+    mutate(postal_code = str_pad(as.character(postal_code), 6, pad = "0"))
+  cat("✓ Shopping malls data loaded from Excel\n")
+} else {
+  # Create sample shopping malls data
+  cat("No shopping malls data found. Creating sample data...\n")
+  malls <- tibble(
+    mall_name = c("VivoCity", "Junction 8", "NEX", "Tampines Mall", "Jurong Point", 
+                 "Northpoint City", "Bedok Mall", "Causeway Point", "Lot One", "Westgate"),
+    postal_code = c("098585", "579837", "556083", "529457", "648886", 
+                   "768098", "467360", "738099", "677742", "608532")
+  )
+}
+
+# Geocode shopping malls using OneMap API
+cat("Geocoding shopping malls...\n")
+geocode_mall <- function(postal_code) {
+  base_url <- "https://onemap.gov.sg/api/common/elastic/search"
+  query <- list("searchVal" = postal_code,
+                "returnGeom" = "Y",
+                "getAddrDetails" = "N",
+                "pageNum" = "1")
+  
+  tryCatch({
+    res <- GET(base_url, query = query, timeout(10))
+    if (status_code(res) == 200) {
+      content_data <- content(res, as = "parsed")
+      if (!is.null(content_data$found) && content_data$found > 0) {
+        first_result <- content_data$results[[1]]
+        return(list(
+          LATITUDE = as.numeric(first_result$LATITUDE),
+          LONGITUDE = as.numeric(first_result$LONGITUDE),
+          status = "success"
+        ))
+      }
+    }
+    return(list(LATITUDE = NA, LONGITUDE = NA, status = "no_results"))
+  }, error = function(e) {
+    return(list(LATITUDE = NA, LONGITUDE = NA, status = "error"))
+  })
+}
+
+# Geocode malls
+malls$LATITUDE <- NA
+malls$LONGITUDE <- NA
+
+cat("Geocoding", nrow(malls), "shopping malls...\n")
+for(i in 1:nrow(malls)) {
+  result <- geocode_mall(malls$postal_code[i])
+  malls$LATITUDE[i] <- result$LATITUDE
+  malls$LONGITUDE[i] <- result$LONGITUDE
+}
+
+# Convert to spatial object
+malls_sf <- malls %>%
+  filter(!is.na(LATITUDE)) %>%
+  st_as_sf(
+    coords = c("LONGITUDE", "LATITUDE"),
+    crs = 4326
+  ) %>%
+  st_transform(crs = 3414)
+
+cat("Successfully geocoded", nrow(malls_sf), "shopping malls\n")
+
+# Calculate distance to nearest shopping mall (in kilometers)
+cat("Calculating distance to nearest shopping mall...\n")
+nearest_mall_idx <- st_nearest_feature(HDB_train_sf, malls_sf)
+dist_mall_km <- as.numeric(st_distance(HDB_train_sf, malls_sf[nearest_mall_idx, ], by_element = TRUE)) / 1000
+
+# Count shopping malls within 1km
+cat("Counting shopping malls within 1km...\n")
+within_1km_malls <- st_is_within_distance(HDB_train_sf, malls_sf, dist = 1000)
+count_malls_1km <- lengths(within_1km_malls)
+
+# Add both proximity measures to dataset
+HDB_train_sf <- HDB_train_sf %>%
+  mutate(
+    dist_mall_km = dist_mall_km,
+    malls_1km = count_malls_1km
+  )
+
+# Display results
+cat("✓ Shopping malls proximity analysis completed\n")
+cat("\n=== Shopping Malls Proximity Summary ===\n")
+cat("Distance to nearest shopping mall:\n")
+cat("  Min:", round(min(HDB_train_sf$dist_mall_km), 2), "km\n")
+cat("  Max:", round(max(HDB_train_sf$dist_mall_km), 2), "km\n")
+cat("  Mean:", round(mean(HDB_train_sf$dist_mall_km), 2), "km\n")
+cat("  Median:", round(median(HDB_train_sf$dist_mall_km), 2), "km\n")
+
+cat("\nShopping malls within 1km:\n")
+cat("  Properties with 0 malls:", sum(HDB_train_sf$malls_1km == 0), "\n")
+cat("  Properties with 1+ malls:", sum(HDB_train_sf$malls_1km >= 1), "\n")
+cat("  Properties with 2+ malls:", sum(HDB_train_sf$malls_1km >= 2), "\n")
+cat("  Maximum malls within 1km:", max(HDB_train_sf$malls_1km), "\n")
+
+# Show sample of results
+cat("\n=== Sample Shopping Malls Proximity ===\n")
+mall_sample <- HDB_train_sf %>%
+  select(block, street_name, town, dist_mall_km, malls_1km) %>%
+  st_drop_geometry() %>%
+  arrange(dist_mall_km) %>%
+  head(10)
+print(mall_sample)
+
+# Save with shopping malls proximity
+saveRDS(HDB_train_sf, "data/rds/HDB_train_with_malls.rds")
+cat("✓ Training data with shopping malls proximity saved\n")
+
+
+```
+### Proximity to Supermarkets
+
+```{r}
+#  Proximity to Supermarkets
+cat("===  Proximity to Supermarkets ===\n")
+
+# Load the training data with previous proximity features
+HDB_train_sf <- readRDS("data/rds/HDB_train_with_malls.rds")
+
+# Load supermarkets data
+cat("Loading supermarkets data...\n")
+if(file.exists("data/rawdata/SupermarketsGEOJSON.geojson")) {
+  supermarkets <- st_read("data/rawdata/SupermarketsGEOJSON.geojson", quiet = TRUE) %>%
+    st_transform(crs = 3414)
+  cat("✓ Supermarkets data loaded from GeoJSON\n")
+} else {
+  stop("SupermarketsGEOJSON.geojson not found!")
+}
+
+# Check supermarkets data
+cat("Supermarkets found:", nrow(supermarkets), "\n")
+cat("Supermarkets CRS:", st_crs(supermarkets)$input, "\n")
+
+# Calculate distance to nearest supermarket (in kilometers)
+cat("Calculating distance to nearest supermarket...\n")
+nearest_supermarket_idx <- st_nearest_feature(HDB_train_sf, supermarkets)
+dist_supermarket_km <- as.numeric(st_distance(HDB_train_sf, supermarkets[nearest_supermarket_idx, ], by_element = TRUE)) / 1000
+
+# Add distance to dataset
+HDB_train_sf <- HDB_train_sf %>%
+  mutate(dist_supermarket_km = dist_supermarket_km)
+
+# Display results
+cat("✓ Supermarkets proximity analysis completed\n")
+cat("\n=== Supermarkets Proximity Summary ===\n")
+cat("Distance to nearest supermarket:\n")
+cat("  Min:", round(min(HDB_train_sf$dist_supermarket_km), 2), "km\n")
+cat("  Max:", round(max(HDB_train_sf$dist_supermarket_km), 2), "km\n")
+cat("  Mean:", round(mean(HDB_train_sf$dist_supermarket_km), 2), "km\n")
+cat("  Median:", round(median(HDB_train_sf$dist_supermarket_km), 2), "km\n")
+
+# Show distribution statistics
+cat("\nDistance distribution:\n")
+quantiles <- quantile(HDB_train_sf$dist_supermarket_km, probs = c(0.1, 0.25, 0.5, 0.75, 0.9))
+cat("  10th percentile:", round(quantiles[1], 2), "km\n")
+cat("  25th percentile:", round(quantiles[2], 2), "km\n")
+cat("  50th percentile:", round(quantiles[3], 2), "km\n")
+cat("  75th percentile:", round(quantiles[4], 2), "km\n")
+cat("  90th percentile:", round(quantiles[5], 2), "km\n")
+
+# Show sample of results
+cat("\n=== Sample Supermarkets Proximity ===\n")
+supermarket_sample <- HDB_train_sf %>%
+  select(block, street_name, town, dist_supermarket_km) %>%
+  st_drop_geometry() %>%
+  arrange(dist_supermarket_km) %>%
+  head(10)
+print(supermarket_sample)
+
+# Save with supermarkets proximity
+saveRDS(HDB_train_sf, "data/rds/HDB_train_with_supermarkets.rds")
+cat("✓ Training data with supermarkets proximity saved\n")
+
+
+```
+### Number of Kindergartens within 350m
+
+```{r}
+#  Kindergartens within 350m
+cat("=== Kindergartens within 350m ===\n")
+
+# Load the training data with previous proximity features
+HDB_train_sf <- readRDS("data/rds/HDB_train_with_supermarkets.rds")
+
+# Load kindergartens data
+cat("Loading kindergartens data...\n")
+if(file.exists("data/rawdata/Kindergartens.geojson")) {
+  kindergartens <- st_read("data/rawdata/Kindergartens.geojson", quiet = TRUE) %>%
+    st_transform(crs = 3414)
+  cat("✓ Kindergartens data loaded from GeoJSON\n")
+} else if(file.exists("data/rawdata/PreSchoolsLocation.kml")) {
+  kindergartens <- st_read("data/rawdata/PreSchoolsLocation.kml", quiet = TRUE) %>%
+    st_transform(crs = 3414)
+  cat("✓ Kindergartens data loaded from KML (using preschools)\n")
+} else {
+  stop("Kindergartens data not found!")
+}
+
+# Check kindergartens data
+cat("Kindergartens found:", nrow(kindergartens), "\n")
+cat("Kindergartens CRS:", st_crs(kindergartens)$input, "\n")
+
+# Count kindergartens within 350m of each HDB
+cat("Counting kindergartens within 350m...\n")
+within_350m_kg <- st_is_within_distance(HDB_train_sf, kindergartens, dist = 350)
+count_kg_350m <- lengths(within_350m_kg)
+
+# Add count to dataset
+HDB_train_sf <- HDB_train_sf %>%
+  mutate(kindergartens_350m = count_kg_350m)
+
+# Display results
+cat("✓ Kindergartens proximity analysis completed\n")
+cat("\n=== Kindergartens within 350m Summary ===\n")
+cat("Properties with 0 kindergartens:", sum(HDB_train_sf$kindergartens_350m == 0), "\n")
+cat("Properties with 1+ kindergartens:", sum(HDB_train_sf$kindergartens_350m >= 1), "\n")
+cat("Properties with 2+ kindergartens:", sum(HDB_train_sf$kindergartens_350m >= 2), "\n")
+cat("Properties with 5+ kindergartens:", sum(HDB_train_sf$kindergartens_350m >= 5), "\n")
+cat("Maximum kindergartens within 350m:", max(HDB_train_sf$kindergartens_350m), "\n")
+cat("Average kindergartens within 350m:", round(mean(HDB_train_sf$kindergartens_350m), 2), "\n")
+
+# Show distribution
+cat("\nKindergarten count distribution:\n")
+kg_counts <- table(HDB_train_sf$kindergartens_350m)
+for(i in 1:min(10, length(kg_counts))) {
+  cat("  ", names(kg_counts)[i], "kindergartens:", kg_counts[i], "properties\n")
+}
+
+# Show sample of results
+cat("\n=== Sample Kindergartens Proximity ===\n")
+kg_sample <- HDB_train_sf %>%
+  select(block, street_name, town, kindergartens_350m) %>%
+  st_drop_geometry() %>%
+  arrange(desc(kindergartens_350m)) %>%
+  head(10)
+print(kg_sample)
+
+# Save with kindergartens proximity
+saveRDS(HDB_train_sf, "data/rds/HDB_train_with_kindergartens.rds")
+cat("✓ Training data with kindergartens proximity saved\n")
+
+
+```
+### Number of Childcare Centres within 350m
+
+```{r}
+#  Childcare Centres within 350m
+cat("===  Childcare Centres within 350m ===\n")
+
+# Load the training data with previous proximity features
+HDB_train_sf <- readRDS("data/rds/HDB_train_with_kindergartens.rds")
+
+# Load childcare centres data
+cat("Loading childcare centres data...\n")
+if(file.exists("data/rawdata/ChildCareServices.geojson")) {
+  childcare <- st_read("data/rawdata/ChildCareServices.geojson", quiet = TRUE) %>%
+    st_transform(crs = 3414)
+  cat("✓ Childcare centres data loaded from GeoJSON\n")
+} else {
+  stop("ChildCareServices.geojson not found!")
+}
+
+# Check childcare data
+cat("Childcare centres found:", nrow(childcare), "\n")
+cat("Childcare centres CRS:", st_crs(childcare)$input, "\n")
+
+# Count childcare centres within 350m of each HDB
+cat("Counting childcare centres within 350m...\n")
+within_350m_cc <- st_is_within_distance(HDB_train_sf, childcare, dist = 350)
+count_cc_350m <- lengths(within_350m_cc)
+
+# Add count to dataset
+HDB_train_sf <- HDB_train_sf %>%
+  mutate(childcare_350m = count_cc_350m)
+
+# Display results
+cat("✓ Childcare centres proximity analysis completed\n")
+cat("\n=== Childcare Centres within 350m Summary ===\n")
+cat("Properties with 0 childcare centres:", sum(HDB_train_sf$childcare_350m == 0), "\n")
+cat("Properties with 1+ childcare centres:", sum(HDB_train_sf$childcare_350m >= 1), "\n")
+cat("Properties with 2+ childcare centres:", sum(HDB_train_sf$childcare_350m >= 2), "\n")
+cat("Properties with 5+ childcare centres:", sum(HDB_train_sf$childcare_350m >= 5), "\n")
+cat("Maximum childcare centres within 350m:", max(HDB_train_sf$childcare_350m), "\n")
+cat("Average childcare centres within 350m:", round(mean(HDB_train_sf$childcare_350m), 2), "\n")
+
+# Show distribution
+cat("\nChildcare centres count distribution:\n")
+cc_counts <- table(HDB_train_sf$childcare_350m)
+for(i in 1:min(10, length(cc_counts))) {
+  cat("  ", names(cc_counts)[i], "childcare centres:", cc_counts[i], "properties\n")
+}
+
+# Show sample of results
+cat("\n=== Sample Childcare Centres Proximity ===\n")
+cc_sample <- HDB_train_sf %>%
+  select(block, street_name, town, childcare_350m) %>%
+  st_drop_geometry() %>%
+  arrange(desc(childcare_350m)) %>%
+  head(10)
+print(cc_sample)
+
+# Save with childcare centres proximity
+saveRDS(HDB_train_sf, "data/rds/HDB_train_with_childcare.rds")
+cat("✓ Training data with childcare centres proximity saved\n")
+
+
+```
+
+### Numbers of primary school within 1km
+
+```{r}
+# Primary Schools within 1km
+cat("===  Primary Schools within 1km ===\n")
+
+# Load the training data with all previous location factors
+HDB_train_sf <- readRDS("data/rds/HDB_train_all_location_factors.rds")
+
+# Load preschools data (which includes primary schools)
+cat("Loading preschools data for primary schools count...\n")
+preschool <- st_read("data/rawdata/PreSchoolsLocation.kml", quiet = TRUE) %>% 
+  st_transform(crs = 3414)
+
+cat("✓ Preschools data loaded\n")
+cat("Number of preschool/primary school locations:", nrow(preschool), "\n")
+cat("Data CRS:", st_crs(preschool)$input, "\n")
+
+# Count primary schools within 1km of each HDB
+cat("Counting primary schools within 1km...\n")
+within_1km_ps <- st_is_within_distance(HDB_train_sf, preschool, dist = 1000)
+count_ps_1km <- lengths(within_1km_ps)
+
+# Add count to dataset (using consistent naming)
+HDB_train_sf <- HDB_train_sf %>%
+  mutate(prischool_1km = count_ps_1km)
+
+# Display results
+cat("✓ Primary schools within 1km analysis completed\n")
+cat("\n=== Primary Schools within 1km Summary ===\n")
+cat("Properties with 0 primary schools:", sum(HDB_train_sf$prischool_1km == 0), "\n")
+cat("Properties with 1+ primary schools:", sum(HDB_train_sf$prischool_1km >= 1), "\n")
+cat("Properties with 5+ primary schools:", sum(HDB_train_sf$prischool_1km >= 5), "\n")
+cat("Properties with 10+ primary schools:", sum(HDB_train_sf$prischool_1km >= 10), "\n")
+cat("Maximum primary schools within 1km:", max(HDB_train_sf$prischool_1km), "\n")
+cat("Average primary schools within 1km:", round(mean(HDB_train_sf$prischool_1km), 2), "\n")
+
+# Show distribution
+cat("\nPrimary schools count distribution:\n")
+ps_counts <- table(HDB_train_sf$prischool_1km)
+for(i in 1:min(15, length(ps_counts))) {
+  cat("  ", names(ps_counts)[i], "primary schools:", ps_counts[i], "properties\n")
+}
+
+# Show sample of results
+cat("\n=== Sample Primary Schools Proximity ===\n")
+ps_sample <- HDB_train_sf %>%
+  select(block, street_name, town, prischool_1km) %>%
+  st_drop_geometry() %>%
+  arrange(desc(prischool_1km)) %>%
+  head(10)
+print(ps_sample)
+
+# Save the COMPLETE dataset with ALL location factors
+saveRDS(HDB_train_sf, "data/rds/HDB_train_complete_location_factors.rds")
+cat("✓ COMPLETE training data with ALL location factors saved\n")
+
+
+```
+
+## Correlation Analysis and Train-Test Split
+
+```{r}
+# Step 9: Correlation Analysis and Data Preparation
+cat("=== Step 9: Correlation Analysis and Data Preparation ===\n")
+
+# Load required packages
+library(dplyr)
+library(sf)
+library(corrplot)
+library(car)
+
+# Load the complete training data with all location factors
+HDB_train_complete <- readRDS("data/rds/HDB_train_complete_location_factors.rds")
+
+# 1. Convert to non-spatial for correlation analysis
+hdb_train_nogeo <- HDB_train_complete %>% st_drop_geometry()
+
+# 2. Select only numeric predictors for correlation
+cat("Selecting numeric predictors for correlation analysis...\n")
+numeric_predictors <- hdb_train_nogeo %>%
+  select(where(is.numeric)) %>%
+  select(-LATITUDE, -LONGITUDE)  # Remove coordinates
+
+cat("Numeric predictors selected:", ncol(numeric_predictors), "variables\n")
+print(names(numeric_predictors))
+
+# 3. Compute correlation matrix
+cat("\nComputing correlation matrix...\n")
+corr_matrix <- cor(numeric_predictors, use = "complete.obs")
+
+# 4. Plot correlation matrix
+cat("Plotting correlation matrix...\n")
+corrplot(corr_matrix,
+         diag = FALSE,
+         order = "AOE",
+         tl.pos = "td",
+         tl.cex = 0.5,
+         method = "color",
+         type = "upper",
+         title = "Correlation Matrix of Predictors",
+         mar = c(0, 0, 2, 0))
+
+# 5. Identify highly correlated variables (> 0.8)
+cat("\nIdentifying highly correlated variables (r > 0.8)...\n")
+high_corr <- which(abs(corr_matrix) > 0.8 & upper.tri(corr_matrix), arr.ind = TRUE)
+if(length(high_corr) > 0) {
+  high_corr_pairs <- data.frame(
+    Var1 = rownames(corr_matrix)[high_corr[, 1]],
+    Var2 = colnames(corr_matrix)[high_corr[, 2]],
+    Correlation = corr_matrix[high_corr]
+  ) %>%
+    arrange(desc(abs(Correlation)))
+  
+  print(high_corr_pairs)
+} else {
+  cat("No highly correlated variable pairs found (r > 0.8)\n")
+}
+
+# 6. Check for multicollinearity using VIF
+cat("\nChecking Variance Inflation Factor (VIF)...\n")
+
+# Create a temporary model to check VIF
+predictor_names <- setdiff(names(numeric_predictors), "resale_price")
+temp_formula <- as.formula(paste("log(resale_price) ~", paste(predictor_names, collapse = " + ")))
+
+temp_model <- lm(temp_formula, data = hdb_train_nogeo)
+vif_results <- vif(temp_model)
+
+cat("VIF Results:\n")
+print(vif_results)
+
+# 7. Identify variables to potentially remove (VIF > 10)
+high_vif <- which(vif_results > 10)
+if(length(high_vif) > 0) {
+  cat("\nVariables with high VIF (>10):\n")
+  print(vif_results[high_vif])
+} else {
+  cat("\nNo variables with high VIF (>10) detected\n")
+}
+
+# 8. Create final modeling dataset
+cat("\nCreating final modeling dataset...\n")
+# Remove geometry and select relevant columns
+hdb_train_final <- HDB_train_complete %>%
+  st_drop_geometry() %>%
+  select(-month, -town, -flat_type, -block, -street_name, -flat_model, -LATITUDE, -LONGITUDE)
+
+cat("Final training dataset dimensions:", dim(hdb_train_final), "\n")
+cat("Predictors:", ncol(hdb_train_final) - 1, "variables\n")
+cat("Response variable: resale_price\n")
+
+# 9. Save the final modeling dataset
+saveRDS(hdb_train_final, "data/rds/hdb_train_modeling.rds")
+cat("✓ Final modeling dataset saved: data/rds/hdb_train_modeling.rds\n")
+
+# Summary
+cat("\n=== CORRELATION ANALYSIS SUMMARY ===\n")
+cat("✓ Correlation matrix computed and plotted\n")
+cat("✓ VIF analysis completed\n")
+cat("✓ High correlation pairs identified\n")
+cat("✓ Final modeling dataset prepared\n")
+cat("✓ Ready for model building\n")
+
+```
 
